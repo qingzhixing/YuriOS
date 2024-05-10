@@ -2,6 +2,27 @@ org 0x7c00
 
 BaseOfStack equ 0x7c00
 
+; Loader 0x1000:0x00 -> 0x10000
+BaseOfLoader equ 0x1000
+OffsetOfLoader equ 0x00
+
+; 根目录占用的扇区数
+;(BPB_RootEntCnt * 32 + BPB_BytesPerSec – 1) /
+; BPB_BytesPerSec = (224×32 + 512 – 1) / 512 = 14
+; 这里 "+ BPB_BytesPerSec – 1" 是向上取整的意思
+RootDirSectors equ 14
+
+; 根目录的起始扇区号
+; 保留扇区数 + FAT表扇区数 * FAT表份数 = 1 + 9 * 2 = 19
+SectorNumOfRootDirStart equ 19
+
+; FAT1 表的起始扇区号
+SectorNumOfFAT1Start equ 1
+
+; 用于平衡文件
+; TODO: 具体如何使用SectorBalance?
+SectorBalance equ 17
+
 ; == FAT12 File System Info Structure
 FAT_12_Structure:
     jmp short Label_Start
@@ -53,6 +74,54 @@ FAT_12_Structure:
 
 	BS_FileSysType	db	'FAT12   '	;文件系统类型 8B
 		;只是一个字符串而已，操作系统并不使用该字段来鉴别FAT类文件系统的类型
+
+; == read one sector from floppy
+; input:
+; AX=待读取的磁盘起始扇区号(LBA)
+; CL=读入的扇区数量；
+; ES:BX=>目标缓冲区起始地址。
+Func_ReadOneSector:
+	; backup bp
+	push bp
+	; use [bp + x] to find data
+	mov bp,sp
+
+	; To Test
+	sub esp,2
+	mov byte [bp - 2],cl
+
+	push bx
+
+	; LBA to CHS
+	mov bl,[BPB_SecPerTrk]
+	div bl		; LBA_id / BPB_SecPerTrk
+	; ah - 余数 R
+	; al - 商 Q
+
+	inc ah
+	mov cl,ah	;  cl = R + 1(LBA起始扇区0,CHS为1)
+
+	mov ch,al
+	shr ch,1	; ch = Q >> 1 柱面号
+
+	mov dh,al
+	and dh,1	; dh = Q & 1 磁头号
+
+	mov dl,[BS_DrvNum]	; 驱动器号
+
+	pop bx		; S:BX=>数据缓冲区
+
+	Lable_Go_On_Reading:
+		mov ah,02h
+		mov al,byte [bp - 2]
+		int 13
+		; wait for compelte(CF flag == 0)
+		jc Lable_Go_On_Reading
+
+	add esp,2	; recycle memory
+	pop bp
+	ret
+
 
 Label_Start:
     ; == Initialize Registers
