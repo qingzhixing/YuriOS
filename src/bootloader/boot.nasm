@@ -205,7 +205,7 @@ Func_ReadOneSector:
 
 	; To Test
 	sub esp,2
-	mov byte [bp - 2],cl
+	mov byte [bp - 1],cl
 
 	push bx
 
@@ -230,7 +230,7 @@ Func_ReadOneSector:
 
 	Lable_Go_On_Reading:
 		mov ah,02h
-		mov al,byte [bp - 2]
+		mov al,byte [bp - 1]
 		int 13
 		; wait for compelte(CF flag == 0)
 		jc Lable_Go_On_Reading
