@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "The-design-and-implementation-of-a-64-bit-os",
+			"path": "reference/The-design-and-implementation-of-a-64-bit-os"
+		},
+		{
+			"name": "YuriOS",
+			"path": "."
+		}
+	],
+	"settings": {}
+}
