@@ -75,6 +75,123 @@ FAT_12_Structure:
 	BS_FileSysType	db	'FAT12   '	;文件系统类型 8B
 		;只是一个字符串而已，操作系统并不使用该字段来鉴别FAT类文件系统的类型
 
+Label_Start:
+    ; == Initialize Registers
+    mov ax,cx
+    mov ds,ax
+    mov es,ax
+    mov ss,ax
+    mov sp,BaseOfStack
+
+    ; == Clear Screen
+    mov ax,0600h
+    mov bx,0700h
+    mov cx,0
+    mov dx,184fh    ; Right-Bottom(79,24)Start:(0,0)
+                    ; DH : Column (0x18 = 79)
+                    ; DL : Row  (0x4f = 4f)
+    int 10h
+
+    ; == Set Focus(Cursor)
+    mov ax,0200h
+    mov bx,0000h
+    mov dx,0000h
+    int 10h
+
+    ; == Display Sign
+    mov ax,1301h
+    mov bx,000fh
+    mov dx,0000h
+    mov cx,14
+    push ax
+    mov ax,ds
+    mov es,ax
+    pop ax
+    mov bp,StartBootMessage  ; es:bp -> source string
+	int 10h
+
+; == search loader.bin
+	mov word [SectorNo],	SectorNumOfRootDirStart
+
+; == 在根目录表中查询
+Lable_Search_In_Root_Dir_Begin:
+	cmp word [RootDirSizeForLoop], 0
+	jz Lable_No_LoaderBin
+	dec word [RootDirSizeForLoop]
+
+	; == call read func
+	mov ax,0000h
+	mov es,ax
+	mov bx,8000h
+	mov ax,[SectorNo]
+	mov cl,1
+	call Func_ReadOneSector
+
+	; == Judge loader.bin
+	mov si,LoaderFileName
+	mov di,8000h
+
+	cld	; 忽略内存增长方向,全部由低到高
+
+	; 每个扇区可容纳的目录项个数（512 / 32 = 16 = 0x10）
+	; 在该扇区搜寻的次数:10次,搜寻0 ~ 11*10 = 110字节
+	mov dx,10h
+
+; Input: dx
+Lable_Search_For_LoaderBin:
+	cmp dx,0
+	jz Lable_Goto_Next_Sector_In_Root_Dir
+	dec dx
+	; LoaderFileName - 11B
+	mov cx,10
+
+Lable_Cmp_FileName:
+	cmp cx,0
+	jz Lable_FileName_Found
+	dec cx
+
+	; 块装入指令，把SI指向的存储单元读入累加器,LODSB读入AL,SI + 1
+	lodsb
+	cmp al,byte [es:di]
+	jz Lable_Go_On
+	jmp Lable_Different
+
+Lable_Go_On:
+	; 移动模板串指针指向下一个字符
+	inc di
+	jmp Lable_Cmp_FileName
+
+Lable_Different:
+	and di,0xffe0
+	add di,20h
+	mov si,LoaderFileName
+	jmp Lable_Search_For_LoaderBin
+
+Lable_Goto_Next_Sector_In_Root_Dir:
+	add word [SectorNo],1
+	jmp Lable_Search_In_Root_Dir_Begin
+
+Lable_No_LoaderBin:
+	mov ax,1301h
+	mov bx,008ch
+	mov dx,0100h
+	mov cx,21
+	push ax,
+	mov ax,ds
+	mov es,ax
+	pop ax
+	mov bp,NoLoaderMessage
+	int 10h
+	jmp $
+
+Lable_FileName_Found:
+; == temp var
+RootDirSizeForLoop    	dw    RootDirSectors 
+SectorNo              	dw    0 
+Odd                   	db    0
+
+; == Functions
+
 ; == read one sector from floppy
 ; input:
 ; AX=待读取的磁盘起始扇区号(LBA)
@@ -122,44 +239,10 @@ Func_ReadOneSector:
 	pop bp
 	ret
 
-
-Label_Start:
-    ; == Initialize Registers
-    mov ax,cx
-    mov ds,ax
-    mov es,ax
-    mov ss,ax
-    mov sp,BaseOfStack
-
-    ; == Clear Screen
-    mov ax,0600h
-    mov bx,0700h
-    mov cx,0
-    mov dx,184fh    ; Right-Bottom(79,24)Start:(0,0)
-                    ; DH : Column (0x18 = 79)
-                    ; DL : Row  (0x4f = 4f)
-    int 10h
-
-    ; == Set Focus(Cursor)
-    mov ax,0200h
-    mov bx,0000h
-    mov dx,0000h
-    int 10h
-
-    ; == Display Sign
-    mov ax,1301h
-    mov bx,000fh
-    mov dx,0000h
-    mov cx,14
-    push ax
-    mov ax,ds
-    mov es,ax
-    pop ax
-    mov bp,StartBootMessage  ; es:bp -> source string
-	int 10h
-
-StartBootMessage:
-	db "YuriOS Booting"
+; == display msgs
+StartBootMessage:		db 		"YuriOS Booting" 
+NoLoaderMessage:     	db    	"ERROR:No LOADER Found" 
+LoaderFileName:      	db    	"LOADER  BIN",0
 
 ; == Fill Zero
 times 510 - ($-$$) db 0
