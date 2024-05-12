@@ -162,6 +162,7 @@ Lable_Go_On:
 	jmp Lable_Cmp_FileName
 
 Lable_Different:
+	; TODO: 这里对di的处理是什么意思
 	and di,0xffe0
 	add di,20h
 	mov si,LoaderFileName
@@ -185,10 +186,12 @@ Lable_No_LoaderBin:
 	jmp $
 
 Lable_FileName_Found:
-; == temp var
-RootDirSizeForLoop    	dw    RootDirSectors 
-SectorNo              	dw    0 
-Odd                   	db    0
+	mov ax,RootDirSectors
+	; TODO: 这里对di的处理是什么意思
+	and di,0xffe0
+	add di,0x1a
+	mov cx,word [es:di]
+	; TODO:止步于此
 
 ; == Functions
 
@@ -238,6 +241,54 @@ Func_ReadOneSector:
 	add esp,2	; recycle memory
 	pop bp
 	ret
+
+
+; == get FAT Entry
+; 根据当前FAT表项索引出下一个FAT表项
+; AH=FAT表项号（输入参数/输出参数）
+Func_GetFATEntry:
+	push es
+	push bx
+	push ax
+	mov ax,0000h
+	mov es,ax
+	pop ax
+	mov byte [Odd],0
+	mov bx,3
+	mul bx
+	mov bx,2
+	div bx
+	cmp dx,0
+	jz Lable_Even
+	mov byte [Odd],1
+
+Lable_Even:
+	xor dx,dx
+	mov bx,[BPB_BytesPerSec]
+	div bx
+	push dx
+	mov bx,8000h
+	add ax,SectorNumOfFAT1Start
+	mov cl,2
+	call Func_ReadOneSector
+
+	pop dx
+	add bx,dx
+	mov ax,[es:bx]
+	cmp byte [Odd],1
+	jnz Label_Even_2
+	shr ax,4
+
+Label_Even_2:
+	and ax,0fffh
+	pop bx
+	pop es
+	ret
+
+; == temp var
+RootDirSizeForLoop:    	dw    RootDirSectors 
+SectorNo:              	dw    0 
+Odd:                   	db    0
 
 ; == display msgs
 StartBootMessage:		db 		"YuriOS Booting" 
