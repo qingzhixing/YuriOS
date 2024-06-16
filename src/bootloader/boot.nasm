@@ -30,14 +30,14 @@ FAT_12_Structure:
 
     BS_OEMName	db	'MINEboot'		;生产厂商名 8B
 
-	BPB_BytesPerSec	dw	512			;每扇区字节数 2B 
+    BPB_BytesPerSec	dw	512			;每扇区字节数 2B
 
-	BPB_SecPerClus	db	1			;每簇扇区数 1B
+    BPB_SecPerClus	db	1			;每簇扇区数 1B
 
-	BPB_RsvdSecCnt	dw	1			;保留扇区数 2B
-		;FAT 表从软盘的第二个扇区开始。
+    BPB_RsvdSecCnt	dw	1			;保留扇区数 2B
+        ;FAT 表从软盘的第二个扇区开始。
 
-	BPB_NumFATs	db	2				;FAT表份数 1B 
+    BPB_NumFATs	db	2				;FAT表份数 1B
 		;FAT 表2是FAT表1的数据备份表
 
 	BPB_RootEntCnt	dw	224			;根目录可容纳的目录项数 2B
@@ -114,9 +114,9 @@ Label_Start:
 	mov word [SectorNo],	SectorNumOfRootDirStart
 
 ; == 在根目录表中查询
-Lable_Search_In_Root_Dir_Begin:
+Label_Search_In_Root_Dir_Begin:
 	cmp word [RootDirSizeForLoop], 0
-	jz Lable_No_LoaderBin
+	jz Label_No_LoaderBin
 	dec word [RootDirSizeForLoop]
 
 	; == call read func
@@ -138,30 +138,30 @@ Lable_Search_In_Root_Dir_Begin:
 	mov dx,10h
 
 ; Input: dx
-Lable_Search_For_LoaderBin:
+Label_Search_For_LoaderBin:
 	cmp dx,0
-	jz Lable_Goto_Next_Sector_In_Root_Dir
+	jz Label_Goto_Next_Sector_In_Root_Dir
 	dec dx
 	; LoaderFileName - 11B
 	mov cx,11
 
-Lable_Cmp_FileName:
+Label_Cmp_FileName:
 	cmp cx,0
-	jz Lable_FileName_Found
+	jz Label_FileName_Found
 	dec cx
 
 	; 块装入指令，把SI指向的存储单元读入累加器,LODSB读入AL,SI + 1
 	lodsb
 	cmp al,byte [es:di]
-	jz Lable_Go_On
-	jmp Lable_Different
+	jz Label_Go_On
+	jmp Label_Different
 
-Lable_Go_On:
+Label_Go_On:
 	; 移动模板串指针指向下一个字符
 	inc di
-	jmp Lable_Cmp_FileName
+	jmp Label_Cmp_FileName
 
-Lable_Different:
+Label_Different:
 	; 0xFFE0 = 0b_1111_1111_1110_0000
 	; 这里作用是去掉di的后5位,数学上可以认为将di对齐到比他小的最大的32倍数地址上
 	; 即 向0取整去掉 模32 的余数
@@ -171,18 +171,18 @@ Lable_Different:
 	and di,0xffe0
 	add di,20h		; di 增加 32 bit = 0x20 bit, 即移动到下一个目录项
 	mov si,LoaderFileName
-	jmp Lable_Search_For_LoaderBin
+	jmp Label_Search_For_LoaderBin
 
-Lable_Goto_Next_Sector_In_Root_Dir:
+Label_Goto_Next_Sector_In_Root_Dir:
 	add word [SectorNo], 1
-	jmp Lable_Search_In_Root_Dir_Begin
+	jmp Label_Search_In_Root_Dir_Begin
 
-Lable_No_LoaderBin:
+Label_No_LoaderBin:
 	mov ax,1301h
 	mov bx,008ch
 	mov dx,0100h
 	mov cx,21
-	push ax,
+	push ax
 	mov ax,ds
 	mov es,ax
 	pop ax
@@ -190,7 +190,7 @@ Lable_No_LoaderBin:
 	int 10h
 	jmp $
 
-Lable_FileName_Found:
+Label_FileName_Found:
 	mov ax,RootDirSectors
 	and di,0xffe0	; 回到当前目录项的第一个bit
 	add di,0x1a
@@ -242,7 +242,7 @@ Func_ReadOneSector:
 		mov ah,02h
 		mov al,byte [bp - 1]
 		int 13
-		; wait for compelte(CF flag == 0)
+		; wait for complete(CF flag == 0)
 		jc Lable_Go_On_Reading
 
 	add esp,2	; recycle memory
