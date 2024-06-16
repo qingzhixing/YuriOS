@@ -129,12 +129,12 @@ Lable_Search_In_Root_Dir_Begin:
 
 	; == Judge loader.bin
 	mov si,LoaderFileName
-	mov di,8000h
+	mov di,8000h		; di存放从硬盘读取的扇区读入内存后的偏移地址(基地址:0x0000)
 
 	cld	; 忽略内存增长方向,全部由低到高
 
 	; 每个扇区可容纳的目录项个数（512 / 32 = 16 = 0x10）
-	; 在该扇区搜寻的次数:10次,搜寻0 ~ 11*10 = 110字节
+	; 在该扇区搜寻的次数: 0x10 次
 	mov dx,10h
 
 ; Input: dx
@@ -143,7 +143,7 @@ Lable_Search_For_LoaderBin:
 	jz Lable_Goto_Next_Sector_In_Root_Dir
 	dec dx
 	; LoaderFileName - 11B
-	mov cx,10
+	mov cx,11
 
 Lable_Cmp_FileName:
 	cmp cx,0
@@ -162,14 +162,19 @@ Lable_Go_On:
 	jmp Lable_Cmp_FileName
 
 Lable_Different:
-	; TODO: 这里对di的处理是什么意思
+	; 0xFFE0 = 0b_1111_1111_1110_0000
+	; 这里作用是去掉di的后5位,数学上可以认为将di对齐到比他小的最大的32倍数地址上
+	; 即 向0取整去掉 模32 的余数
+	; 例如 di = 0x8011 -> 0x8000
+	; di = 0x8023 -> 0x8020
+	; 作用: 回到当前目录项的第一个bit
 	and di,0xffe0
-	add di,20h
+	add di,20h		; di 增加 32 bit = 0x20 bit, 即移动到下一个目录项
 	mov si,LoaderFileName
 	jmp Lable_Search_For_LoaderBin
 
 Lable_Goto_Next_Sector_In_Root_Dir:
-	add word [SectorNo],1
+	add word [SectorNo], 1
 	jmp Lable_Search_In_Root_Dir_Begin
 
 Lable_No_LoaderBin:
@@ -187,10 +192,12 @@ Lable_No_LoaderBin:
 
 Lable_FileName_Found:
 	mov ax,RootDirSectors
-	; TODO: 这里对di的处理是什么意思
-	and di,0xffe0
+	and di,0xffe0	; 回到当前目录项的第一个bit
 	add di,0x1a
-	mov cx,word [es:di]
+	mov cx,word [es:di]	; 获取loader的起始簇号
+	push cx
+	add cx,ax
+	add cx, SectorBalance
 	; TODO:止步于此
 
 ; == Functions
@@ -286,8 +293,8 @@ Label_Even_2:
 	ret
 
 ; == temp var
-RootDirSizeForLoop:    	dw    RootDirSectors 
-SectorNo:              	dw    0 
+RootDirSizeForLoop:    	dw    RootDirSectors 		; 用于循环查询根目录扇区
+SectorNo:              	dw    0 					; 当前查找到第 SectorNo 号根目录扇区
 Odd:                   	db    0
 
 ; == display msgs
