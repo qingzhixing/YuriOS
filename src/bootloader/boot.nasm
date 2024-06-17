@@ -7,8 +7,8 @@ BaseOfLoader equ 0x1000
 OffsetOfLoader equ 0x00
 
 ; 根目录占用的扇区数
-;(BPB_RootEntCnt * 32 + BPB_BytesPerSec – 1) /
-; BPB_BytesPerSec = (224×32 + 512 – 1) / 512 = 14
+;(BPB_RootEntCnt * 32 + BPB_BytesPerSec – 1) / BPB_BytesPerSec
+; = (224×32 + 512 – 1) / 512 = 14
 ; 这里 "+ BPB_BytesPerSec – 1" 是向上取整的意思
 RootDirSectors equ 14
 
@@ -197,7 +197,55 @@ Label_FileName_Found:
 	mov cx,word [es:di]	; 获取loader的起始簇号
 	push cx
 	add cx,ax
-	add cx, SectorBalance
+	add cx, SectorBalance   ; 啥?没看懂
+
+	; 为读入Loader作准备
+	mov ax,BaseOfLoader
+	mov es,ax
+	mov bx,OffsetOfLoader
+	mov ax,cx
+
+; 读入Loader一个簇 = (BPB_SecPerClus = 1) 个扇区
+; 寄存器输入:
+;   ax => 待读入的簇号
+;   ex:bx => 读入Loader对应扇区在内存中放置的位置
+Label_Go_On_Loading_File:
+	push ax
+	push bx
+
+    ; 在屏幕上显示一个'.',增强交互效果
+    ; INT 0x10,AH=0x0e 在屏幕上显示一个字符
+    ; AL = 待显示字符
+    ; BL = 前景色
+	mov ah,0x0e
+	mov al,'.'
+	mov bl,0x0f
+	int 0x10
+
+	; 读入一个Loader扇区
+	pop bx
+	pop ax
+	mov cl,1
+	call Func_ReadOneSector
+
+    ; Label_Go_On_Reading_File 中,ax作为读取簇的索引
+	pop ax              ; 第一次进入时: 将前面push的cx - loader的起始簇号恢复到ax中
+						; 非第一次进入: 获取当前簇号(由上一次循环保存)
+	; AH=FAT表项号（输入参数/输出参数）
+	call Func_GetFATEntry
+	cmp ax,0x0fff   ; 当前簇是最后一个簇
+	jz Label_File_Loaded
+	push ax             ; 备份我们查询到的下一个簇编号号
+
+	mov dx,RootDirSectors
+	add ax,dx
+	add ax,SectorBalance
+
+	add bx, [BPB_BytesPerSec]   ; bx右移一个扇区大小,es:bp指向内存中Loader读取到的地址
+	jmp Label_Go_On_Loading_File
+
+Label_File_Loaded:
+	jmp $
 	; TODO:止步于此
 
 ; == Functions
@@ -238,12 +286,12 @@ Func_ReadOneSector:
 
 	pop bx		; S:BX=>数据缓冲区
 
-	Lable_Go_On_Reading:
+	Label_Go_On_Reading:
 		mov ah,02h
 		mov al,byte [bp - 1]
 		int 13
 		; wait for complete(CF flag == 0)
-		jc Lable_Go_On_Reading
+		jc Label_Go_On_Reading
 
 	add esp,2	; recycle memory
 	pop bp
@@ -266,10 +314,10 @@ Func_GetFATEntry:
 	mov bx,2
 	div bx
 	cmp dx,0
-	jz Lable_Even
+	jz Label_Even
 	mov byte [Odd],1
 
-Lable_Even:
+Label_Even:
 	xor dx,dx
 	mov bx,[BPB_BytesPerSec]
 	div bx
