@@ -301,14 +301,17 @@ Func_ReadOneSector:
 ; == get FAT Entry
 ; 根据当前FAT表项索引出下一个FAT表项
 ; AH=FAT表项号（输入参数/输出参数）
+; TODO:止步于此
 Func_GetFATEntry:
 	push es
 	push bx
 	push ax
+
 	mov ax,0000h
 	mov es,ax
 	pop ax
 	mov byte [Odd],0
+	; TODO:这里对bx操作干什么?bx存储的不是Loader在内存中的段偏移地址吗?
 	mov bx,3
 	mul bx
 	mov bx,2
@@ -336,6 +339,7 @@ Label_Even:
 
 Label_Even_2:
 	and ax,0fffh
+
 	pop bx
 	pop es
 	ret
