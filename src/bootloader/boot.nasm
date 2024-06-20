@@ -91,7 +91,6 @@ Label_Start:
     mov bp,StartBootMessage  ; es:bp -> source string
 	int 10h
 
-; TODO:我们需要这行代码吗?
 ;=======	reset floppy
 
     xor	ah,	ah
@@ -275,7 +274,7 @@ Func_ReadOneSector:
 	Label_Go_On_Reading:
 		mov ah,02h
 		mov al,byte [bp - 2]
-		int 13
+		int 13h
 		; wait for complete(CF flag == 0)
 		jc Label_Go_On_Reading
 
@@ -335,10 +334,10 @@ SectorNo:              	dw    0 					; 当前查找到第 SectorNo 号根目录�
 Odd:                   	db    0
 
 ; == display msgs
-StartBootMessage:		db 		"YuriOS Booting" 
-NoLoaderMessage:     	db    	"ERROR:No LOADER Found" 
+StartBootMessage:		db 		"YuriOS Booting"
+NoLoaderMessage:     	db    	"ERROR:No LOADER Found"
 LoaderFileName:      	db    	"LOADER  BIN",0
 
 ; == Fill Zero
 times 510 - ($-$$) db 0
-db 0x55,0xaa 
+db 0x55,0xaa
