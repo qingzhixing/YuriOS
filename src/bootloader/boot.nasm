@@ -336,7 +336,7 @@ Odd:                   	db    0
 ; == display msgs
 StartBootMessage:		db 		"YuriOS Booting"
 NoLoaderMessage:     	db    	"ERROR:No LOADER Found"
-LoaderFileName:      	db    	"LOADER  BIN",0
+LoaderFileName:      	db    	"LOADER  BIN",0     ; 文件名 8 Byte,扩展名 3 Byte, 文件名不足 8 Byte 补足空格
 
 ; == Fill Zero
 times 510 - ($-$$) db 0
