@@ -251,6 +251,7 @@ Label_File_Loaded:
 	mov	al, 'G'
 	mov	[gs:((80 * 0 + 39) * 2)], ax	; 屏幕第 0 行, 第 39 列。
 
+; ===== 关闭软驱马达
 KillMotor:
 
 	push	dx
