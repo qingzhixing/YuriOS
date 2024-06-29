@@ -3,7 +3,7 @@ SRC_PATH = ./src
 
 $(BUILD_PATH)/%.bin: $(SRC_PATH)/bootloader/%.nasm
 	mkdir -p $(BUILD_PATH)
-	nasm -f bin -o $@ $<
+	nasm -I $(SRC_PATH)/bootloader -f bin -o $@ $<
 
 $(BUILD_PATH)/boot.img: $(BUILD_PATH)/boot.bin\
 $(BUILD_PATH)/loader.bin
