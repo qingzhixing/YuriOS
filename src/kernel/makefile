@@ -5,7 +5,7 @@ $(BUILD_PATH)/main.o : main.c
 
 $(BUILD_PATH)/head.o: head.S
 	mkdir -p $(BUILD_PATH)
-	gcc -E @< > $(BUILD_PATH)/head.s
+	gcc -E head.S > $(BUILD_PATH)/head.s
 	as --64 -o $@ $(BUILD_PATH)/head.s
 
 $(BUILD_PATH)/system: $(BUILD_PATH)/head.o $(BUILD_PATH)/main.o
@@ -14,6 +14,11 @@ $(BUILD_PATH)/system: $(BUILD_PATH)/head.o $(BUILD_PATH)/main.o
 
 all: $(BUILD_PATH)/system
 	mkdir -p $(BUILD_PATH)
-	objcopy -I elf64-x86-64 -S -R ".eh_frame" -R ".comment" -O binary @< $(BUILD_PATH)/kernel.bin
+	objcopy -I elf64-x86-64 -S -R ".eh_frame" -R ".comment" -O binary $(BUILD_PATH)/system $(BUILD_PATH)/kernel.bin
+	chmod -R ugo+rw $(BUILD_PATH)/*
+
+.PHONY: test
+test: $(BUILD_PATH)/head.o
+
 
 # TODO:止步于此

@@ -159,7 +159,7 @@ Label_No_LoaderBin:
 	mov	ax,	ds
 	mov	es,	ax
 	pop	ax
-	mov	bp,	NoLoaderMessage
+	mov	bp,	NoKernelMessage
 	int	10h
 	jmp	$
 
@@ -260,8 +260,145 @@ KillMotor:
 	out	dx,	al
 	pop	dx
 
-; ==== messages
+	jmp $       ; TODO:止步于此
+
+; == Functions
+
+; == read one sector from floppy
+; input:
+; AX=待读取的磁盘起始扇区号(LBA)
+; CL=读入的扇区数量；
+; ES:BX=>目标缓冲区起始地址。
+Func_ReadOneSector:
+	; backup bp
+	push bp
+	; use [bp + x] to find data
+	mov bp,sp
+
+	sub esp,2
+	mov byte [bp - 2],cl
+
+	push bx
+
+	; LBA to CHS
+	mov bl,[BPB_SecPerTrk]
+	div bl		; LBA_id / BPB_SecPerTrk
+	; ah - 余数 R
+	; al - 商 Q
+
+	inc ah
+	mov cl,ah	;  cl = R + 1(LBA起始扇区0,CHS为1)
+
+	mov ch,al
+	shr ch,1	; ch = Q >> 1 柱面号
+
+	mov dh,al
+	and dh,1	; dh = Q & 1 磁头号
+
+	mov dl,[BS_DrvNum]	; 驱动器号
+
+	pop bx		; S:BX=>数据缓冲区
+
+	Label_Go_On_Reading:
+		mov ah,02h
+		mov al,byte [bp - 2]
+		int 13h
+		; wait for complete(CF flag == 0)
+		jc Label_Go_On_Reading
+
+	add esp,2	; recycle memory
+	pop bp
+	ret
+
+
+; == get FAT Entry
+; 根据当前FAT表项索引出下一个FAT表项
+; AH=FAT表项号（输入参数/输出参数）
+Func_GetFATEntry:
+	push es
+	push bx
+	push ax
+
+	mov ax,0000h
+	mov es,ax
+	pop ax
+	mov byte [Odd],0
+	; TODO:这里对bx操作干什么?bx存储的不是Loader在内存中的段偏移地址吗?
+	mov bx,3
+	mul bx
+	mov bx,2
+	div bx
+	cmp dx,0
+	jz Label_Even
+	mov byte [Odd],1
+
+Label_Even:
+	xor dx,dx
+	mov bx,[BPB_BytesPerSec]
+	div bx
+	push dx
+	mov bx,8000h
+	add ax,SectorNumOfFAT1Start
+	mov cl,2
+	call Func_ReadOneSector
+
+	pop dx
+	add bx,dx
+	mov ax,[es:bx]
+	cmp byte [Odd],1
+	jnz Label_Even_2
+	shr ax,4
+
+Label_Even_2:
+	and ax,0fffh
+
+	pop bx
+	pop es
+	ret
+
+; == temp var
+RootDirSizeForLoop:
+	dw    RootDirSectors 		; 用于循环查询根目录扇区
+SectorNo:
+	dw    0 					; 当前查找到第 SectorNo 号根目录扇区
+Odd:
+	db    0
+OffsetOfKernelFileCount:
+	dd	OffsetOfKernelFile
+MemStructNumber:
+	dd	0
+SVGAModeCounter:
+	dd	0
+DisplayPosition:
+	dd	0
+
+;=======	display messages
+
 StartLoaderMessage:
-	db "Start Loader"
-NoKernelMessage:     	db    	"ERROR:No LOADER Found"
-KernelFileName:      	db    	"KERNEL  BIN",0     ; 文件名 8 Byte,扩展名 3 Byte, 文件名不足 8 Byte 补足空格
+	db	"Start Loader"
+
+NoKernelMessage:
+	db	"ERROR:No KERNEL Found"
+KernelFileName:
+	db	"KERNEL  BIN",0     ; 文件名 8 Byte,扩展名 3 Byte, 文件名不足 8 Byte 补足空格
+
+StartGetMemStructMessage:
+	db	"Start Get Memory Struct (address,size,type)."
+GetMemStructErrMessage:
+	db	"Get Memory Struct ERROR"
+GetMemStructOKMessage:
+	db	"Get Memory Struct SUCCESSFUL!"
+
+StartGetSVGAVBEInfoMessage:
+	db	"Start Get SVGA VBE Info"
+GetSVGAVBEInfoErrMessage:
+	db	"Get SVGA VBE Info ERROR"
+GetSVGAVBEInfoOKMessage:
+	db	"Get SVGA VBE Info SUCCESSFUL!"
+
+StartGetSVGAModeInfoMessage:
+	db	"Start Get SVGA Mode Info"
+GetSVGAModeInfoErrMessage:
+	db	"Get SVGA Mode Info ERROR"
+GetSVGAModeInfoOKMessage:
+	db	"Get SVGA Mode Info SUCCESSFUL!"
