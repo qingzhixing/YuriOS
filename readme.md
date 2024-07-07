@@ -17,3 +17,7 @@ A tiny OS developed by qingzhixing!
 
 - [x] 成功读入kernel.bin at 2024.6.30
 ![成功读入kernel.bin](assets/images/read_kernel_bin.png)
+
+- [x] 成功设置VESA VBE模式 at 2024.7.7
+![VGA_INFO](assets/images/VGA_INFO.png)
+![VBE模式](assets/images/VESA_VBE.png)
