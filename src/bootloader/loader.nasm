@@ -260,9 +260,73 @@ KillMotor:
 	out	dx,	al
 	pop	dx
 
+; ===== Get Memory Address size type
+; 这里采用 int 15h 的 0xE820功能
+; Ref: https://wiki.osdev.org/Detecting_Memory_(x86)#BIOS_Function:_INT_0x15,_EAX_=_0xE820
+; print msg
+	mov	ax,	1301h
+    mov	bx,	000Fh
+    mov	dx,	0400h		;row 4
+    mov	cx,	24
+    push	ax
+    mov	ax,	ds
+    mov	es,	ax
+    pop	ax
+    mov	bp,	StartGetMemStructMessage
+    int	10h
+
+	mov	ebx,	0
+	mov	ax,	0x00
+	mov	es,	ax
+	mov	di,	MemoryStructBufferAddr
+
+Label_Get_Mem_Struct:
+
+	mov	eax,	0x0E820
+	mov	ecx,	20
+	mov	edx,	0x534D4150
+	int	15h
+	jc	Label_Get_Mem_Fail
+	add	di,	20
+
+	cmp	ebx,	0
+	jne	Label_Get_Mem_Struct
+	jmp	Label_Get_Mem_OK
+
+	Label_Get_Mem_Fail:
+
+		mov	ax,	1301h
+		mov	bx,	008Ch
+		mov	dx,	0500h		;row 5
+		mov	cx,	23
+		push	ax
+		mov	ax,	ds
+		mov	es,	ax
+		pop	ax
+		mov	bp,	GetMemStructErrMessage
+		int	10h
+		jmp	$
+
+	Label_Get_Mem_OK:
+
+		mov	ax,	1301h
+		mov	bx,	000Fh
+		mov	dx,	0600h		;row 6
+		mov	cx,	29
+		push	ax
+		mov	ax,	ds
+		mov	es,	ax
+		pop	ax
+		mov	bp,	GetMemStructOKMessage
+		int	10h
+
+; ===== set SVGA mode (VESA VBE)
+
 	jmp $       ; TODO:止步于此
 
 ; == Functions
+[SECTION .s16lib]
+[BITS 16]
 
 ; == read one sector from floppy
 ; input:
@@ -332,29 +396,70 @@ Func_GetFATEntry:
 	jz Label_Even
 	mov byte [Odd],1
 
-Label_Even:
-	xor dx,dx
-	mov bx,[BPB_BytesPerSec]
-	div bx
-	push dx
-	mov bx,8000h
-	add ax,SectorNumOfFAT1Start
-	mov cl,2
-	call Func_ReadOneSector
+	Label_Even:
+		xor dx,dx
+		mov bx,[BPB_BytesPerSec]
+		div bx
+		push dx
+		mov bx,8000h
+		add ax,SectorNumOfFAT1Start
+		mov cl,2
+		call Func_ReadOneSector
 
-	pop dx
-	add bx,dx
-	mov ax,[es:bx]
-	cmp byte [Odd],1
-	jnz Label_Even_2
-	shr ax,4
+		pop dx
+		add bx,dx
+		mov ax,[es:bx]
+		cmp byte [Odd],1
+		jnz Label_Even_2
+		shr ax,4
 
-Label_Even_2:
-	and ax,0fffh
+	Label_Even_2:
+		and ax,0fffh
 
-	pop bx
-	pop es
-	ret
+		pop bx
+		pop es
+		ret
+
+;=======	display num in al
+
+Label_DispAL:
+
+	push	ecx
+	push	edx
+	push	edi
+
+	mov	edi,	[DisplayPosition]
+	mov	ah,	0Fh
+	mov	dl,	al
+	shr	al,	4
+	mov	ecx,	2
+	.begin:
+
+		and	al,	0Fh
+		cmp	al,	9
+		ja	.1
+		add	al,	'0'
+		jmp	.2
+	.1:
+
+		sub	al,	0Ah
+		add	al,	'A'
+	.2:
+
+		mov	[gs:edi],	ax
+		add	edi,	2
+
+		mov	al,	dl
+		loop	.begin
+
+		mov	[DisplayPosition],	edi
+
+		pop	edi
+		pop	edx
+		pop	ecx
+
+		ret
+
 
 ; == temp var
 RootDirSizeForLoop:
