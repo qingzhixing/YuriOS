@@ -37,6 +37,9 @@ GdtPtr64	dw	GdtLen64 - 1
 SelectorCode64	equ	LABEL_DESC_CODE64 - LABEL_GDT64
 SelectorData64	equ	LABEL_DESC_DATA64 - LABEL_GDT64
 
+[SECTION .s16]
+[BITS 16]
+
 Label_Start:
 	; 初始化寄存器
 	mov ax,cs
@@ -320,6 +323,72 @@ KillMotor:
 		mov	bp,	GetMemStructOKMessage
 		int	10h
 
+;=======	get SVGA information
+; Ref: https://wiki.osdev.org/VESA_Video_Modes
+	mov	ax,	1301h
+	mov	bx,	000Fh
+	mov	dx,	0800h		;row 8
+	mov	cx,	23
+	push	ax
+	mov	ax,	ds
+	mov	es,	ax
+	pop	ax
+	mov	bp,	StartGetSVGAVBEInfoMessage
+	int	10h
+
+	;	in: es:di - 512-byte buffer
+    ;	out: cf - set on error
+
+    ;struct VbeInfoBlock {
+    ;   char     VbeSignature[4];         // == "VESA"
+    ;   uint16_t VbeVersion;              // == 0x0300 for VBE 3.0
+    ;   uint16_t OemStringPtr[2];         // isa vbeFarPtr
+    ;   uint8_t  Capabilities[4];
+    ;   uint16_t VideoModePtr[2];         // isa vbeFarPtr
+    ;   uint16_t TotalMemory;             // as # of 64KB blocks
+    ;   uint8_t  Reserved[492];
+    ;} __attribute__((packed));
+
+    ;TODO:查资料 止步于此
+
+	mov	ax,	0x00
+	mov	es,	ax
+	mov	di,	0x8000
+	mov	ax,	4F00h
+
+	int	10h
+
+	cmp	ax,	004Fh
+
+	jz	.KO
+
+;=======	Fail
+
+	mov	ax,	1301h
+	mov	bx,	008Ch
+	mov	dx,	0900h		;row 9
+	mov	cx,	23
+	push	ax
+	mov	ax,	ds
+	mov	es,	ax
+	pop	ax
+	mov	bp,	GetSVGAVBEInfoErrMessage
+	int	10h
+
+	jmp	$
+
+	.KO:
+
+		mov	ax,	1301h
+		mov	bx,	000Fh
+		mov	dx,	0A00h		;row 10
+		mov	cx,	29
+		push	ax
+		mov	ax,	ds
+		mov	es,	ax
+		pop	ax
+		mov	bp,	GetSVGAVBEInfoOKMessage
+		int	10h
 
 ;=======	Get SVGA Mode Info
 
@@ -340,14 +409,13 @@ KillMotor:
 	mov	es,	ax
 	mov	si,	0x800e ; TODO:Wut???
 
-	mov	esi,	dword	[es:si] ;FIXME:Halt Here
+	mov	esi,	dword	[es:si]
 	mov	edi,	0x8200
 
 
 	Label_SVGA_Mode_Info_Get:
 
 		mov	cx,	word	[es:esi]
-		jmp $
 
 ;=======	display SVGA mode information
 
@@ -420,7 +488,6 @@ KillMotor:
 		int	10h
 
 ; ===== set SVGA mode (VESA VBE)
-; Ref: https://wiki.osdev.org/VESA_Video_Modes
 ; INT 0x10, AX=0x4F02, BX=mode, ES:DI=CRTCInfoBlock
 	mov ax,0x4F02
 	mov bx,0x4180       ; mode: 0x180 (1440 x 900)
