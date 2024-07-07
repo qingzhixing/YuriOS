@@ -280,18 +280,18 @@ KillMotor:
 	mov	es,	ax
 	mov	di,	MemoryStructBufferAddr
 
-Label_Get_Mem_Struct:
+	Label_Get_Mem_Struct:
 
-	mov	eax,	0x0E820
-	mov	ecx,	20
-	mov	edx,	0x534D4150
-	int	15h
-	jc	Label_Get_Mem_Fail
-	add	di,	20
+		mov	eax,	0x0E820
+		mov	ecx,	20
+		mov	edx,	0x534D4150
+		int	15h
+		jc	Label_Get_Mem_Fail
+		add	di,	20
 
-	cmp	ebx,	0
-	jne	Label_Get_Mem_Struct
-	jmp	Label_Get_Mem_OK
+		cmp	ebx,	0
+		jne	Label_Get_Mem_Struct
+		jmp	Label_Get_Mem_OK
 
 	Label_Get_Mem_Fail:
 
@@ -320,9 +320,119 @@ Label_Get_Mem_Struct:
 		mov	bp,	GetMemStructOKMessage
 		int	10h
 
-; ===== set SVGA mode (VESA VBE)
 
+;=======	Get SVGA Mode Info
+
+	; log msg
+	mov	ax,	1301h
+	mov	bx,	000Fh
+	mov	dx,	0C00h		;row 12
+	mov	cx,	24
+	push	ax
+	mov	ax,	ds
+	mov	es,	ax
+	pop	ax
+	mov	bp,	StartGetSVGAModeInfoMessage
+	int	10h
+
+
+	mov	ax,	0x00
+	mov	es,	ax
+	mov	si,	0x800e ; TODO:Wut???
+
+	mov	esi,	dword	[es:si] ;FIXME:Halt Here
+	mov	edi,	0x8200
+
+
+	Label_SVGA_Mode_Info_Get:
+
+		mov	cx,	word	[es:esi]
+		jmp $
+
+;=======	display SVGA mode information
+
+	push	ax
+
+	mov	ax,	00h
+	mov	al,	ch
+	call	Label_DispAL
+
+	mov	ax,	00h
+	mov	al,	cl
+	call	Label_DispAL
+
+	pop	ax
+
+;=======
+
+	cmp	cx,	0FFFFh
+	jz	Label_SVGA_Mode_Info_Finish
+
+	mov	ax,	4F01h
+	int	10h
+
+	cmp	ax,	004Fh
+
+	jnz	Label_SVGA_Mode_Info_FAIL
+
+	add	esi,	2
+	add	edi,	0x100
+
+	jmp	Label_SVGA_Mode_Info_Get
+
+	Label_SVGA_Mode_Info_FAIL:
+
+		mov	ax,	1301h
+		mov	bx,	008Ch
+		mov	dx,	0D00h		;row 13
+		mov	cx,	24
+		push	ax
+		mov	ax,	ds
+		mov	es,	ax
+		pop	ax
+		mov	bp,	GetSVGAModeInfoErrMessage
+		int	10h
+
+	Lable_SET_SVGA_Mode_VESA_VBE_FAIL:
+		mov	ax,	1301h
+        mov	bx,	008Ch
+        mov	dx,	0D00h		;row 13
+        mov	cx,	29
+        push	ax
+        mov	ax,	ds
+		mov	es,	ax
+        pop	ax
+        mov	bp,	SetSVGAModeVESA_VBE_FAILMessage
+        int	10h
+        jmp $
+
+	Label_SVGA_Mode_Info_Finish:
+
+		mov	ax,	1301h
+		mov	bx,	000Fh
+		mov	dx,	0E00h		;row 14
+		mov	cx,	30
+		push	ax
+		mov	ax,	ds
+		mov	es,	ax
+		pop	ax
+		mov	bp,	GetSVGAModeInfoOKMessage
+		int	10h
+
+; ===== set SVGA mode (VESA VBE)
+; Ref: https://wiki.osdev.org/VESA_Video_Modes
+; INT 0x10, AX=0x4F02, BX=mode, ES:DI=CRTCInfoBlock
+	mov ax,0x4F02
+	mov bx,0x4180       ; mode: 0x180 (1440 x 900)
+						; or 0x143 (800 x 600)
+	int 10h
+
+	; All VESA functions return 0x4F in AL if they are supported
+	;  and use AH as a status flag, with 0x00 being success.
+	cmp ax,0x004f
+	jnz Lable_SET_SVGA_Mode_VESA_VBE_FAIL
 	jmp $       ; TODO:止步于此
+
 
 ; == Functions
 [SECTION .s16lib]
@@ -507,3 +617,5 @@ GetSVGAModeInfoErrMessage:
 	db	"Get SVGA Mode Info ERROR"
 GetSVGAModeInfoOKMessage:
 	db	"Get SVGA Mode Info SUCCESSFUL!"
+SetSVGAModeVESA_VBE_FAILMessage:
+	db "Set SVGA Mode VESA VBE FAILED"
