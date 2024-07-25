@@ -25,6 +25,7 @@ SelectorCode32	equ	LABEL_DESC_CODE32 - LABEL_GDT
 SelectorData32	equ	LABEL_DESC_DATA32 - LABEL_GDT
 
 [SECTION gdt64]
+; TODO:查阅资料 AMD开发手册-vol2
 
 LABEL_GDT64:		dq	0x0000000000000000
 LABEL_DESC_CODE64:	dq	0x0020980000000000
@@ -343,21 +344,25 @@ KillMotor:
     ;   char     VbeSignature[4];         // == "VESA"
     ;   uint16_t VbeVersion;              // == 0x0300 for VBE 3.0
     ;   uint16_t OemStringPtr[2];         // isa vbeFarPtr
+    ;       指向oem字符串的指针，该指针是一个16位的selector:offset形式的指针，在实模式下可以直接使用。
+    ;       示例: "VM ware, Inc. VBE support 3.0"
     ;   uint8_t  Capabilities[4];
-    ;   uint16_t VideoModePtr[2];         // isa vbeFarPtr
+    ;   uint16_t VideoModePtr[2];         // isa vbeFarPtr , 指向视频模式列表的指针
     ;   uint16_t TotalMemory;             // as # of 64KB blocks
     ;   uint8_t  Reserved[492];
     ;} __attribute__((packed));
 
-    ;TODO:查资料 止步于此
-
+	;====== INT 0x10, AX=0x4F00 ======
+    ;    Get Controller Info. This is the one that returns the array of all supported video modes.
 	mov	ax,	0x00
 	mov	es,	ax
-	mov	di,	0x8000
+	mov	di,	0x8000      ; VbeInfoBlock保存在 0x8000
 	mov	ax,	4F00h
 
 	int	10h
 
+	; All VESA functions return 0x4F in AL if they are supported
+    ;  and use AH as a status flag, with 0x00 being success.
 	cmp	ax,	004Fh
 
 	jz	.KO
@@ -404,16 +409,19 @@ KillMotor:
 	mov	bp,	StartGetSVGAModeInfoMessage
 	int	10h
 
-
 	mov	ax,	0x00
 	mov	es,	ax
-	mov	si,	0x800e ; TODO:Wut???
+	mov	si,	0x800e ; VbeInfoBlock::VideoModePtr[0]-selector:offset中的offset
 
-	mov	esi,	dword	[es:si]
+	mov	esi,	dword	[es:si]     ;	get first video mode number
 	mov	edi,	0x8200
 
 
 	Label_SVGA_Mode_Info_Get:
+
+	; ===== INT 0x10, AX=0x4F01, CX=mode, ES:DI=256 byte buffer =====
+    ;    Get Mode Info. Call this for each member of the mode array to find out the details of that mode.
+    ;     The 256 byte buffer will be filled by the mode info block.
 
 		mov	cx,	word	[es:esi]
 
@@ -433,8 +441,9 @@ KillMotor:
 
 ;=======
 
-	cmp	cx,	0FFFFh
+	cmp	cx,	0FFFFh      ; vesa modes list empty
 	jz	Label_SVGA_Mode_Info_Finish
+
 
 	mov	ax,	4F01h
 	int	10h
