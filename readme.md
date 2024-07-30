@@ -21,3 +21,8 @@ A tiny OS developed by qingzhixing!
 - [x] 成功设置VESA VBE模式 at 2024.7.7
 ![VGA_INFO](assets/images/VGA_INFO.png)
 ![VBE模式](assets/images/VESA_VBE.png)
+
+- [x] 成功进入保护模式 at 2024.7.30
+![ProtectedModeCode](assets/images/ProtectedModeCode.png)
+![ProtectedModeBochs](assets/images/ProtectedModeBochs.png)
+![ProtectedModeReg](assets/images/ProtectedModeReg.png)
