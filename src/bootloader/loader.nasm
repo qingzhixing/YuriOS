@@ -13,13 +13,14 @@ MemoryStructBufferAddr	equ	0x7E00
 
 [SECTION gdt]
 
+; Protect Mode Segment Descriptor: 8B
 LABEL_GDT:		dd	0,0
 LABEL_DESC_CODE32:	dd	0x0000FFFF,0x00CF9A00
 LABEL_DESC_DATA32:	dd	0x0000FFFF,0x00CF9200
 
 GdtLen	equ	$ - LABEL_GDT
-GdtPtr	dw	GdtLen - 1
-		dd	LABEL_GDT
+GdtPtr	dw	GdtLen - 1  ; 2B
+		dd	LABEL_GDT   ; 4B
 
 SelectorCode32	equ	LABEL_DESC_CODE32 - LABEL_GDT
 SelectorData32	equ	LABEL_DESC_DATA32 - LABEL_GDT
@@ -507,8 +508,36 @@ KillMotor:
 	;  and use AH as a status flag, with 0x00 being success.
 	cmp ax,0x004f
 	jnz Lable_SET_SVGA_Mode_VESA_VBE_FAIL
-	jmp $       ; TODO:止步于此
 
+	; ===== init IDT & GDT goto protected mode
+
+	; Protected Mode: https://wiki.osdev.org/Protected_Mode
+	; Before switching to protected mode, you must:
+    ;   Disable interrupts, including NMI (as suggested by Intel Developers Manual).
+    ;   Enable the A20 Line.
+    ;   Load the Global Descriptor Table with segment descriptors suitable for code, data, and stack.
+
+	cli ; 关闭外部中断
+
+	db 0x66     ; lgdt 是 32位指令
+	lgdt [GdtPtr]
+	db 0x66
+	lidt [IDT_POINTER]
+
+	; Whether the CPU is in Real Mode or in Protected Mode
+	;   is defined by the lowest bit of the CR0 or MSW register.
+	mov eax,cr0
+	or eax,1    ; set PE (Protection Enable) bit in CR0 (Control Register 0)
+	mov cr0,eax
+
+	; 远跳转 进入保护模式
+	jmp dword SelectorCode32:GO_TO_TMP_Protect
+
+[SECTION .s32]
+[BITS 32]
+
+GO_TO_TMP_Protect:
+	jmp $       ; TODO:止步于此
 
 ; == Functions
 [SECTION .s16lib]
@@ -695,3 +724,12 @@ GetSVGAModeInfoOKMessage:
 	db	"Get SVGA Mode Info SUCCESSFUL!"
 SetSVGAModeVESA_VBE_FAILMessage:
 	db "Set SVGA Mode VESA VBE FAILED"
+
+; ====== temp IDT
+IDT:
+	times 0x50 dq 0 ; 0x50 * 8B
+IDT_END:
+
+IDT_POINTER:
+	dw IDT_END - IDT - 1
+	dd IDT
