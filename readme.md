@@ -26,3 +26,6 @@ A tiny OS developed by qingzhixing!
 ![ProtectedModeCode](assets/images/ProtectedModeCode.png)
 ![ProtectedModeBochs](assets/images/ProtectedModeBochs.png)
 ![ProtectedModeReg](assets/images/ProtectedModeReg.png)
+
+- [x] 成功为64位下段描述符添加注释 at 2024.8.1
+![LongModeSegmentDescriptor](assets/images/LongModeSegmentDescriptor.png)
