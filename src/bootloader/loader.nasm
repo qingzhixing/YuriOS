@@ -26,11 +26,42 @@ SelectorCode32	equ	LABEL_DESC_CODE32 - LABEL_GDT
 SelectorData32	equ	LABEL_DESC_DATA32 - LABEL_GDT
 
 [SECTION gdt64]
-; TODO:查阅资料 AMD开发手册-vol2
+; 不懂可以查阅资料 AMD开发手册-vol2 Chapter4-Segmented Virtual Memory
 
-LABEL_GDT64:		dq	0x0000000000000000
-LABEL_DESC_CODE64:	dq	0x0020980000000000
-LABEL_DESC_DATA64:	dq	0x0000920000000000
+; 对于低32位(4B),全部为0:
+;   Segmentation is disabled in 64-bit mode, and code segments span
+;       all of virtual memory.
+;   For the purpose of virtual-address calculations,
+;       the base address is treated as if it has a value of zero
+;   Segment-limit checking is not performed
+
+; 对于高32位,仅有D, L, P, DPL, C 段有效
+;   DPL:
+;       Descriptor Privilege-Level (DPL) Field. Bits 14–13 of byte +4(高32位). The DPL field indicates the
+;       descriptor-privilege level of the segment. DPL can be set to any value from 0 to 3, with 0 specifying the
+;       most privilege and 3 the least privilege.
+;   L - Long (L) Attribute Bit:
+;       L=1 时表示 64位段描述符,L=0 则为32位兼容模式(Compatibility mode)
+;   D:
+;       If the processor is running in 64-bit mode (L=1), the only valid setting of the D bit is 0. This setting
+;        produces a default operand size of 32 bits and a default address size of 64 bits. The combination L=1
+;        and D=1 is reserved for future use
+;   C: Data-Segment Descriptor—Long Mode
+;       用于决定低特权级跳转到高特权级时CPL是否改变
+;   P: 段存在标志(Segment present)
+LABEL_GDT64:		dq	0x00000000_00000000
+; Code Segment:
+;   P = 1 存在
+;   DPL = 0b00  最高特权级0
+;   C = 0 从高特权级跳转到这个段时特权级仍然保持高特权级
+;   L = 1 Long Mode 64位模式
+;   D = 0 L=1 时 D 一定为 0
+LABEL_DESC_CODE64:	dq	0x00209800_00000000
+; Data Segment:
+;   P = 1 存在
+;   DPL = 0b00 最高特权级
+;   C = 0, L = 1, D = 0
+LABEL_DESC_DATA64:	dq	0x00009200_00000000
 
 GdtLen64	equ	$ - LABEL_GDT64
 GdtPtr64	dw	GdtLen64 - 1
