@@ -515,6 +515,8 @@ KillMotor:
         int	10h
         jmp $
 
+
+
 	Label_SVGA_Mode_Info_Finish:
 
 		mov	ax,	1301h
@@ -568,6 +570,27 @@ KillMotor:
 [BITS 32]
 
 GO_TO_TMP_Protect:
+	; ===== go to tmp long mode
+	mov ax,0x10 ; TODO: Why 0x10?
+	mov dx,ax
+	mov es,ax
+	mov fs,ax
+	mov ss,ax
+	mov esp, 0x7E00 ; 栈顶设置为0x7e00 到 0x7c00 可用空间为 0x100
+
+	call support_long_mode
+	test eax,eax
+
+	jz no_support
+
+	; ===== test support long mode or not
+support_long_mode:
+	mov eax,0x80000000      ; 功能号 80000000h  执行完CPUID指令后，EAX中返回的值就是返回扩展信息时，功能代码的最大值，
+							;  在执行CPUID指令要求返回扩展信息时，EAX中的值必须小于或等于该值。
+	cpuid   ; 识别cpuid, 读出cpu支持的功能(如是否支持MMX,有无支持4MB页)
+
+
+no_support:
 	jmp $       ; TODO:止步于此
 
 ; == Functions
