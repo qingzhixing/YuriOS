@@ -584,10 +584,24 @@ GO_TO_TMP_Protect:
 	jz no_support
 
 	; ===== test support long mode or not
+	; TODO:重新查询链接
+	; CPUID Command: https://www.cnblogs.com/DeeLMind/p/7535028.html
 support_long_mode:
-	mov eax,0x80000000      ; 功能号 80000000h  执行完CPUID指令后，EAX中返回的值就是返回扩展信息时，功能代码的最大值，
+	mov eax,0x80000000      ; 功能号 8000_0000h  执行完CPUID指令后，EAX中返回的值就是返回扩展信息时，功能代码的最大值，
 							;  在执行CPUID指令要求返回扩展信息时，EAX中的值必须小于或等于该值。
 	cpuid   ; 识别cpuid, 读出cpu支持的功能(如是否支持MMX,有无支持4MB页)
+
+	; 判断是否支持0x8000_0001
+	cmp eax, 0x80000001
+    setnb al        ; setnb: Set byte if not below (CF=0).
+                    ; al 在 support_long_mode_done 块中发挥作用
+
+	jb support_long_mode_done   ; Bigger than
+
+	mov eax,0x80000001
+	cpuid
+
+support_long_mode_done:
 
 
 no_support:
