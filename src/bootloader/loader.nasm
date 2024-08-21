@@ -571,18 +571,46 @@ KillMotor:
 
 GO_TO_TMP_Protect:
 	; ===== go to tmp long mode
-	mov ax,SelectorData32
-	mov dx,ax
-	mov es,ax
-	mov fs,ax
-	mov ss,ax
+	mov ax, SelectorData32
+	mov dx, ax
+	mov es, ax
+	mov fs, ax
+	mov ss, ax
 	mov esp, 0x7E00 ; 栈顶设置为0x7e00 到 0x7c00 可用空间为 0x100
 
 	call check_support_long_mode
 	test eax,eax    ; and eax,eax,但不改变EAX的值,只改变FLAG寄存器
 					; 等价于判断eax是否为0
-
 	jz long_mode_no_support
+	; ===== 初始化暂时使用的页表
+		mov	dword	[0x90000],	0x91007 ; FIXME!: 这里会导致cpu重启
+        mov	dword	[0x90800],	0x91007
+
+        mov	dword	[0x91000],	0x92007
+
+        mov	dword	[0x92000],	0x000083
+
+        mov	dword	[0x92008],	0x200083
+
+        mov	dword	[0x92010],	0x400083
+
+        mov	dword	[0x92018],	0x600083
+
+        mov	dword	[0x92020],	0x800083
+
+        mov	dword	[0x92028],	0xa00083
+
+    ;===== load GDTR
+    db 0x66         ; 32位模式下表示16位指令,与16位模式下相反
+    lgdt [GdtPtr64] ; lgdt操作16位寄存器,是16位指令
+
+    mov ax, SelectorData64
+    mov dx, ax
+    mov es, ax
+    mov fs, ax
+    mov ss, ax
+    mov esp, 0x7E00
+
 	jmp $; TODO:止步于此
 
 [SECTION .s32lib]
