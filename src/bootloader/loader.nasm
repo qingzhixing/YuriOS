@@ -571,7 +571,7 @@ KillMotor:
 
 GO_TO_TMP_Protect:
 	; ===== go to tmp long mode
-	mov ax,0x10 ; TODO: Why 0x10?
+	mov ax,SelectorData32
 	mov dx,ax
 	mov es,ax
 	mov fs,ax
