@@ -11,7 +11,7 @@ OffsetTmpOfKernelFile	equ	0x7E00
 
 MemoryStructBufferAddr	equ	0x7E00
 
-[SECTION gdt]
+[SEGMENT gdt]
 
 ; Protect Mode Segment Descriptor: 8B
 LABEL_GDT:		dd	0,0
@@ -25,7 +25,7 @@ GdtPtr	dw	GdtLen - 1  ; 2B
 SelectorCode32	equ	LABEL_DESC_CODE32 - LABEL_GDT
 SelectorData32	equ	LABEL_DESC_DATA32 - LABEL_GDT
 
-[SECTION gdt64]
+[SEGMENT gdt64]
 ; 不懂可以查阅资料 AMD开发手册-vol2 Chapter4-Segmented Virtual Memory
 
 ; 对于低32位(4B),全部为0:
@@ -133,7 +133,7 @@ Label_Start:
 ; ===== Search kernel.bin
 	mov	word	[SectorNo],	SectorNumOfRootDirStart
 
-Lable_Search_In_Root_Dir_Begin:
+Label_Search_In_Root_Dir_Begin:
 
 	cmp	word	[RootDirSizeForLoop],	0
 	jz	Label_No_LoaderBin
@@ -181,7 +181,7 @@ Label_Different:
 Label_Goto_Next_Sector_In_Root_Dir:
 
 	add	word	[SectorNo],	1
-	jmp	Lable_Search_In_Root_Dir_Begin
+	jmp	Label_Search_In_Root_Dir_Begin
 
 ;=======	display on screen : ERROR:No KERNEL Found
 
@@ -285,7 +285,7 @@ Label_File_Loaded:
 	mov	gs, ax
 	mov	ah, 0Fh				; 0000: 黑底    1111: 白字
 	mov	al, 'G'
-	mov	[gs:((80 * 0 + 39) * 2)], ax	; 屏幕第 0 行, 第 39 列。
+	mov	[gs: 0x48], ax	; 屏幕第 0 行, 第 39 列。0x48 = 72 = ((80 * 0 + 39) * 2)
 
 ; ===== 关闭软驱马达
 KillMotor:
@@ -502,7 +502,7 @@ KillMotor:
 		mov	bp,	GetSVGAModeInfoErrMessage
 		int	10h
 
-	Lable_SET_SVGA_Mode_VESA_VBE_FAIL:
+	Label_SET_SVGA_Mode_VESA_VBE_FAIL:
 		mov	ax,	1301h
         mov	bx,	008Ch
         mov	dx,	0D00h		;row 13
@@ -540,7 +540,7 @@ KillMotor:
 	; All VESA functions return 0x4F in AL if they are supported
 	;  and use AH as a status flag, with 0x00 being success.
 	cmp ax,0x004f
-	jnz Lable_SET_SVGA_Mode_VESA_VBE_FAIL
+	jnz Label_SET_SVGA_Mode_VESA_VBE_FAIL
 
 	; ===== init IDT & GDT goto protected mode
 
