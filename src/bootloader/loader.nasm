@@ -100,7 +100,7 @@ Label_Start:
 ; ===== Open address A20
 	push ax
 	in al,0x92   ; 使用0x92 I/O端口 -> A20快速门
-	or al, 0b_0000_0010
+	or al, 0b00000010
 	out 0x92,al
 	pop ax
 
@@ -572,7 +572,7 @@ KillMotor:
 GO_TO_TMP_Protect:
 	; ===== go to tmp long mode
 	mov ax, SelectorData32
-	mov dx, ax
+	mov ds, ax
 	mov es, ax
 	mov fs, ax
 	mov ss, ax
@@ -583,7 +583,7 @@ GO_TO_TMP_Protect:
 					; 等价于判断eax是否为0
 	jz long_mode_no_support
 	; ===== 初始化暂时使用的页表
-		mov	dword	[0x90000],	0x91007 ; FIXME!: 这里会导致cpu重启
+		mov	dword	[0x90000],	0x91007
         mov	dword	[0x90800],	0x91007
 
         mov	dword	[0x91000],	0x92007
@@ -605,7 +605,7 @@ GO_TO_TMP_Protect:
     lgdt [GdtPtr64] ; lgdt操作16位寄存器,是16位指令
 
     mov ax, SelectorData64
-    mov dx, ax
+    mov ds, ax
     mov es, ax
     mov fs, ax
     mov ss, ax
