@@ -578,36 +578,55 @@ GO_TO_TMP_Protect:
 	mov ss,ax
 	mov esp, 0x7E00 ; 栈顶设置为0x7e00 到 0x7c00 可用空间为 0x100
 
-	call support_long_mode
-	test eax,eax
+	call check_support_long_mode
+	test eax,eax    ; and eax,eax,但不改变EAX的值,只改变FLAG寄存器
+					; 等价于判断eax是否为0
 
-	jz no_support
+	jz long_mode_no_support
+	jmp $; TODO:止步于此
 
+[SECTION .s32lib]
+[BITS 32]
 	; ===== test support long mode or not
-	; TODO:重新查询链接
-	; CPUID Command: https://www.cnblogs.com/DeeLMind/p/7535028.html
-support_long_mode:
-	mov eax,0x80000000      ; 功能号 8000_0000h  执行完CPUID指令后，EAX中返回的值就是返回扩展信息时，功能代码的最大值，
-							;  在执行CPUID指令要求返回扩展信息时，EAX中的值必须小于或等于该值。
+
+	; Ref: intel manual( volume-3a-system-programming )
+	; pdf Chapter: 4-6 Vol. 3A
+	; LM: IA-32e mode support.()
+    ;   If CPUID.80000001H: EDX.LM [bit 29] = 1, IA32_EFER.LME may be set to 1, enabling IA-32e mode (with either
+    ;   4-level paging or 5-level paging). (Processors that do not support CPUID function 80000001H do not allow
+    ;   IA32_EFER.LME to be set to 1.)
+
+    ; === CPUID Command
+    ; CPUID Command Reference:
+    ;   https://blog.csdn.net/lee_ham/article/details/103222475
+    ;   https://www.felixcloutier.com/x86/cpuid
+    ; Returns processor identification and feature information to the EAX, EBX, ECX, and EDX registers,
+    ;  as determined by input entered in EAX (in some cases, ECX as well).
+check_support_long_mode:
+	mov eax,0x80000000      ; EAX Maximum Input Value for Extended Function CPUID Information. EBX Reserved. ECX Reserved. EDX Reserved.
+
 	cpuid   ; 识别cpuid, 读出cpu支持的功能(如是否支持MMX,有无支持4MB页)
 
 	; 判断是否支持0x8000_0001
 	cmp eax, 0x80000001
     setnb al        ; setnb: Set byte if not below (CF=0).
-                    ; al 在 support_long_mode_done 块中发挥作用
 
-	jb support_long_mode_done   ; Bigger than
+	jb check_support_long_mode_done   ; Bigger than
 
-	mov eax,0x80000001
+	mov eax,0x80000001  ; EAX Extended Processor Signature and Feature Bits. EBX Reserved.
+						; EDX Bits 29: Intel® 64 Architecture available if 1.
 	cpuid
+	bt edx, 29          ; bt(Bit Test): 用寄存器的第 k 位设置 CF
+	setc al         ; set CF to al
+					; al: 是否支持IA32-e模式
 
-support_long_mode_done:
+check_support_long_mode_done:
+	movzx eax, al   ; 无符号扩展，并传送。
+	ret             ; eax作为 support_long_mode 方法的返回值
 
+long_mode_no_support:
+	jmp $
 
-no_support:
-	jmp $       ; TODO:止步于此
-
-; == Functions
 [SECTION .s16lib]
 [BITS 16]
 
@@ -792,6 +811,12 @@ GetSVGAModeInfoOKMessage:
 	db	"Get SVGA Mode Info SUCCESSFUL!"
 SetSVGAModeVESA_VBE_FAILMessage:
 	db "Set SVGA Mode VESA VBE FAILED"
+
+;CPUIDNotSupport:
+;	db "CPUID Command is NOT support on this machine."
+
+;IA32ENotSupport:
+;	db "IA32-e Mode is NOT support on this machine."
 
 ; ====== temp IDT
 IDT:
