@@ -662,7 +662,7 @@ GO_TO_TMP_Protect:
 	;===== Jump to kernel
 	jmp SelectorCode64:OffsetOfKernelFile   ; OffsetOfKernelFile	equ	0x100000
 
-	jmp $; TODO:止步于此
+	hlt
 
 [SECTION .s32lib]
 [BITS 32]
