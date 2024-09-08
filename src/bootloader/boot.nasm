@@ -20,7 +20,8 @@ SectorNumOfRootDirStart equ 19
 SectorNumOfFAT1Start equ 1
 
 ; 用于平衡文件
-; TODO: 具体如何使用SectorBalance?
+; Q:具体如何使用SectorBalance?
+; A:doc/bootloader/SectorBalance.md
 SectorBalance equ 17
 
 ; == FAT12 File System Info Structure
@@ -295,7 +296,8 @@ Func_GetFATEntry:
 	mov es,ax
 	pop ax
 	mov byte [Odd],0
-	; TODO:这里对bx操作干什么?bx存储的不是Loader在内存中的段偏移地址吗?
+
+	;===== 计算 FAT 表项的偏移量
 	mov bx,3
 	mul bx
 	mov bx,2
@@ -304,7 +306,9 @@ Func_GetFATEntry:
 	jz Label_Even
 	mov byte [Odd],1
 
+
 Label_Even:
+	;===== 计算 FAT 表项的扇区号和偏移量
 	xor dx,dx
 	mov bx,[BPB_BytesPerSec]
 	div bx
@@ -314,15 +318,16 @@ Label_Even:
 	mov cl,2
 	call Func_ReadOneSector
 
+	;===== 获取 FAT 表项的值
 	pop dx
 	add bx,dx
 	mov ax,[es:bx]
 	cmp byte [Odd],1
 	jnz Label_Even_2
-	shr ax,4
+	shr ax,4    ; 如果 Odd 标志为 1，右移 ax 4 位，以获取正确的 FAT 表项值。
 
 Label_Even_2:
-	and ax,0fffh
+	and ax,0fffh    ; 将 ax 的高 4 位清零，确保只保留 12 位的 FAT 表项值。
 
 	pop bx
 	pop es

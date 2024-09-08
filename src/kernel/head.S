@@ -19,7 +19,7 @@
 
 _start:
 
-	mov	$0x10,	%ax
+	mov	$0x10,	%ax     // 0x10 is the data selector for 64-bit mode
 	mov	%ax,	%ds
 	mov	%ax,	%es
 	mov	%ax,	%fs
@@ -28,7 +28,12 @@ _start:
 
 //=======	load GDTR
 
-	lgdt	GDT_POINTER(%rip)
+	// 使用 %rip 寻址
+	lgdt	GDT_POINTER(%rip)       // load GDT
+
+//=======	load	LDT
+
+	lldt	$0x0000
 
 //=======	load	IDTR
 
@@ -48,9 +53,9 @@ _start:
 	movq	$0x101000,	%rax
 	movq	%rax,		%cr3
 	movq	switch_seg(%rip),	%rax
-	pushq	$0x08
+	pushq	$0x08       // 0x08 is the code selector for 64-bit mode
 	pushq	%rax
-	lretq
+	lretq   // 长返回，切换到 64 位模式
 
 //=======	64-bit mode code
 
@@ -66,9 +71,9 @@ entry64:
 	movq	$0xffff800000007E00,	%rsp		/* rsp address */
 
 	movq	go_to_kernel(%rip),	%rax		/* movq address */
-	pushq	$0x08
+	pushq	$0x08           // code selector for 64-bit mode
 	pushq	%rax
-	lretq
+	lretq   // 长返回，切换到内核
 
 go_to_kernel:
 	.quad	Start_Kernel
@@ -92,6 +97,10 @@ Start_Kernel:
 */
 __PML4E:                // Page Map Level 4 Entry
 	// quad - 8 Bytes
+	/*
+		0x102007 = 0b 0000 0001 0000 0010 0000 0000 0111
+		0x102007 表示一个存在且可写的页表项，指向物理地址 0x102000，并且该页可被用户模式访问。
+	*/
 	.quad	0x102007
 	.fill	255,8,0
 	.quad	0x102007
@@ -101,6 +110,10 @@ __PML4E:                // Page Map Level 4 Entry
 
 __PDPTE:                // Page Directory Pointer Table Entry
 
+	/*
+		0x103003 是一个页目录指针表项（PDPTE），表示一个存在且可写的页表项，
+			指向物理地址 0x103000，并且该页可被用户模式访问。
+	*/
 	.quad	0x103003
 	.fill	511,8,0
 
@@ -131,6 +144,8 @@ __PDE:                  // Page Directory Entry
 .section .data
 
 .globl GDT_Table
+
+// Description Table
 
 GDT_Table:  // 详见第6章 全局描述符表
 	.quad	0x0000000000000000			/*0	NULL descriptor		       	00*/

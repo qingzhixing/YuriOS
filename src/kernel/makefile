@@ -20,5 +20,3 @@ all: $(BUILD_PATH)/system
 .PHONY: test
 test: $(BUILD_PATH)/head.o
 
-
-# TODO:止步于此
