@@ -611,6 +611,53 @@ GO_TO_TMP_Protect:
     mov ss, ax
     mov esp, 0x7E00
 
+	; enable long mode: https://wiki.osdev.org/Paging#Enabling
+
+	;Enabling paging in long mode requires a few more additional steps. Since it is
+	; not possible to enter long mode without paging with PAE active, the order in which one
+	; enables the bits are important.
+
+	; Steps:
+	;   1. paging must not be active (i.e. CR0.PG must be cleared.)
+	;   2. CR4.PAE (bit 5) and EFER.LME (bit 8 of MSR 0xC0000080) are set.
+	;   3. If 57-bit virtual addresses are to be enabled, then CR4.LA57 (bit 12) is set.
+	;   4. Finally, CR0.PG is set to enable paging.
+
+	; Step 1: Clear CR0.PG
+	mov ebx, cr0
+    and ebx, ~(1 << 31)
+    mov cr0, ebx
+
+	; Step 2: Set CR4.PAE and EFER.LME
+	;===== open PAE
+	mov eax, cr4
+	bts eax, 5
+	mov cr4, eax
+
+	;===== set EFER.LME
+	mov ecx, 0xC0000080 ; IA32_EFER is MSR Register 0xC0000080
+	rdmsr               ; read MSR Register
+
+	bts eax, 8          ; set LME (Long Mode Enable) bit in IA32_EFER MSR
+	wrmsr               ; write MSR Register
+
+	; Step 3: Set CR4.LA57 (if 57-bit virtual addresses are to be enabled)
+
+	; Step 4: Set CR0.PG to enable paging
+	;===== load cr3
+
+	; The CR3 register is used to store the physical address of the page directory.
+	; It is loaded with the physical address of the page directory before enabling paging.
+
+	mov eax, 0x90000    ; 0x90000 指向临时页表的起始地址
+	mov cr3, eax
+
+	;===== open PE and paging
+	mov eax, cr0
+	bts eax, 0
+	bts eax, 31
+	mov cr0, eax
+
 	jmp $; TODO:止步于此
 
 [SECTION .s32lib]

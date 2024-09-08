@@ -40,3 +40,6 @@ A tiny OS developed by qingzhixing!
 > ![dx1](assets/images/dx1.png)
 > ![dx2](assets/images/dx2.png)
 > ![dx3](assets/images/dx3.png)
+
+- [x] OwO?! Succeed in enabling Long Mode(Compatibility Mode)! at 2024.9.8
+![LongModeEnable](assets/images/Enable_Long_Mode.png)
