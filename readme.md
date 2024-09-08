@@ -43,3 +43,7 @@ A tiny OS developed by qingzhixing!
 
 - [x] OwO?! Succeed in enabling Long Mode(Compatibility Mode)! at 2024.9.8
 ![LongModeEnable](assets/images/Enable_Long_Mode.png)
+
+- [x] ᓚᘏᗢ... Load Into Kernel Space! at 2024.9.8
+![LoadIntoKernelSpace](assets/images/Load_Into_Kernel.png)
+![Long_Mode_Kernel_Description.png](assets/images/Long_Mode_Kernel_Description.png)

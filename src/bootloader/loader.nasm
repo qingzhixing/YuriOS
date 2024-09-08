@@ -2,6 +2,7 @@ org 0x10000
 	jmp Label_Start
 
 %include "fat12-header.nasm"
+; Kernel Info
 BaseOfKernelFile	equ	0x00
 OffsetOfKernelFile	equ	0x100000
 
@@ -657,6 +658,9 @@ GO_TO_TMP_Protect:
 	bts eax, 0
 	bts eax, 31
 	mov cr0, eax
+
+	;===== Jump to kernel
+	jmp SelectorCode64:OffsetOfKernelFile   ; OffsetOfKernelFile	equ	0x100000
 
 	jmp $; TODO:止步于此
 
