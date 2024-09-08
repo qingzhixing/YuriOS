@@ -1,5 +1,5 @@
 BUILD_PATH = ./../../build
-GCC_FLAGS = -static -mcmodel=large -fno-builtin -m64 -fno-stack-protector
+GCC_FLAGS = -fno-builtin -static -mcmodel=large -m64 -fno-stack-protector
 LINK_FLAGS = -b elf64-x86-64 -z muldefs
 OBJCOPY_FLAGS = -I elf64-x86-64 -S -R ".eh_frame" -R ".comment" -O binary
 

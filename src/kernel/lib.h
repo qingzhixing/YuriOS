@@ -36,13 +36,13 @@ struct List
 	struct List * next;
 };
 
-inline void list_init(struct List * list)
+void list_init(struct List * list)
 {
 	list->prev = list;
 	list->next = list;
 }
 
-inline void list_add_to_behind(struct List * entry,struct List * new)	////add to entry behind
+void list_add_to_behind(struct List * entry,struct List * new)	////add to entry behind
 {
 	new->next = entry->next;
 	new->prev = entry;
@@ -50,7 +50,7 @@ inline void list_add_to_behind(struct List * entry,struct List * new)	////add to
 	entry->next = new;
 }
 
-inline void list_add_to_before(struct List * entry,struct List * new)	////add to entry behind
+void list_add_to_before(struct List * entry,struct List * new)	////add to entry behind
 {
 	new->next = entry;
 	entry->prev->next = new;
@@ -58,13 +58,13 @@ inline void list_add_to_before(struct List * entry,struct List * new)	////add to
 	entry->prev = new;
 }
 
-inline void list_del(struct List * entry)
+void list_del(struct List * entry)
 {
 	entry->next->prev = entry->prev;
 	entry->prev->next = entry->next;
 }
 
-inline long list_is_empty(struct List * entry)
+long list_is_empty(struct List * entry)
 {
 	if(entry == entry->next && entry->prev == entry)
 		return 1;
@@ -72,7 +72,7 @@ inline long list_is_empty(struct List * entry)
 		return 0;
 }
 
-inline struct List * list_prev(struct List * entry)
+struct List * list_prev(struct List * entry)
 {
 	if(entry->prev != NULL)
 		return entry->prev;
@@ -80,7 +80,7 @@ inline struct List * list_prev(struct List * entry)
 		return NULL;
 }
 
-inline struct List * list_next(struct List * entry)
+struct List * list_next(struct List * entry)
 {
 	if(entry->next != NULL)
 		return entry->next;
@@ -92,7 +92,7 @@ inline struct List * list_next(struct List * entry)
 		From => To memory copy Num bytes
 */
 
-inline void * memcpy(void *From,void * To,long Num)
+void * memcpy(void *From,void * To,long Num)
 {
 	int d0,d1,d2;
 	__asm__ __volatile__	(	"cld	\n\t"
@@ -121,7 +121,7 @@ inline void * memcpy(void *From,void * To,long Num)
 		FirstPart < SecondPart		=>	-1
 */
 
-inline int memcmp(void * FirstPart,void * SecondPart,long Count)
+int memcmp(void * FirstPart,void * SecondPart,long Count)
 {
 	register int __res;
 
@@ -144,7 +144,7 @@ inline int memcmp(void * FirstPart,void * SecondPart,long Count)
 		set memory at Address with C ,number is Count
 */
 
-inline void * memset(void * Address,unsigned char C,long Count)
+void * memset(void * Address,unsigned char C,long Count)
 {
 	int d0,d1;
 	unsigned long tmp = C * 0x0101010101010101UL;
@@ -172,7 +172,7 @@ inline void * memset(void * Address,unsigned char C,long Count)
 		string copy
 */
 
-inline char * strcpy(char * Dest,char * Src)
+char * strcpy(char * Dest,char * Src)
 {
 	__asm__	__volatile__	(	"cld	\n\t"
 					"1:	\n\t"
@@ -192,7 +192,7 @@ inline char * strcpy(char * Dest,char * Src)
 		string copy number bytes
 */
 
-inline char * strncpy(char * Dest,char * Src,long Count)
+char * strncpy(char * Dest,char * Src,long Count)
 {
 	__asm__	__volatile__	(	"cld	\n\t"
 					"1:	\n\t"
@@ -216,7 +216,7 @@ inline char * strncpy(char * Dest,char * Src,long Count)
 		string cat Dest + Src
 */
 
-inline char * strcat(char * Dest,char * Src)
+char * strcat(char * Dest,char * Src)
 {
 	__asm__	__volatile__	(	"cld	\n\t"
 					"repne	\n\t"
@@ -241,7 +241,7 @@ inline char * strcat(char * Dest,char * Src)
 		FirstPart < SecondPart => -1
 */
 
-inline int strcmp(char * FirstPart,char * SecondPart)
+int strcmp(char * FirstPart,char * SecondPart)
 {
 	register int __res;
 	__asm__	__volatile__	(	"cld	\n\t"
@@ -272,7 +272,7 @@ inline int strcmp(char * FirstPart,char * SecondPart)
 		FirstPart < SecondPart => -1
 */
 
-inline int strncmp(char * FirstPart,char * SecondPart,long Count)
+int strncmp(char * FirstPart,char * SecondPart,long Count)
 {
 	register int __res;
 	__asm__	__volatile__	(	"cld	\n\t"
@@ -303,7 +303,7 @@ inline int strncmp(char * FirstPart,char * SecondPart,long Count)
 
 */
 
-inline int strlen(char * String)
+int strlen(char * String)
 {
 	register int __res;
 	__asm__	__volatile__	(	"cld	\n\t"
@@ -322,7 +322,7 @@ inline int strlen(char * String)
 
 */
 
-inline unsigned long bit_set(unsigned long * addr,unsigned long nr)
+unsigned long bit_set(unsigned long * addr,unsigned long nr)
 {
 	return *addr | (1UL << nr);
 }
@@ -331,7 +331,7 @@ inline unsigned long bit_set(unsigned long * addr,unsigned long nr)
 
 */
 
-inline unsigned long bit_get(unsigned long * addr,unsigned long nr)
+unsigned long bit_get(unsigned long * addr,unsigned long nr)
 {
 	return	*addr & (1UL << nr);
 }
@@ -340,7 +340,7 @@ inline unsigned long bit_get(unsigned long * addr,unsigned long nr)
 
 */
 
-inline unsigned long bit_clean(unsigned long * addr,unsigned long nr)
+unsigned long bit_clean(unsigned long * addr,unsigned long nr)
 {
 	return	*addr & (~(1UL << nr));
 }
@@ -349,7 +349,7 @@ inline unsigned long bit_clean(unsigned long * addr,unsigned long nr)
 
 */
 
-inline unsigned char io_in8(unsigned short port)
+unsigned char io_in8(unsigned short port)
 {
 	unsigned char ret = 0;
 	__asm__ __volatile__(	"inb	%%dx,	%0	\n\t"
@@ -364,7 +364,7 @@ inline unsigned char io_in8(unsigned short port)
 
 */
 
-inline unsigned int io_in32(unsigned short port)
+unsigned int io_in32(unsigned short port)
 {
 	unsigned int ret = 0;
 	__asm__ __volatile__(	"inl	%%dx,	%0	\n\t"
@@ -379,7 +379,7 @@ inline unsigned int io_in32(unsigned short port)
 
 */
 
-inline void io_out8(unsigned short port,unsigned char value)
+void io_out8(unsigned short port,unsigned char value)
 {
 	__asm__ __volatile__(	"outb	%0,	%%dx	\n\t"
 				"mfence			\n\t"
@@ -392,7 +392,7 @@ inline void io_out8(unsigned short port,unsigned char value)
 
 */
 
-inline void io_out32(unsigned short port,unsigned int value)
+void io_out32(unsigned short port,unsigned int value)
 {
 	__asm__ __volatile__(	"outl	%0,	%%dx	\n\t"
 				"mfence			\n\t"
