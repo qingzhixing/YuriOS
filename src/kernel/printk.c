@@ -15,12 +15,28 @@ int vsprintf(char *buffer, const char *format, va_list args) {
 void putchar(
         unsigned int *frame_buffer,
         int XResolution,
-        int x, int y,
+        int x_pixel_offset, int y_pixel_offset,
         unsigned int front_color,
         unsigned int back_color,
-        unsigned char c
+        unsigned char font_char
 ) {
-    // TODO: implement putchar
+    unsigned int *pixel_addr = NULL;
+    unsigned char *font_row_ptr = font_ascii[font_char];    // 获取当前行的像素填充数据
+    int font_pixel_index = 0;
+
+    for (int row = 0; row < CHAR_SIZE_Y; row++) {
+        pixel_addr = frame_buffer + (y_pixel_offset + row) + x_pixel_offset;
+        font_pixel_index = 0x100;
+        for (int col = 0; col < CHAR_SIZE_X; col++) {
+            font_pixel_index >>= 1;
+            if (*font_row_ptr & font_pixel_index) {
+                *pixel_addr = front_color;
+            } else {
+                *pixel_addr = back_color;
+            }
+        }
+        font_row_ptr++;
+    }
 }
 
 int color_printk(unsigned int front_color, unsigned int back_color, const char *format, ...) {

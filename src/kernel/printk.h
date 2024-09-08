@@ -33,11 +33,19 @@ int vsprintf(char *buffer, const char *format, va_list args);
 void putchar(
         unsigned int *frame_buffer,
         int XResolution,
-        int x, int y,
+        int x_pixel_offset, int y_pixel_offset,
         unsigned int front_color,
         unsigned int back_color,
-        unsigned char c
+        unsigned char font_char
 );
 
 #define PRINTK_BUFFER_SIZE 1024
+
+#define VGA_WIDTH 1440
+#define VGA_HEIGHT 900
+#define VGA_DEPTH 32
+#define VGA_BASE 0xffff800000a00000
+
+#define CHAR_SIZE_X 8
+#define CHAR_SIZE_Y 16
 #endif //YURIOS_PRINTK_H
