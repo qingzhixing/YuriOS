@@ -31,7 +31,7 @@ test: $(BUILD_PATH)/kernel.bin
 .PHONY: build
 build: clean\
 $(BUILD_PATH)/boot.img
-	chmod -R ugo+rw $(BUILD_PATH)/*
+	chmod  --recursive 777 $(BUILD_PATH)/
 
 .PHONY: clean
 clean:
