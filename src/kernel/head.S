@@ -31,10 +31,6 @@ _start:
 	// 使用 %rip 寻址
 	lgdt	GDT_POINTER(%rip)       // load GDT
 
-//=======	load	LDT
-
-	lldt	$0x0000
-
 //=======	load	IDTR
 
 	lidt	IDT_POINTER(%rip)
@@ -82,8 +78,6 @@ go_to_kernel:
 .align 8
 
 .org	0x1000      // 位于内核执行头程序段的起始位置0x1000处
-
-Start_Kernel:
 /*
 	页初始化: ref: [doc/kernel/paging/64-bit_page_tables1.png]
 */

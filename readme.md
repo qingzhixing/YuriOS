@@ -47,3 +47,6 @@ A tiny OS developed by qingzhixing!
 - [x] ᓚᘏᗢ... Load Into Kernel Space! at 2024.9.8
 ![LoadIntoKernelSpace](assets/images/Load_Into_Kernel.png)
 ![Long_Mode_Kernel_Description.png](assets/images/Long_Mode_Kernel_Description.png)
+
+- [x] VGA显示色彩完美! at 2024.9.10
+![VGA_Color_Perfect.png](assets/images/VGA显示色彩.png)
