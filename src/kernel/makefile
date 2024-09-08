@@ -1,7 +1,12 @@
 BUILD_PATH = ./../../build
-GCC_FLAGS = -fno-builtin -static -mcmodel=large -m64 -fno-stack-protector
+GCC_FLAGS = -fno-builtin -static -mcmodel=large -m64 -fno-stack-protector -Wall -Wextra
 LINK_FLAGS = -b elf64-x86-64 -z muldefs
 OBJCOPY_FLAGS = -I elf64-x86-64 -S -R ".eh_frame" -R ".comment" -O binary
+
+# 添加所有必要的目标文件
+OBJS = $(BUILD_PATH)/head.o \
+       $(BUILD_PATH)/printk.o \
+       $(BUILD_PATH)/main.o
 
 $(BUILD_PATH)/%.o : %.c
 	mkdir -p $(BUILD_PATH)
@@ -12,9 +17,7 @@ $(BUILD_PATH)/head.o: head.S
 	gcc -E head.S > $(BUILD_PATH)/head.s
 	as --64 -o $@ $(BUILD_PATH)/head.s
 
-$(BUILD_PATH)/system: $(BUILD_PATH)/head.o\
- $(BUILD_PATH)/printk.o\
- $(BUILD_PATH)/main.o
+$(BUILD_PATH)/system: $(OBJS)
 	mkdir -p $(BUILD_PATH)
 	ld $(LINK_FLAGS) -o $@ $^ -T Kernel.lds
 
