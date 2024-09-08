@@ -162,8 +162,8 @@ inline void * memset(void * Address,unsigned char C,long Count)
 					"stosb	\n\t"
 					"3:	\n\t"
 					:"=&c"(d0),"=&D"(d1)
-					:"a"(tmp),"q"(Count),"0"(Count/8),"1"(Address)	
-					:"memory"					
+					:"a"(tmp),"q"(Count),"0"(Count/8),"1"(Address)
+					:"memory"
 				);
 	return Address;
 }
@@ -183,7 +183,7 @@ inline char * strcpy(char * Dest,char * Src)
 					:
 					:"S"(Src),"D"(Dest)
 					:
-					
+
 				);
 	return 	Dest;
 }
@@ -207,7 +207,7 @@ inline char * strncpy(char * Dest,char * Src,long Count)
 					"2:	\n\t"
 					:
 					:"S"(Src),"D"(Dest),"c"(Count)
-					:					
+					:
 				);
 	return Dest;
 }
@@ -229,7 +229,7 @@ inline char * strcat(char * Dest,char * Src)
 					"jne	1b	\n\t"
 					:
 					:"S"(Src),"D"(Dest),"a"(0),"c"(0xffffffff)
-					:					
+					:
 				);
 	return Dest;
 }
@@ -260,7 +260,7 @@ inline int strcmp(char * FirstPart,char * SecondPart)
 					"3:	\n\t"
 					:"=a"(__res)
 					:"D"(FirstPart),"S"(SecondPart)
-					:					
+					:
 				);
 	return __res;
 }
@@ -273,7 +273,7 @@ inline int strcmp(char * FirstPart,char * SecondPart)
 */
 
 inline int strncmp(char * FirstPart,char * SecondPart,long Count)
-{	
+{
 	register int __res;
 	__asm__	__volatile__	(	"cld	\n\t"
 					"1:	\n\t"
