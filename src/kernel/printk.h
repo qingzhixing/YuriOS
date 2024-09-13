@@ -9,66 +9,72 @@
 #include "font.h"
 #include "linkage.h"
 
-
 #define PRINTK_BUFFER_SIZE 4096
 
-#define VGA_WIDTH 1440
-#define VGA_HEIGHT 900
-#define VGA_DEPTH 32
-#define VGA_BASE 0xffff800000a00000
+#define VGA_SCREEN_WIDTH 1440
+#define VGA_SCREEN_HEIGHT 900
+#define VGA_X_RESOLUTION VGA_SCREEN_WIDTH
+#define VGA_Y_RESOLUTION VGA_SCREEN_HEIGHT
+#define VGA_COLOR_DEPTH 32
+#define VGA_BASE_ADDR 0xffff800000a00000
 
 #define CHAR_SIZE_X 8
 #define CHAR_SIZE_Y 16
 
-#define ZEROPAD    0x01        /* pad with zero */
-#define SIGN    0x02        /* unsigned/signed long */
-#define PLUS    0x04        /* show plus */
-#define SPACE    0x08        /* space if plus */
-#define LEFT    0x10        /* left justified */
-#define SPECIAL    0x20        /* 0x */
-#define SMALL    0x40        /* use 'abcdef' instead of 'ABCDEF' */
+#define ZEROPAD 0x01 /* pad with zero */
+#define SIGN 0x02    /* unsigned/signed long */
+#define PLUS 0x04    /* show plus */
+#define SPACE 0x08   /* space if plus */
+#define LEFT 0x10    /* left justified */
+#define SPECIAL 0x20 /* 0x */
+#define SMALL 0x40   /* use 'abcdef' instead of 'ABCDEF' */
 
-#define WHITE    0x00ffffff        //白
-#define BLACK    0x00000000        //黑
-#define RED    0x00ff0000        //红
-#define ORANGE    0x00ff8000        //橙
-#define YELLOW    0x00ffff00        //黄
-#define GREEN    0x0000ff00        //绿
-#define BLUE    0x000000ff        //蓝
-#define INDIGO    0x0000ffff        //靛
-#define PURPLE    0x008000ff        //紫
+#define WHITE 0x00ffffff  // 白
+#define BLACK 0x00000000  // 黑
+#define RED 0x00ff0000    // 红
+#define ORANGE 0x00ff8000 // 橙
+#define YELLOW 0x00ffff00 // 黄
+#define GREEN 0x0000ff00  // 绿
+#define BLUE 0x000000ff   // 蓝
+#define INDIGO 0x0000ffff // 靛
+#define PURPLE 0x008000ff // 紫
 
 extern unsigned char font_ascii[256][16];
 
 char printk_buffer[PRINTK_BUFFER_SIZE] = {0};
 
-struct Cursor_State {
+struct Cursor_State
+{
     int x_offset;
     int y_offset;
 } cursor_global_state;
 
-struct VGA_State {
-    int x_resolution;        // x方向分辨率
-    int y_resolution;        // y方向分辨率
+struct VGA_State
+{
+    int x_resolution; // x方向分辨率
+    int y_resolution; // y方向分辨率
 
-    int x_charSize;          // x方向字符宽度
-    int y_charSize;          // y方向字符高度
+    int x_char_size; // x方向字符宽度
+    int y_char_size; // y方向字符高度
 
     unsigned int *FrameBuffer_addr;
     unsigned long FrameBufferSize;
 } vga_global_state;
+
+int skip_atoi(const char **s);
+
+static char *number(char *str, long num, int base, int size, int precision, int type);
 
 int color_printk(unsigned int front_color, unsigned int back_color, const char *format, ...);
 
 int vsprintf(char *buffer, const char *format, va_list args);
 
 void putchar(
-        unsigned int *frame_buffer,
-        int XResolution,
-        int x_pixel_offset, int y_pixel_offset,
-        unsigned int front_color,
-        unsigned int back_color,
-        unsigned char font_char
-);
+    unsigned int *frame_buffer,
+    int XResolution,
+    int x_pixel_offset, int y_pixel_offset,
+    unsigned int front_color,
+    unsigned int back_color,
+    unsigned char font_char);
 
-#endif //YURIOS_PRINTK_H
+#endif // YURIOS_PRINTK_H
