@@ -66,6 +66,14 @@ entry64:
 	movq	%rax,	%ss
 	movq	$0xffff800000007E00,	%rsp		/* rsp address */
 
+extern ignore_interrupt
+setup_IDT:
+	leaq ignore_interrupt(%rip), %rdx
+	movq $(0x08 << 16), %rax
+	// TODO:止步于此
+
+
+jump_to_kernel:
 	movq	go_to_kernel(%rip),	%rax		/* movq address */
 	pushq	$0x08           // code selector for 64-bit mode
 	pushq	%rax
