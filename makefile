@@ -1,6 +1,6 @@
 BUILD_PATH = ./build
 SRC_PATH = ./src
-BOCHS_PATH = ./build-tools/bochs/
+BOCHS_PATH = ./build-tools/bochs
 BOCHS_BIN = $(BOCHS_PATH)/bochs-2.6.11
 BOCHS_GDB_BIN = $(BOCHS_PATH)/gdb-bochs-2.6.11
 
@@ -26,11 +26,11 @@ $(BUILD_PATH)/kernel.bin
 
 .PHONY:bochs
 bochs: build
-	$(BOCHS_BIN) -q -f bochsrc.bxrc
+	$(BOCHS_BIN) -q -f $(BOCHS_PATH)/bochsrc.bxrc
 
 .PHONY: bochs-gdb
 bochs-gdb: build
-	$(BOCHS_GDB_BIN) -q -f bochsrc-gdb.bxrc
+	$(BOCHS_GDB_BIN) -q -f $(BOCHS_PATH)/bochsrc-gdb.bxrc
 
 .PHONY: test
 test: $(BUILD_PATH)/kernel.bin
