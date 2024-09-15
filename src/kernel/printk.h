@@ -67,6 +67,8 @@ struct VGA_State
     unsigned long FrameBufferSize;
 } vga_global_state;
 
+void init_printk();
+
 int skip_atoi(const char **s);
 
 static char *number(char *str, long num, int base, int size, int precision, int type);

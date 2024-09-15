@@ -52,3 +52,8 @@ A tiny OS developed by qingzhixing!
 
 - [X] 😕 使用putchar逐字打印没问题,将问题初步确定在color_printk中处理打印时出错 at 2024.9.15
   ![putchar_str](assets/images/putchar_str.png)
+- [X] 🦙 color_printk 打印成功! at 2024.9.15
+  ![color_printk](assets/images/color_printk.png)
+
+  > 妈妈我再也不随便用AI了TT
+  >

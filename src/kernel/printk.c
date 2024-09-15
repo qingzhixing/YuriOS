@@ -9,6 +9,21 @@
 #include "lib.h"
 #include "linkage.h"
 
+void init_printk()
+{
+    vga_global_state.x_resolution = VGA_X_RESOLUTION;
+    vga_global_state.y_resolution = VGA_Y_RESOLUTION;
+
+    cursor_global_state.x_offset = 0;
+    cursor_global_state.y_offset = 0;
+
+    vga_global_state.x_char_size = CHAR_SIZE_X;
+    vga_global_state.y_char_size = CHAR_SIZE_Y;
+
+    vga_global_state.FrameBuffer_addr = (unsigned int *)(VGA_BASE_ADDR);
+    vga_global_state.FrameBufferSize = VGA_SCREEN_WIDTH * VGA_SCREEN_HEIGHT * 4;
+}
+
 /*
     将当前指针指向的字符串转换为整数并同时移动指针,遇到非数字字符停止转换,返回整数值
 */
@@ -22,7 +37,6 @@ int skip_atoi(const char **s)
 }
 
 // Function to convert a number to a string in a specified base with formatting options
-// TODO:无法正常转换
 static char *number(char *str, long num, int base, int size, int precision, int type)
 {
     char c, sign, tmp[50];
@@ -347,92 +361,67 @@ void putchar_str(unsigned int *frame_buffer,
 }
 
 // 返回格式化之后字符串的长度
-int color_printk(unsigned int front_color, unsigned int back_color, const char *format, ...)
+int color_printk(unsigned int fore_color, unsigned int back_color, const char *format, ...)
 {
-    int formatted_len;
-    int line; // 用来控制制表符处理的逻辑，以实现正确的制表显示效果
-
-    // format the message
+    int i = 0;
+    int count = 0;
+    int line = 0;
     va_list args;
     va_start(args, format);
-    formatted_len = vsprintf(printk_buffer, format, args);
+
+    i = vsprintf(printk_buffer, format, args);
+
     va_end(args);
 
-    // print the message
-    for (int str_index = 0; str_index < formatted_len || line; str_index++)
+    for (count = 0; count < i || line; count++)
     {
-        // add \n \b \t
+        ////	add \n \b \t
         if (line > 0)
         {
-            str_index--;
+            count--;
             goto Label_tab;
         }
-        // \n
-        if ((unsigned char)*(printk_buffer + str_index) == '\n')
+        if ((unsigned char)*(printk_buffer + count) == '\n')
         {
             cursor_global_state.y_offset++;
             cursor_global_state.x_offset = 0;
         }
-        // \b
-        else if ((unsigned char)*(printk_buffer + str_index) == '\b')
+        else if ((unsigned char)*(printk_buffer + count) == '\b')
         {
             cursor_global_state.x_offset--;
             if (cursor_global_state.x_offset < 0)
             {
-                // 回退到上一行最后一个字符的位置
                 cursor_global_state.x_offset = (vga_global_state.x_resolution / vga_global_state.x_char_size - 1) * vga_global_state.x_char_size;
                 cursor_global_state.y_offset--;
-
                 if (cursor_global_state.y_offset < 0)
-                {
-                    // 回退到屏幕最下方
                     cursor_global_state.y_offset = (vga_global_state.y_resolution / vga_global_state.y_char_size - 1) * vga_global_state.y_char_size;
-                }
             }
-            putchar(
-                vga_global_state.FrameBuffer_addr,
-                vga_global_state.x_resolution,
-                cursor_global_state.x_offset * vga_global_state.x_char_size,
-                cursor_global_state.y_offset * vga_global_state.y_char_size,
-                front_color, back_color,
-                ' ');
+            putchar(vga_global_state.FrameBuffer_addr, vga_global_state.x_resolution, cursor_global_state.x_offset * vga_global_state.x_char_size, cursor_global_state.y_offset * vga_global_state.y_char_size, fore_color, back_color, ' ');
         }
-        // \t
-        else if ((unsigned char)*(printk_buffer + str_index) == '\t')
+        else if ((unsigned char)*(printk_buffer + count) == '\t')
         {
-            line = ((cursor_global_state.x_offset + 8) & (8 - 1)) - cursor_global_state.x_offset;
+            line = ((cursor_global_state.x_offset + 8) & ~(8 - 1)) - cursor_global_state.x_offset;
+
         Label_tab:
             line--;
-            putchar(
-                vga_global_state.FrameBuffer_addr,
-                vga_global_state.x_resolution,
-                cursor_global_state.x_offset * vga_global_state.x_char_size,
-                cursor_global_state.y_offset * vga_global_state.y_char_size,
-                front_color, back_color,
-                ' ');
+            putchar(vga_global_state.FrameBuffer_addr, vga_global_state.x_resolution, cursor_global_state.x_offset * vga_global_state.x_char_size, cursor_global_state.y_offset * vga_global_state.y_char_size, fore_color, back_color, ' ');
             cursor_global_state.x_offset++;
-        } // 普通字符
+        }
         else
         {
-            putchar(
-                vga_global_state.FrameBuffer_addr,
-                vga_global_state.x_resolution,
-                cursor_global_state.x_offset * vga_global_state.x_char_size,
-                cursor_global_state.y_offset * vga_global_state.y_char_size,
-                front_color, back_color,
-                *(printk_buffer + str_index));
+            putchar(vga_global_state.FrameBuffer_addr, vga_global_state.x_resolution, cursor_global_state.x_offset * vga_global_state.x_char_size, cursor_global_state.y_offset * vga_global_state.y_char_size, fore_color, back_color, (unsigned char)*(printk_buffer + count));
             cursor_global_state.x_offset++;
         }
 
         if (cursor_global_state.x_offset >= (vga_global_state.x_resolution / vga_global_state.x_char_size))
         {
-            cursor_global_state.x_offset = 0;
             cursor_global_state.y_offset++;
+            cursor_global_state.x_offset = 0;
         }
         if (cursor_global_state.y_offset >= (vga_global_state.y_resolution / vga_global_state.y_char_size))
         {
             cursor_global_state.y_offset = 0;
         }
     }
-    return formatted_len;
+    return i;
 }
