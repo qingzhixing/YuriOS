@@ -85,7 +85,7 @@ static char *number(char *str, long num, int base, int size, int precision, int 
     {
         while (num != 0)
         {
-            tmp[i++] = digits[do_div(num, base)];
+            tmp[i++] = digits[do_div(&num, base)];
         }
     }
 
@@ -162,6 +162,9 @@ static inline void pad_right(char **str, int field_width)
     }
 }
 
+/*
+    格式化字符串并返回格式化后的字符串长度
+*/
 int vsprintf(char *buf, const char *format, va_list args)
 {
     char *formatted_str = buf;
@@ -413,6 +416,27 @@ void putchar(
         }
         // 指向下一行的像素数据
         font_row_ptr++;
+    }
+}
+
+void putchar_str(unsigned int *frame_buffer,
+                 int XResolution,
+                 unsigned int front_color,
+                 unsigned int back_color,
+                 const char *str)
+{
+    cursor_global_state.x_offset = 0;
+    cursor_global_state.y_offset = 0;
+
+    while (*str != '\0')
+    {
+        putchar(frame_buffer, XResolution, cursor_global_state.x_offset * CHAR_SIZE_X, cursor_global_state.y_offset * CHAR_SIZE_Y, front_color, back_color, *str++);
+        cursor_global_state.x_offset++;
+        if (cursor_global_state.x_offset * CHAR_SIZE_X >= XResolution)
+        {
+            cursor_global_state.x_offset = 0;
+            cursor_global_state.y_offset++;
+        }
     }
 }
 

@@ -42,12 +42,13 @@ A tiny OS developed by qingzhixing!
 - [X] 🐱 ᓚᘏᗢ... Load Into Kernel Space! at 2024.9.8
   ![LoadIntoKernelSpace](assets/images/Load_Into_Kernel.png)
   ![Long_Mode_Kernel_Description.png](assets/images/Long_Mode_Kernel_Description.png)
-
 - [X] 🌵 VGA显示色彩完美! at 2024.9.10
   ![VGA_Color_Perfect.png](assets/images/VGA显示色彩.png)
-
-- [X] 🌈 成功修复putchar 2024.9.13
+- [X] 🌈 成功修复putchar at 2024.9.13
 
 > printk无法使用,会使屏幕全部变为背景色并陷入死循环
 
 ![putchar](assets/images/putchar.png)
+
+- [X] 😕 使用putchar逐字打印没问题,将问题初步确定在color_printk中处理打印时出错 at 2024.9.15
+  ![putchar_str](assets/images/putchar_str.png)

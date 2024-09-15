@@ -77,4 +77,10 @@ void putchar(
     unsigned int back_color,
     unsigned char font_char);
 
+void putstr(unsigned int *frame_buffer,
+            int XResolution,
+            unsigned int front_color,
+            unsigned int back_color,
+            const char *str);
+
 #endif // YURIOS_PRINTK_H

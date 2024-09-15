@@ -68,7 +68,7 @@ void Start_Kernel(void)
     vga_global_state.FrameBufferSize = VGA_SCREEN_WIDTH * VGA_SCREEN_HEIGHT * 4;
 
     putchar(vga_global_state.FrameBuffer_addr, vga_global_state.x_resolution, 30, 30, WHITE, BLACK, 'Y');
-    // color_printk(RED, GREEN, "Welcome to YuriOS !"); // TODO:printk无法使用,会使屏幕全部变为背景色并陷入死循环
+    putchar_str(vga_global_state.FrameBuffer_addr, vga_global_state.x_resolution, WHITE, BLACK, "Welcome to YuriOS !"); // TODO:printk无法使用,会使屏幕全部变为背景色并陷入死循环
     putchar(vga_global_state.FrameBuffer_addr, vga_global_state.x_resolution, 50, 50, WHITE, BLACK, '0');
 
     while (1)
