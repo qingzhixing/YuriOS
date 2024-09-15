@@ -1,5 +1,5 @@
 BUILD_PATH = ./../../build
-GCC_FLAGS = -fno-builtin -static -mcmodel=large -m64 -fno-stack-protector -Wall -Wextra
+GCC_FLAGS =  -g -fno-builtin -static -mcmodel=large -m64 -fno-stack-protector -Wall -Wextra
 LINK_FLAGS = -b elf64-x86-64 -z muldefs
 OBJCOPY_FLAGS = -I elf64-x86-64 -S -R ".eh_frame" -R ".comment" -O binary
 
@@ -20,6 +20,9 @@ $(BUILD_PATH)/head.o: head.S
 $(BUILD_PATH)/system: $(OBJS)
 	mkdir -p $(BUILD_PATH)
 	ld $(LINK_FLAGS) -o $@ $^ -T Kernel.lds
+	objcopy --only-keep-debug $(BUILD_PATH)/system $(BUILD_PATH)/system.debug
+	objcopy --strip-debug $(BUILD_PATH)/system
+
 
 .PHONY: chmod
 chmod:
@@ -31,8 +34,4 @@ all: chmod $(BUILD_PATH)/system
 
 .PHONY: test
 test: $(BUILD_PATH)/head.o
-
-.phony: clean
-clean:
-	rm -rf *.o *.s~ *.s *.S~ *.c~ *.h~ system  Makefile~ Kernel.lds~ kernel.bin
 

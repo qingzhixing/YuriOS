@@ -28,6 +28,8 @@ $(BUILD_PATH)/kernel.bin
 bochs: build
 	$(BOCHS_BIN) -q -f $(BOCHS_PATH)/bochsrc.bxrc
 
+# TODO: Starting program: /home/qingzhixing/Documents/Project/YuriOS/build/system.debug
+#	During startup program terminated with signal SIGSEGV, Segmentation fault.
 .PHONY: bochs-gdb
 bochs-gdb: build
 	$(BOCHS_GDB_BIN) -q -f $(BOCHS_PATH)/bochsrc-gdb.bxrc
