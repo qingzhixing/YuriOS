@@ -1,5 +1,8 @@
 BUILD_PATH = ./build
 SRC_PATH = ./src
+BOCHS_PATH = ./build-tools/bochs/
+BOCHS_BIN = $(BOCHS_PATH)/bochs-2.6.11
+BOCHS_GDB_BIN = $(BOCHS_PATH)/gdb-bochs-2.6.11
 
 $(BUILD_PATH)/%.bin: $(SRC_PATH)/bootloader/%.nasm
 	mkdir -p $(BUILD_PATH)
@@ -23,7 +26,11 @@ $(BUILD_PATH)/kernel.bin
 
 .PHONY:bochs
 bochs: build
-	bochs -q -f bochsrc.bxrc
+	$(BOCHS_BIN) -q -f bochsrc.bxrc
+
+.PHONY: bochs-gdb
+bochs-gdb: build
+	$(BOCHS_GDB_BIN) -q -f bochsrc-gdb.bxrc
 
 .PHONY: test
 test: $(BUILD_PATH)/kernel.bin
