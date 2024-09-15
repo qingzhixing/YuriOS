@@ -29,6 +29,12 @@
 #define SPECIAL 0x20 /* 0x */
 #define SMALL 0x40   /* use 'abcdef' instead of 'ABCDEF' */
 
+#define is_digit(c) ((c) >= '0' && (c) <= '9')
+#define do_div(n, base) ({ \
+int __res; \
+__asm__("divq %%rcx":"=a" (n),"=d" (__res):"0" (n),"1" (0),"c" (base)); \
+__res; })
+
 #define WHITE 0x00ffffff  // 白
 #define BLACK 0x00000000  // 黑
 #define RED 0x00ff0000    // 红
@@ -69,6 +75,8 @@ int color_printk(unsigned int front_color, unsigned int back_color, const char *
 
 int vsprintf(char *buffer, const char *format, va_list args);
 
+int sprintf(char *buffer, const char *format, ...);
+
 void putchar(
     unsigned int *frame_buffer,
     int XResolution,
@@ -77,10 +85,10 @@ void putchar(
     unsigned int back_color,
     unsigned char font_char);
 
-void putstr(unsigned int *frame_buffer,
-            int XResolution,
-            unsigned int front_color,
-            unsigned int back_color,
-            const char *str);
+void putchar_str(unsigned int *frame_buffer,
+                 int XResolution,
+                 unsigned int front_color,
+                 unsigned int back_color,
+                 const char *str);
 
 #endif // YURIOS_PRINTK_H

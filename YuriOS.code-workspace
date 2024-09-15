@@ -12,7 +12,9 @@
 	"settings": {
 		"files.associations": {
 			"*.nasm": "nasm",
-			"linkage.h": "c"
+			"linkage.h": "c",
+			"printk.h": "c",
+			"lib.h": "c"
 		}
 	}
 }

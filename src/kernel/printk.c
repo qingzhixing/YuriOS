@@ -7,11 +7,7 @@
 #include <stdbool.h>
 #include "printk.h"
 #include "lib.h"
-
-static inline int is_digit(char c)
-{
-    return c >= '0' && c <= '9';
-}
+#include "linkage.h"
 
 /*
     将当前指针指向的字符串转换为整数并同时移动指针,遇到非数字字符停止转换,返回整数值
@@ -19,26 +15,17 @@ static inline int is_digit(char c)
 int skip_atoi(const char **s)
 {
     int i = 0;
+
     while (is_digit(**s))
-    {
         i = i * 10 + *((*s)++) - '0';
-    }
     return i;
 }
 
-static inline int do_div(long *n, int base)
-{
-    int __res;
-    __asm__("divq %%rcx"
-            : "=a"(*n), "=d"(__res)
-            : "0"(*n), "1"(0), "c"(base));
-    return __res;
-}
-
 // Function to convert a number to a string in a specified base with formatting options
+// TODO:无法正常转换
 static char *number(char *str, long num, int base, int size, int precision, int type)
 {
-    char c, sign, tmp[64];
+    char c, sign, tmp[50];
     const char *digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     int i;
 
@@ -50,173 +37,106 @@ static char *number(char *str, long num, int base, int size, int precision, int 
         return 0;
     c = (type & ZEROPAD) ? '0' : ' ';
     sign = 0;
-
     if (type & SIGN && num < 0)
     {
         sign = '-';
         num = -num;
     }
-    else if (type & PLUS)
-    {
-        sign = '+';
-    }
-    else if (type & SPACE)
-    {
-        sign = ' ';
-    }
-
+    else
+        sign = (type & PLUS) ? '+' : ((type & SPACE) ? ' ' : 0);
     if (sign)
         size--;
-
     if (type & SPECIAL)
-    {
         if (base == 16)
             size -= 2;
         else if (base == 8)
             size--;
-    }
-
     i = 0;
     if (num == 0)
-    {
         tmp[i++] = '0';
-    }
     else
-    {
         while (num != 0)
-        {
-            tmp[i++] = digits[do_div(&num, base)];
-        }
-    }
-
+            tmp[i++] = digits[do_div(num, base)];
     if (i > precision)
         precision = i;
     size -= precision;
-
     if (!(type & (ZEROPAD + LEFT)))
-    {
         while (size-- > 0)
-        {
             *str++ = ' ';
-        }
-    }
-
     if (sign)
-    {
         *str++ = sign;
-        size--;
-    }
-
     if (type & SPECIAL)
-    {
         if (base == 8)
-        {
             *str++ = '0';
-            size--;
-        }
         else if (base == 16)
         {
             *str++ = '0';
             *str++ = digits[33];
-            size -= 2;
         }
-    }
-
     if (!(type & LEFT))
-    {
         while (size-- > 0)
-        {
             *str++ = c;
-        }
-    }
 
-    if (precision < 0)
-    {
-        precision = 0; // 确保精度不会为负
-    }
-
-    while (i < precision)
-    {
+    while (i < precision--)
         *str++ = '0';
-        precision--;
-    }
-
+    while (i-- > 0)
+        *str++ = tmp[i];
+    while (size-- > 0)
+        *str++ = ' ';
     return str;
-}
-
-static inline void pad_left(char **str, int field_width)
-{
-    while (--field_width > 0)
-    {
-        **str = ' ';
-        (*str)++;
-    }
-}
-
-static inline void pad_right(char **str, int field_width)
-{
-    while (--field_width > 0)
-    {
-        **str = ' ';
-        (*str)++;
-    }
 }
 
 /*
     格式化字符串并返回格式化后的字符串长度
 */
-int vsprintf(char *buf, const char *format, va_list args)
+int vsprintf(char *buf, const char *fmt, va_list args)
 {
-    char *formatted_str = buf;
+    char *str, *s;
     int flags;
     int field_width;
-    int precision; // 精度 'h', 'l', 'L', 'Z' for integer fields
-    int qualifier;
+    int precision;
+    int len, i;
 
-    while (*format)
+    int qualifier; /* 'h', 'l', 'L' or 'Z' for integer fields */
+
+    for (str = buf; *fmt; fmt++)
     {
-        if (*format != '%')
+
+        if (*fmt != '%')
         {
-            *formatted_str++ = *format++;
+            *str++ = *fmt;
             continue;
         }
-
-        format++;
         flags = 0;
-        while (true)
+    repeat:
+        fmt++;
+        switch (*fmt)
         {
-            switch (*format)
-            {
-            case '-':
-                flags |= LEFT;
-                break;
-            case '+':
-                flags |= PLUS;
-                break;
-            case ' ':
-                flags |= SPACE;
-                break;
-            case '#':
-                flags |= SPECIAL;
-                break;
-            case '0':
-                flags |= ZEROPAD;
-                break;
-            default:
-                goto parse_width;
-            }
-            format++;
+        case '-':
+            flags |= LEFT;
+            goto repeat;
+        case '+':
+            flags |= PLUS;
+            goto repeat;
+        case ' ':
+            flags |= SPACE;
+            goto repeat;
+        case '#':
+            flags |= SPECIAL;
+            goto repeat;
+        case '0':
+            flags |= ZEROPAD;
+            goto repeat;
         }
 
-    parse_width:
+        /* get field width */
+
         field_width = -1;
-        if (is_digit(*format))
+        if (is_digit(*fmt))
+            field_width = skip_atoi(&fmt);
+        else if (*fmt == '*')
         {
-            field_width = skip_atoi(&format);
-        }
-        else if (*format == '*')
-        {
-            format++;
+            fmt++;
             field_width = va_arg(args, int);
             if (field_width < 0)
             {
@@ -225,159 +145,145 @@ int vsprintf(char *buf, const char *format, va_list args)
             }
         }
 
+        /* get the precision */
+
         precision = -1;
-        if (*format == '.')
+        if (*fmt == '.')
         {
-            format++;
-            if (is_digit(*format))
+            fmt++;
+            if (is_digit(*fmt))
+                precision = skip_atoi(&fmt);
+            else if (*fmt == '*')
             {
-                precision = skip_atoi(&format);
-            }
-            else if (*format == '*')
-            {
-                format++;
+                fmt++;
                 precision = va_arg(args, int);
             }
             if (precision < 0)
-            {
                 precision = 0;
-            }
         }
 
         qualifier = -1;
-        if (*format == 'h' || *format == 'l' || *format == 'L' || *format == 'Z')
+        if (*fmt == 'h' || *fmt == 'l' || *fmt == 'L' || *fmt == 'Z')
         {
-            qualifier = *format;
-            format++;
+            qualifier = *fmt;
+            fmt++;
         }
 
-        switch (*format)
+        switch (*fmt)
         {
         case 'c':
+
             if (!(flags & LEFT))
-            {
-                pad_left(&formatted_str, field_width);
-            }
-            *formatted_str++ = (unsigned char)va_arg(args, int);
-            if (flags & LEFT)
-            {
-                pad_right(&formatted_str, field_width);
-            }
+                while (--field_width > 0)
+                    *str++ = ' ';
+            *str++ = (unsigned char)va_arg(args, int);
+            while (--field_width > 0)
+                *str++ = ' ';
             break;
 
         case 's':
-        {
-            char *s = va_arg(args, char *);
+
+            s = va_arg(args, char *);
             if (!s)
-            {
-                s = "";
-            }
-            int len = strlen(s);
+                s = '\0';
+            len = strlen(s);
             if (precision < 0)
-            {
                 precision = len;
-            }
             else if (len > precision)
-            {
                 len = precision;
-            }
 
             if (!(flags & LEFT))
-            {
-                pad_left(&formatted_str, field_width - len);
-            }
-            for (int i = 0; i < len; i++)
-            {
-                *formatted_str++ = *s++;
-            }
-            if (flags & LEFT)
-            {
-                pad_right(&formatted_str, field_width - len);
-            }
+                while (len < field_width--)
+                    *str++ = ' ';
+            for (i = 0; i < len; i++)
+                *str++ = *s++;
+            while (len < field_width--)
+                *str++ = ' ';
             break;
-        }
 
         case 'o':
+
             if (qualifier == 'l')
-            {
-                formatted_str = number(formatted_str, va_arg(args, unsigned long), 8, field_width, precision, flags);
-            }
+                str = number(str, va_arg(args, unsigned long), 8, field_width, precision, flags);
             else
-            {
-                formatted_str = number(formatted_str, va_arg(args, unsigned int), 8, field_width, precision, flags);
-            }
+                str = number(str, va_arg(args, unsigned int), 8, field_width, precision, flags);
             break;
 
         case 'p':
+
             if (field_width == -1)
             {
                 field_width = 2 * sizeof(void *);
                 flags |= ZEROPAD;
             }
-            formatted_str = number(formatted_str, (unsigned long)va_arg(args, void *), 16, field_width, precision, flags);
+
+            str = number(str, (unsigned long)va_arg(args, void *), 16, field_width, precision, flags);
             break;
 
         case 'x':
+
             flags |= SMALL;
+
         case 'X':
+
             if (qualifier == 'l')
-            {
-                formatted_str = number(formatted_str, va_arg(args, unsigned long), 16, field_width, precision, flags);
-            }
+                str = number(str, va_arg(args, unsigned long), 16, field_width, precision, flags);
             else
-            {
-                formatted_str = number(formatted_str, va_arg(args, unsigned int), 16, field_width, precision, flags);
-            }
+                str = number(str, va_arg(args, unsigned int), 16, field_width, precision, flags);
             break;
 
         case 'd':
         case 'i':
+
             flags |= SIGN;
         case 'u':
+
             if (qualifier == 'l')
-            {
-                formatted_str = number(formatted_str, va_arg(args, unsigned long), 10, field_width, precision, flags);
-            }
+                str = number(str, va_arg(args, unsigned long), 10, field_width, precision, flags);
             else
-            {
-                formatted_str = number(formatted_str, va_arg(args, unsigned int), 10, field_width, precision, flags);
-            }
+                str = number(str, va_arg(args, unsigned int), 10, field_width, precision, flags);
             break;
 
         case 'n':
+
             if (qualifier == 'l')
             {
                 long *ip = va_arg(args, long *);
-                *ip = (formatted_str - buf);
+                *ip = (str - buf);
             }
             else
             {
                 int *ip = va_arg(args, int *);
-                *ip = (formatted_str - buf);
+                *ip = (str - buf);
             }
             break;
 
         case '%':
-            *formatted_str++ = '%';
+
+            *str++ = '%';
             break;
 
         default:
-            *formatted_str++ = '%';
-            if (*format)
-            {
-                *formatted_str++ = *format;
-            }
+
+            *str++ = '%';
+            if (*fmt)
+                *str++ = *fmt;
             else
-            {
-                format--;
-            }
+                fmt--;
             break;
         }
-        format++;
     }
+    *str = '\0';
+    return str - buf;
+}
 
-    *formatted_str = '\0';
-    return formatted_str - buf;
+int sprintf(char *buffer, const char *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    int len = vsprintf(buffer, format, args);
+    va_end(args);
+    return len;
 }
 
 void putchar(
@@ -444,7 +350,7 @@ void putchar_str(unsigned int *frame_buffer,
 int color_printk(unsigned int front_color, unsigned int back_color, const char *format, ...)
 {
     int formatted_len;
-    int line;
+    int line; // 用来控制制表符处理的逻辑，以实现正确的制表显示效果
 
     // format the message
     va_list args;
