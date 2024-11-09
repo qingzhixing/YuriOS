@@ -71,30 +71,42 @@ setup_IDT:
 	leaq ignore_interrupt(%rip), %rdx // leaq a(b,c,d) == mov (a+b+c*d)
 
 	/*
-	* IDT Structure: "doc/kernel/IDT/IDT Gate Descriptor Structure.png"
+	* IDT Structure: "doc/kernel/IDT/IDT Gate Descriptor Structure - 64bits.png"
 	* 将IDT数据写入rax:
-	* bit 0 ~ bit 15 : dx
-	* bit 16 ~ bit 23 : 0x08    -> Code Segment
-	* bit 24 ~ bit 31 : EMPTY(0)
-	* bit 32 ~ bit 47 : 0x8e00  -> Interrupt Gate
-	* bit 48 ~ bit 63 : edx 高16bit
+	* bit 0 ~ bit 15 : dx           -> Offset_1
+	* bit 16 ~ bit 31 : 0x00_08     -> Segment Selector(Code Segment)
+	* bit 32 ~ bit 47 : 0x8e00      -> P, DPL, 0, Gate Type(Interrupt Gate), Reserved, IST - TSS段偏移
+	* bit 48 ~ bit 63 : edx 高16bit  -> Offset_2
+	* bit 64 ~ bit 95               -> Offset_3
+	* bit 96 ~ bit 127              -> Reserved
+	*
+	*   Offset: 64-bit value -> Entry point of the Interrupt Service Routine (中断处理程序)
 	*/
 	movq $(0x08 << 16), %rax
 	movw %dx, %ax
 	movq $(0x8e00 << 32), %rcx
 	addq %rcx, %rax
+
+	// 放入rdx bit 16 ~ bit 31 到 offset_2
 	movl %edx, %ecx
 	shrl $16, %ecx
 	shlq $48, %rcx
 	addq %rcx, %rax
 
 	shrq $32, %rdx
+
 	leaq IDT_Table(%rip), %rdi
 	mov $256, %rcx
 
-rp_sidt:    // Repeat set IDTa
+rp_sidt:    // Repeat set IDT
 	movq %rax, (%rdi)   // 将rax中存储的数据放入 IDT_Table(0)
-	// TODO: 止步于此
+	mov rdx, 8(%rdi)    // 填充 offset_3
+	add $0x10 , %rdi
+	dec %rcx
+	jne rp_sidt
+
+setup_TSS64:
+	leaq TSS64_Table(%rip), %rdx    // TODO: 止步于此
 
 
 jump_to_kernel:
