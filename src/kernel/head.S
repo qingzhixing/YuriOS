@@ -68,9 +68,33 @@ entry64:
 
 extern ignore_interrupt
 setup_IDT:
-	leaq ignore_interrupt(%rip), %rdx
+	leaq ignore_interrupt(%rip), %rdx // leaq a(b,c,d) == mov (a+b+c*d)
+
+	/*
+	* IDT Structure: "doc/kernel/IDT/IDT Gate Descriptor Structure.png"
+	* 将IDT数据写入rax:
+	* bit 0 ~ bit 15 : dx
+	* bit 16 ~ bit 23 : 0x08    -> Code Segment
+	* bit 24 ~ bit 31 : EMPTY(0)
+	* bit 32 ~ bit 47 : 0x8e00  -> Interrupt Gate
+	* bit 48 ~ bit 63 : edx 高16bit
+	*/
 	movq $(0x08 << 16), %rax
-	// TODO:止步于此
+	movw %dx, %ax
+	movq $(0x8e00 << 32), %rcx
+	addq %rcx, %rax
+	movl %edx, %ecx
+	shrl $16, %ecx
+	shlq $48, %rcx
+	addq %rcx, %rax
+
+	shrq $32, %rdx
+	leaq IDT_Table(%rip), %rdi
+	mov $256, %rcx
+
+rp_sidt:    // Repeat set IDTa
+	movq %rax, (%rdi)   // 将rax中存储的数据放入 IDT_Table(0)
+	// TODO: 止步于此
 
 
 jump_to_kernel:
