@@ -204,6 +204,7 @@ ignore_interrupt:
 
 Loop:
 	jmp Loop    // TODO:此时我们并不需要恢复源程序,只需要卡在这里,之后需要删除这一句
+	//TODO: 止步于此,后面需要为各种中断制作独立的处理函数
 
 	// 恢复
 	popq	%rax
