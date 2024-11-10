@@ -71,7 +71,8 @@ setup_IDT:
 	leaq ignore_interrupt(%rip), %rdx // leaq a(b,c,d) == mov (a+b+c*d)
 
 	/*
-	* IDT Structure: "doc/kernel/IDT/IDT Gate Descriptor Structure - 64bits.png"
+	* IDT Structure Reference:
+	*   "doc/kernel/IDT/IDT Gate Descriptor Structure - 64bits.png"
 	* 将IDT数据写入rax:
 	* bit 0 ~ bit 15 : dx           -> Offset_1
 	* bit 16 ~ bit 31 : 0x00_08     -> Segment Selector(Code Segment)
@@ -105,15 +106,61 @@ rp_sidt:    // Repeat set IDT
 	dec %rcx
 	jne rp_sidt
 
-setup_TSS64:
-	leaq TSS64_Table(%rip), %rdx    // TODO: 止步于此
+setup_TSS64:     // Task State Segment
+	/*
+	* TSS Descriptor Structure Reference:
+	*   doc/kernel/Descriptor/System Segment Descriptor.png
+	*/
 
+	leaq TSS64_Table(%rip), %rdx    // Descriptor Base Address
+	xorq %rax, %rax
+	xorq %rcx, %rcx
+
+	/*
+	* Descriptor bit 40 ~ bit 47: 0x89
+	* 40~43 -> Type: 0b1001 = 0x9 (80386-TSS, 32 bit)
+	* 44~47 -> S(0 for System Segment),DPL(0b00),P(1)
+	*/
+	movq $0x89, %rax
+	shlq $40, %rax
+
+	// Base Address High(8 bit)
+	movl %edx, %ecx
+	shrl $24, %ecx
+	shlq $56, %rcx
+	addq %rcx, %rax
+	xorq %rcx, %rcx
+
+	// Base Address Low (24 bit)
+	movl %edx, %ecx
+	andl $0xffffff, %ecx    // 取后 24 bit
+	shlq $16, %rcx
+	addq %rcx, %rax
+
+	// bit 0 ~ bit 15 -> Limit Low
+	addq $103,  %rax
+	/*
+	* Q: 为何这里的 limit 为 103?
+	* A(Fitten Code AI): 具体来说，103这个值可能表示TSS描述符所使用的内存空间的大小。
+	*   根据不同操作系统和实现，TSS的大小可能会有所变化。对于大多数实现来说，
+	*   TSS的最小大小为104字节（可以容纳一些基本的任务状态信息），但在某些系统或版本中可能会存在调整或优化。
+	*/
+
+	leaq GDT_Table(%rip), %rdi
+	movq %rax, 64(%rdi)             // 将rax值存储到 GDT_Table 0x40偏移处(为TSS预留了位置)
+
+	shrq $32, %rdx
+	movq %rdx, 72(%rdi)
+
+	// Load Task Register
+	mov $0x40, %ax                  // 0x40 为 TSS Descriptor 选择子在GDT内的偏移
+	ltr %ax
 
 jump_to_kernel:
 	movq	go_to_kernel(%rip),	%rax		/* movq address */
 	pushq	$0x08           // code selector for 64-bit mode
 	pushq	%rax
-	lretq   // 长返回，切换到内核
+	lretq   // 长返回，切换到内核 (从栈中读取 段选择子 与 偏移)
 
 go_to_kernel:
 	.quad	Start_Kernel
@@ -187,13 +234,13 @@ __PDE:                  // Page Directory Entry
 
 GDT_Table:  // 详见第6章 全局描述符表
 	.quad	0x0000000000000000			/*0	NULL descriptor		       	00*/
-	.quad	0x0020980000000000			/*1	KERNEL	Code	64-bit	Segment	08*/
-	.quad	0x0000920000000000			/*2	KERNEL	Data	64-bit	Segment	10*/
-	.quad	0x0020f80000000000			/*3	USER	Code	64-bit	Segment	18*/
-	.quad	0x0000f20000000000			/*4	USER	Data	64-bit	Segment	20*/
-	.quad	0x00cf9a000000ffff			/*5	KERNEL	Code	32-bit	Segment	28*/
-	.quad	0x00cf92000000ffff			/*6	KERNEL	Data	32-bit	Segment	30*/
-	.fill	10,8,0					/*8 ~ 9	TSS (jmp one segment <7>) in long-mode 128-bit 40*/
+	.quad	0x0020980000000000			/*1	KERNEL	Code	64-bit	Segment	-> 08*/
+	.quad	0x0000920000000000			/*2	KERNEL	Data	64-bit	Segment	-> 10*/
+	.quad	0x0020f80000000000			/*3	USER	Code	64-bit	Segment	-> 18*/
+	.quad	0x0000f20000000000			/*4	USER	Data	64-bit	Segment	-> 20*/
+	.quad	0x00cf9a000000ffff			/*5	KERNEL	Code	32-bit	Segment	-> 28*/
+	.quad	0x00cf92000000ffff			/*6	KERNEL	Data	32-bit	Segment	-> 30*/
+	.fill	10,8,0					/*8 ~ 9	TSS (jmp one segment <7>) in long-mode 128-bit -> 40*/
 	// fill (repeat, size, value)
 GDT_END:
 
