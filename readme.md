@@ -57,3 +57,6 @@ A tiny OS developed by qingzhixing!
 
   > 妈妈我再也不随便用AI了TT
   >
+
+- [X] 🦄 成功捕获异常并使用异常处理 at 2024.11.10
+  ![成功捕获异常并使用异常处理](assets/images/成功捕获异常并使用异常处理.png)

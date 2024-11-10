@@ -66,7 +66,6 @@ entry64:
 	movq	%rax,	%ss
 	movq	$0xffff800000007E00,	%rsp		/* rsp address */
 
-extern ignore_interrupt
 setup_IDT:
 	leaq ignore_interrupt(%rip), %rdx // leaq a(b,c,d) == mov (a+b+c*d)
 
@@ -101,7 +100,7 @@ setup_IDT:
 
 rp_sidt:    // Repeat set IDT
 	movq %rax, (%rdi)   // 将rax中存储的数据放入 IDT_Table(0)
-	mov rdx, 8(%rdi)    // 填充 offset_3
+	movq %rdx, 8(%rdi)    // 填充 offset_3
 	add $0x10 , %rdi
 	dec %rcx
 	jne rp_sidt
@@ -155,7 +154,6 @@ setup_TSS64:     // Task State Segment
 	// Load Task Register
 	mov $0x40, %ax                  // 0x40 为 TSS Descriptor 选择子在GDT内的偏移
 	ltr %ax
-	// TODO:止步于此,接下来实现ignore_int
 
 jump_to_kernel:
 	movq	go_to_kernel(%rip),	%rax		/* movq address */
@@ -165,6 +163,74 @@ jump_to_kernel:
 
 go_to_kernel:
 	.quad	Start_Kernel
+
+//======= ignore_interrupt
+ignore_interrupt:
+	// Backup
+	cld
+	pushq	%rax
+	pushq	%rbx
+	pushq	%rcx
+	pushq	%rdx
+	pushq	%rbp
+	pushq	%rdi
+	pushq	%rsi
+	pushq	%r8
+	pushq	%r9
+	pushq	%r10
+	pushq	%r11
+	pushq	%r12
+	pushq	%r13
+	pushq	%r14
+	pushq	%r15
+	movq	%es,	%rax
+	pushq	%rax
+	movq	%ds,	%rax
+	pushq	%rax
+
+	movq $0x10, %rax    // 数据段
+	movq %rax, %ds
+	movq %rax, %es
+
+	leaq int_msg(%rip), %rax
+	pushq %rax
+	movq %rax, %rdx
+	movq $0x00000000, %rsi
+	movq $0x00ff0000, %rdi
+
+	movq $0, %rax
+	callq color_printk
+	addq $0x8, %rsp     // 平栈
+
+Loop:
+	jmp Loop    // TODO:此时我们并不需要恢复源程序,只需要卡在这里,之后需要删除这一句
+
+	// 恢复
+	popq	%rax
+	movq	%rax,	%ds
+	popq	%rax
+	movq	%rax,	%es
+
+	popq	%r15
+	popq	%r14
+	popq	%r13
+	popq	%r12
+	popq	%r11
+	popq	%r10
+	popq	%r9
+	popq	%r8
+
+	popq	%rsi
+	popq	%rdi
+	popq	%rbp
+	popq	%rdx
+	popq	%rcx
+	popq	%rbx
+	popq	%rax
+	iretq
+
+int_msg:
+	.asciz "Unknown interrupt or fault at RIP\n"
 
 //=======	init page
 .align 8
