@@ -155,6 +155,7 @@ setup_TSS64:     // Task State Segment
 	// Load Task Register
 	mov $0x40, %ax                  // 0x40 为 TSS Descriptor 选择子在GDT内的偏移
 	ltr %ax
+	// TODO:止步于此,接下来实现ignore_int
 
 jump_to_kernel:
 	movq	go_to_kernel(%rip),	%rax		/* movq address */
