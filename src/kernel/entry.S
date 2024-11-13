@@ -1,5 +1,6 @@
 #include "linkage.h"
 
+// 各个寄存器在中断时的存储位置 与我们的代码实现有关 (基于栈指针偏移)
 R15	=	0x00
 R14	=	0x08
 R13	=	0x10
@@ -59,11 +60,13 @@ jmp	RESTORE_ALL	/*need rewrite*/
 
 
 ENTRY(divide_error)
-	pushq	$0              // 无错误码,默认写入0,统一格式
-	pushq	%rax
+	pushq	$0              				// 无错误码,默认写入0,统一格式
 
-	leaq	do_divide_error(%rip),	%rax
-	xchgq	%rax,	(%rsp)
+	// 将中断处理函数地址写入栈顶
+	pushq	%rax
+	leaq	do_divide_error(%rip),	%rax	// 获取中断处理函数地址
+	xchgq	%rax,	(%rsp)					// 交换存储数据
+	// 至此我们成功保存了中断处理函数地址,并恢复了RAX
 
 error_code:
 	// 保存运行环境
@@ -91,31 +94,37 @@ error_code:
 
 	cld
 
-	movq	ERRCODE(%rsp),	%rsi
-	movq	FUNC(%rsp),	%rdx
+	movq	ERRCODE(%rsp),	%rsi 	// RSI:第二个参数 - 保存错误码
+	movq	FUNC(%rsp),	%rdx		// 保存中断处理函数地址
 
-	movq	$0x10,	%rdi
-	movq	%rdi,	%ds
-	movq	%rdi,	%es
+	movq	$0x10,	%rdi			// Code Segment
+	movq	%rdi,	%ds				// Code Segment
+	movq	%rdi,	%es				// Code Segment
 
-	movq	%rsp,	%rdi
+	/* void handle_function (unsigned long rsp, unsigned long error_code)
+	* 	传参顺序: doc/kernel/C_Asm/32-bit与64-bit下寄存器传参与定义.png
+	*/
+	movq	%rsp,	%rdi			// RDI:第一个参数 - 栈顶指针
 ////GET_CURRENT(%ebx)
 
-	callq 	*%rdx
+	callq 	*%rdx					// 运行中断处理函数
 
-	jmp	ret_from_exception
+	jmp	ret_from_exception			// 恢复运行现场并返回
 
 ENTRY(debug)
 	pushq	$0
 	pushq	%rax
-			leaq	do_debug(%rip),	%rax
-			xchgq	%rax,	(%rsp)
+
+	leaq	do_debug(%rip),	%rax
+	xchgq	%rax,	(%rsp)
+
 	jmp	error_code
 
 ENTRY(nmi)
 	pushq	%rax
 	cld;
 	pushq	%rax;
+
 	pushq	%rax
 	movq	%es,	%rax
 	pushq	%rax
@@ -152,112 +161,146 @@ ENTRY(nmi)
 ENTRY(int3)
 	pushq	$0
 	pushq	%rax
+
 	leaq	do_int3(%rip),	%rax
 	xchgq	%rax,	(%rsp)
+
 	jmp	error_code
 
 ENTRY(overflow)
 	pushq	$0
 	pushq	%rax
+
 	leaq	do_overflow(%rip),	%rax
 	xchgq	%rax,	(%rsp)
+
 	jmp	error_code
 
 ENTRY(bounds)
 	pushq	$0
 	pushq	%rax
+
 	leaq	do_bounds(%rip),	%rax
 	xchgq	%rax,	(%rsp)
+
 	jmp	error_code
 
 ENTRY(undefined_opcode)
 	pushq	$0
 	pushq	%rax
+
 	leaq	do_undefined_opcode(%rip),	%rax
 	xchgq	%rax,	(%rsp)
+
 	jmp	error_code
 
 ENTRY(dev_not_available)	/* need rewrite */
 	pushq	$0
 	pushq	%rax
+
 	leaq	do_dev_not_available(%rip),	%rax
 	xchgq	%rax,	(%rsp)
+
 	jmp	error_code
 
 
 ENTRY(double_fault)
 	pushq	%rax
+
 	leaq	do_double_fault(%rip),	%rax
 	xchgq	%rax,	(%rsp)
+
 	jmp	error_code
 
 ENTRY(coprocessor_segment_overrun)
 	pushq	$0
 	pushq	%rax
+
 	leaq	do_coprocessor_segment_overrun(%rip),	%rax
 	xchgq	%rax,	(%rsp)
+
 	jmp	error_code
 
 ENTRY(invalid_TSS)
 	pushq	%rax
+
 	leaq	do_invalid_TSS(%rip),	%rax
 	xchgq	%rax,	(%rsp)
+
 	jmp	error_code
 
 ENTRY(segment_not_present)
 	pushq	%rax
+
 	leaq	do_segment_not_present(%rip),	%rax
 	xchgq	%rax,	(%rsp)
+
 	jmp	error_code
 
 ENTRY(stack_segment_fault)
 	pushq	%rax
+
 	leaq	do_stack_segment_fault(%rip),	%rax
 	xchgq	%rax,	(%rsp)
+
 	jmp	error_code
 
 ENTRY(general_protection)
 	pushq	%rax
+
 	leaq	do_general_protection(%rip),	%rax
 	xchgq	%rax,	(%rsp)
+
 	jmp	error_code
 
 ENTRY(page_fault)
 	pushq	%rax
+
 	leaq	do_page_fault(%rip),	%rax
 	xchgq	%rax,	(%rsp)
+
 	jmp	error_code
 
 ENTRY(x87_FPU_error)
 	pushq	$0
 	pushq	%rax
+
 	leaq	do_x87_FPU_error(%rip),	%rax
 	xchgq	%rax,	(%rsp)
+
 	jmp	error_code
 
 ENTRY(alignment_check)
 	pushq	%rax
+
 	leaq	do_alignment_check(%rip),	%rax
 	xchgq	%rax,	(%rsp)
+
 	jmp	error_code
 
 ENTRY(machine_check)
 	pushq	$0
 	pushq	%rax
+
 	leaq	do_machine_check(%rip),	%rax
 	xchgq	%rax,	(%rsp)
+
 	jmp	error_code
 
 ENTRY(SIMD_exception)
 	pushq	$0
 	pushq	%rax
+
 	leaq	do_SIMD_exception(%rip),	%rax
 	xchgq	%rax,	(%rsp)
+
 	jmp	error_code
 
 ENTRY(virtualization_exception)
 	pushq	$0
 	pushq	%rax
+
 	leaq	do_virtualization_exception(%rip),	%rax
 	xchgq	%rax,	(%rsp)
+
 	jmp	error_code
