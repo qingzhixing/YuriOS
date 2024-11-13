@@ -64,6 +64,10 @@ ENTRY(divide_error)
 
 	// 将中断处理函数地址写入栈顶
 	pushq	%rax
+
+	Loop:
+		jmp Loop
+
 	leaq	do_divide_error(%rip),	%rax	// 获取中断处理函数地址
 	xchgq	%rax,	(%rsp)					// 交换存储数据
 	// 至此我们成功保存了中断处理函数地址,并恢复了RAX
@@ -121,6 +125,7 @@ ENTRY(debug)
 	jmp	error_code
 
 ENTRY(nmi)
+	// 占位
 	pushq	%rax
 	cld;
 	pushq	%rax;
@@ -151,8 +156,8 @@ ENTRY(nmi)
 	movq	%rdx,	%ds;
 	movq	%rdx,	%es;
 
-	movq	$0,	%rsi
-	movq	%rsp,	%rdi
+	movq	$0,	%rsi		// 错误码 0
+	movq	%rsp,	%rdi 	// 中断处理函数 (void)(0)
 
 	callq	do_nmi
 

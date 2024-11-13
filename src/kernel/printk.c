@@ -4,10 +4,8 @@
 
 #include <stdarg.h>
 #include <stddef.h>
-#include <stdbool.h>
 #include "printk.h"
 #include "lib.h"
-#include "linkage.h"
 
 void init_printk()
 {

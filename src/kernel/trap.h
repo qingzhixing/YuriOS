@@ -9,46 +9,46 @@
 #include "printk.h"
 #include "lib.h"
 
-void divide_error();
+extern void divide_error();
 
-void debug();
+extern void debug();
 
-void nmi();
+extern void nmi();
 
-void int3();
+extern void int3();
 
-void overflow();
+extern void overflow();
 
-void bounds();
+extern void bounds();
 
-void undefined_opcode();
+extern void undefined_opcode();
 
-void dev_not_available();
+extern void dev_not_available();
 
-void double_fault();
+extern void double_fault();
 
-void coprocessor_segment_overrun();
+extern void coprocessor_segment_overrun();
 
-void invalid_TSS();
+extern void invalid_TSS();
 
-void segment_not_present();
+extern void segment_not_present();
 
-void stack_segment_fault();
+extern void stack_segment_fault();
 
-void general_protection();
+extern void general_protection();
 
-void page_fault();
+extern void page_fault();
 
-void x87_FPU_error();
+extern void x87_FPU_error();
 
-void alignment_check();
+extern void alignment_check();
 
-void machine_check();
+extern void machine_check();
 
-void SIMD_exception();
+extern void SIMD_exception();
 
-void virtualization_exception();
+extern void virtualization_exception();
 
-void sys_vector_init();
+extern void sys_vector_init();
 
 #endif //YURIOS_TRAP_H

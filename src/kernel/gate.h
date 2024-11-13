@@ -1,15 +1,14 @@
-#pragma once
 #ifndef YURIOS_GATE_H
 #define YURIOS_GATE_H
 
 struct desc_struct {
-    // doc/kernel/Descriptor/System Segment Descriptor.png
-    unsigned char x[8];     // 64 bit
+	// doc/kernel/Descriptor/System Segment Descriptor.png
+	unsigned char x[8];     // 64 bit
 };
 
 struct gate_struct {
-    // doc/kernel/IDT/IDT Gate Descriptor Structure - 64bits.png
-    unsigned char x[16];    // 128 bit
+	// doc/kernel/IDT/IDT Gate Descriptor Structure - 64bits.png
+	unsigned char x[16];    // 128 bit
 };
 
 extern struct desc_struct GDT_Table[];
@@ -46,16 +45,22 @@ extern unsigned int TSS64_Table[26];
                              : "memory");                                                                   \
     } while (0)
 
+void set_intr_gate(unsigned int n, unsigned char ist, void *addr);
+
+void set_trap_gate(unsigned int n, unsigned char ist, void *addr);
+
+void set_system_gate(unsigned int n, unsigned char ist, void *addr);
+
 inline void set_intr_gate(unsigned int n, unsigned char ist, void *addr) {
-    _set_gate(IDT_Table + n, 0x8e, ist, addr);  // P, DPL=0, TYPE = E
+	_set_gate(IDT_Table + n, 0x8e, ist, addr);  // P, DPL=0, TYPE = E
 }
 
 inline void set_trap_gate(unsigned int n, unsigned char ist, void *addr) {
-    _set_gate(IDT_Table + n, 0x8f, ist, addr);  // P, DPL=0, TYPE = F
+	_set_gate(IDT_Table + n, 0x8f, ist, addr);  // P, DPL=0, TYPE = F
 }
 
 inline void set_system_gate(unsigned int n, unsigned char ist, void *addr) {
-    _set_gate(IDT_Table + n, 0xef, ist, addr);  // P, DPL=3, TYPE = F
+	_set_gate(IDT_Table + n, 0xef, ist, addr);  // P, DPL=3, TYPE = F
 }
 
 #endif // !YURIOS_GATE_H
