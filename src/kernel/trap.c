@@ -9,9 +9,6 @@ void do_divide_error(unsigned long rsp, unsigned long error_code) {
 	while (1);
 }
 
-/*
-
-*/
 
 void do_debug(unsigned long rsp, unsigned long error_code) {
 	unsigned long *rip_ptr = NULL;
@@ -20,9 +17,6 @@ void do_debug(unsigned long rsp, unsigned long error_code) {
 	while (1);
 }
 
-/*
-
-*/
 
 void do_nmi(unsigned long rsp, unsigned long error_code) {
 	unsigned long *rip_ptr = NULL;
@@ -31,9 +25,6 @@ void do_nmi(unsigned long rsp, unsigned long error_code) {
 	while (1);
 }
 
-/*
-
-*/
 
 void do_int3(unsigned long rsp, unsigned long error_code) {
 	unsigned long *rip_ptr = NULL;
@@ -42,9 +33,6 @@ void do_int3(unsigned long rsp, unsigned long error_code) {
 	while (1);
 }
 
-/*
-
-*/
 
 void do_overflow(unsigned long rsp, unsigned long error_code) {
 	unsigned long *rip_ptr = NULL;
@@ -53,9 +41,6 @@ void do_overflow(unsigned long rsp, unsigned long error_code) {
 	while (1);
 }
 
-/*
-
-*/
 
 void do_bounds(unsigned long rsp, unsigned long error_code) {
 	unsigned long *rip_ptr = NULL;
@@ -64,9 +49,6 @@ void do_bounds(unsigned long rsp, unsigned long error_code) {
 	while (1);
 }
 
-/*
-
-*/
 
 void do_undefined_opcode(unsigned long rsp, unsigned long error_code) {
 	unsigned long *rip_ptr = NULL;
@@ -76,9 +58,6 @@ void do_undefined_opcode(unsigned long rsp, unsigned long error_code) {
 	while (1);
 }
 
-/*
-
-*/
 
 void do_dev_not_available(unsigned long rsp, unsigned long error_code) {
 	unsigned long *rip_ptr = NULL;
@@ -88,9 +67,6 @@ void do_dev_not_available(unsigned long rsp, unsigned long error_code) {
 	while (1);
 }
 
-/*
-
-*/
 
 void do_double_fault(unsigned long rsp, unsigned long error_code) {
 	unsigned long *rip_ptr = NULL;
@@ -100,9 +76,6 @@ void do_double_fault(unsigned long rsp, unsigned long error_code) {
 	while (1);
 }
 
-/*
-
-*/
 
 void do_coprocessor_segment_overrun(unsigned long rsp, unsigned long error_code) {
 	unsigned long *rip_ptr = NULL;
@@ -112,9 +85,6 @@ void do_coprocessor_segment_overrun(unsigned long rsp, unsigned long error_code)
 	while (1);
 }
 
-/*
-
-*/
 
 void do_invalid_TSS(unsigned long rsp, unsigned long error_code) {
 	unsigned long *rip_ptr = NULL;
@@ -142,9 +112,6 @@ void do_invalid_TSS(unsigned long rsp, unsigned long error_code) {
 	while (1);
 }
 
-/*
-
-*/
 
 void do_segment_not_present(unsigned long rsp, unsigned long error_code) {
 	unsigned long *rip_ptr = NULL;
@@ -172,9 +139,6 @@ void do_segment_not_present(unsigned long rsp, unsigned long error_code) {
 	while (1);
 }
 
-/*
-
-*/
 
 void do_stack_segment_fault(unsigned long rsp, unsigned long error_code) {
 	unsigned long *rip_ptr = NULL;
@@ -202,9 +166,6 @@ void do_stack_segment_fault(unsigned long rsp, unsigned long error_code) {
 	while (1);
 }
 
-/*
-
-*/
 
 void do_general_protection(unsigned long rsp, unsigned long error_code) {
 	unsigned long *rip_ptr = NULL;
@@ -232,9 +193,6 @@ void do_general_protection(unsigned long rsp, unsigned long error_code) {
 	while (1);
 }
 
-/*
-
-*/
 
 void do_page_fault(unsigned long rsp, unsigned long error_code) {
 	unsigned long *rip_ptr = NULL;
@@ -272,9 +230,6 @@ void do_page_fault(unsigned long rsp, unsigned long error_code) {
 	while (1);
 }
 
-/*
-
-*/
 
 void do_x87_FPU_error(unsigned long rsp, unsigned long error_code) {
 	unsigned long *rip_ptr = NULL;
@@ -284,9 +239,6 @@ void do_x87_FPU_error(unsigned long rsp, unsigned long error_code) {
 	while (1);
 }
 
-/*
-
-*/
 
 void do_alignment_check(unsigned long rsp, unsigned long error_code) {
 	unsigned long *rip_ptr = NULL;
@@ -296,9 +248,6 @@ void do_alignment_check(unsigned long rsp, unsigned long error_code) {
 	while (1);
 }
 
-/*
-
-*/
 
 void do_machine_check(unsigned long rsp, unsigned long error_code) {
 	unsigned long *rip_ptr = NULL;
@@ -308,9 +257,6 @@ void do_machine_check(unsigned long rsp, unsigned long error_code) {
 	while (1);
 }
 
-/*
-
-*/
 
 void do_SIMD_exception(unsigned long rsp, unsigned long error_code) {
 	unsigned long *rip_ptr = NULL;
@@ -320,9 +266,6 @@ void do_SIMD_exception(unsigned long rsp, unsigned long error_code) {
 	while (1);
 }
 
-/*
-
-*/
 
 void do_virtualization_exception(unsigned long rsp, unsigned long error_code) {
 	unsigned long *rip_ptr = NULL;
@@ -348,6 +291,7 @@ void sys_vector_init() {
 	set_trap_gate(11, 1, segment_not_present);
 	set_trap_gate(12, 1, stack_segment_fault);
 	set_trap_gate(13, 1, general_protection);
+	// TODO: 禁用设置页错误中断cpu不会重启
 	set_trap_gate(14, 1, page_fault);
 	//15 Intel reserved. Do not use.
 	set_trap_gate(16, 1, x87_FPU_error);

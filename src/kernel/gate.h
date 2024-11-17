@@ -52,15 +52,15 @@ void set_trap_gate(unsigned int n, unsigned char ist, void *addr);
 void set_system_gate(unsigned int n, unsigned char ist, void *addr);
 
 inline void set_intr_gate(unsigned int n, unsigned char ist, void *addr) {
-	_set_gate(IDT_Table + n, 0x8e, ist, addr);  // P, DPL=0, TYPE = E
+	_set_gate(IDT_Table + n, 0x8E, ist, addr);    //P,DPL=0,TYPE=E
 }
 
 inline void set_trap_gate(unsigned int n, unsigned char ist, void *addr) {
-	_set_gate(IDT_Table + n, 0x8f, ist, addr);  // P, DPL=0, TYPE = F
+	_set_gate(IDT_Table + n, 0x8F, ist, addr);    //P,DPL=0,TYPE=F
 }
 
 inline void set_system_gate(unsigned int n, unsigned char ist, void *addr) {
-	_set_gate(IDT_Table + n, 0xef, ist, addr);  // P, DPL=3, TYPE = F
+	_set_gate(IDT_Table + n, 0xEF, ist, addr);    //P,DPL=3,TYPE=F
 }
 
 #endif // !YURIOS_GATE_H

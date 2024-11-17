@@ -151,11 +151,11 @@ setup_TSS64:     // Task State Segment
 	shrq $32, %rdx
 	movq %rdx, 72(%rdi)
 
-	// Load Task Register
+	// Load Task Register 加载TSS
 	mov $0x40, %ax                  // 0x40 为 TSS Descriptor 选择子在GDT内的偏移
 	ltr %ax
 
-jump_to_kernel:
+	// jump to kernel
 	movq	go_to_kernel(%rip),	%rax		/* movq address */
 	pushq	$0x08           // code selector for 64-bit mode
 	pushq	%rax
@@ -203,8 +203,7 @@ ignore_interrupt:
 	addq $0x8, %rsp     // 平栈
 
 Loop:
-	jmp Loop    // TODO:此时我们并不需要恢复源程序,只需要卡在这里,之后需要删除这一句
-	//TODO: 止步于此,后面需要为各种中断制作独立的处理函数
+	jmp Loop    // 此时我们并不需要恢复源程序,只需要卡在这里,这段代码就放在这里也不会被调用
 
 	// 恢复
 	popq	%rax

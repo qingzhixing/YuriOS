@@ -12,7 +12,6 @@ void init() {
 
 void Start_Kernel(void) {
 	init();
-	sys_vector_init();
 
 	// 显示模式: 1440x900x32
 	// 模式号: 0x180
@@ -28,6 +27,7 @@ void Start_Kernel(void) {
 
 	color_printk(BLACK, WHITE, "%s", "Hello, YuriOS!\n");
 
+	sys_vector_init();
 	int i = 1 / 0;
 
 	while (1);
