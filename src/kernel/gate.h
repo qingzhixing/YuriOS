@@ -15,8 +15,16 @@ extern struct desc_struct GDT_Table[];
 extern struct gate_struct IDT_Table[];
 extern unsigned int TSS64_Table[26];
 
+#define load_TR(n)                            \
+do{                                    \
+    __asm__ __volatile__(    "ltr	%%ax"                \
+                :                    \
+                :"a"(n << 3)                \
+                :"memory");                \
+}while(0)
+
 /*
- * @param isr:一个表示中断栈表的索引（Interrupt Stack Table index）的参数
+ * @param ist:一个表示中断栈表的索引（Interrupt Stack Table index）的参数
  *  在中断发生时，处理程序可以通过这个索引指定使用哪个栈来处理该中断。
  *  通常，在多任务或异常处理环境中，为了避免栈溢出或干扰，
  *  使用不同的栈来处理特定的中断是很常见的做法。
@@ -61,6 +69,29 @@ inline void set_trap_gate(unsigned int n, unsigned char ist, void *addr) {
 
 inline void set_system_gate(unsigned int n, unsigned char ist, void *addr) {
 	_set_gate(IDT_Table + n, 0xEF, ist, addr);    //P,DPL=3,TYPE=F
+}
+
+void set_tss64(unsigned long rsp0,
+			   unsigned long rsp1,
+			   unsigned long rsp2,
+			   unsigned long ist1,
+			   unsigned long ist2,
+			   unsigned long ist3,
+			   unsigned long ist4,
+			   unsigned long ist5,
+			   unsigned long ist6,
+			   unsigned long ist7) {
+	*(unsigned long *) (TSS64_Table + 1) = rsp0;
+	*(unsigned long *) (TSS64_Table + 3) = rsp1;
+	*(unsigned long *) (TSS64_Table + 5) = rsp2;
+
+	*(unsigned long *) (TSS64_Table + 9) = ist1;
+	*(unsigned long *) (TSS64_Table + 11) = ist2;
+	*(unsigned long *) (TSS64_Table + 13) = ist3;
+	*(unsigned long *) (TSS64_Table + 15) = ist4;
+	*(unsigned long *) (TSS64_Table + 17) = ist5;
+	*(unsigned long *) (TSS64_Table + 19) = ist6;
+	*(unsigned long *) (TSS64_Table + 21) = ist7;
 }
 
 #endif // !YURIOS_GATE_H

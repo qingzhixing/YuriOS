@@ -5,6 +5,7 @@
 #include "lib.h"
 #include "printk.h"
 #include "trap.h"
+#include "gate.h"
 
 void init() {
 	init_printk();
@@ -26,6 +27,20 @@ void Start_Kernel(void) {
 	}
 
 	color_printk(BLACK, WHITE, "%s", "Hello, YuriOS!\n");
+
+	// FIXME!  LTR: doesn't point to an available TSS descriptor!
+	load_TR(8);
+
+	set_tss64(0xffff800000007c00,
+			  0xffff800000007c00,
+			  0xffff800000007c00,
+			  0xffff800000007c00,
+			  0xffff800000007c00,
+			  0xffff800000007c00,
+			  0xffff800000007c00,
+			  0xffff800000007c00,
+			  0xffff800000007c00,
+			  0xffff800000007c00);
 
 	sys_vector_init();
 	int i = 1 / 0;
