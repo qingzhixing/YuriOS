@@ -137,23 +137,17 @@ setup_TSS64:     // Task State Segment
 	addq %rcx, %rax
 
 	// bit 0 ~ bit 15 -> Limit Low
-	addq $103,  %rax
-	/*
-	* Q: 为何这里的 limit 为 103?
-	* A(Fitten Code AI): 具体来说，103这个值可能表示TSS描述符所使用的内存空间的大小。
-	*   根据不同操作系统和实现，TSS的大小可能会有所变化。对于大多数实现来说，
-	*   TSS的最小大小为104字节（可以容纳一些基本的任务状态信息），但在某些系统或版本中可能会存在调整或优化。
-	*/
+	addq $103,  %rax    // TSS的最小大小为104字节(104-1 = 103)
 
 	leaq GDT_Table(%rip), %rdi
-	movq %rax, 64(%rdi)             // 将rax值存储到 GDT_Table 0x40偏移处(为TSS预留了位置)
+	movq %rax, 0x40(%rdi)               // TSS-LOW
 
 	shrq $32, %rdx
-	movq %rdx, 72(%rdi)
+	movq %rdx, 0x48(%rdi)               // TSS-HIGH
 
 	// Load Task Register 加载TSS
-	mov $0x40, %ax                  // 0x40 为 TSS Descriptor 选择子在GDT内的偏移
-	ltr %ax
+	//mov $0x40, %ax                  // 0x40 为 TSS Descriptor 选择子在GDT内的偏移
+	//ltr %ax
 
 	// jump to kernel
 	movq	go_to_kernel(%rip),	%rax		/* movq address */

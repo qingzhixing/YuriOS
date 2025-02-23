@@ -78,37 +78,26 @@
 .set OLDRSP, 0xb0
 .set OLDSS,  0xb8
 
-// 异常处理宏定义
-.macro ZERO_ERRCODE
-    pushq   $0
-.endm
-
-.macro PUSH_FUNC func
-    pushq   %rax
-    leaq    \func(%rip), %rax
-    xchgq   %rax, (%rsp)
-.endm
-
 // BUILD_TRAP [异常名称], [处理函数], [是否有错误码]
 
-.macro BUILD_TRAP name, func, has_error
-ENTRY(\name)
-    .if \has_error == 0
-        ZERO_ERRCODE
-    .endif
-    PUSH_FUNC \func
+#define BUILD_TRAP(name, func, has_error)\
+ENTRY(name)\
+    .if has_error == 0;\
+        pushq   $0;\
+    .endif;\
+    	pushq   %rax;\
+    	leaq    func(%rip), %rax;\
+    	xchgq   %rax, (%rsp);\
     jmp     error_code
-.endm
 
-.macro PATCHABLE name
-ENTRY(\name):
+#define PATCHABLE(name)\
+ENTRY(name)\
+	nop;\
+	nop;\
+	nop;\
 	nop
-	nop
-	nop
-	nop
-.endm
 
-.macro SAVE_ALL:
+.macro SAVE_ALL
     /* 内存屏障保证存储顺序 */
     sfence
     
@@ -182,6 +171,8 @@ ret_from_exception:
 ENTRY(ret_from_intr)
 RESTORE_ALL	/*need rewrite*/
 
+PATCHABLE(stack_fault)
+
 error_code:
 	SAVE_ALL
 
@@ -192,13 +183,6 @@ error_code:
 		call    debug_print_stack
 		popq %rsi
 		popq %rdi
-
-	/* 新增栈对齐检查 */
-    testq   $0x0F, %rsp
-    jnz     stack_fault
-    
-    /* 新增SMAP保护 */
-    stac                    /* 设置AC标志 */
 
 	cld
 
@@ -215,28 +199,28 @@ error_code:
 	movq	%rsp,	%rdi			// RDI:第一个参数 - 栈顶指针
 
 	callq 	*%rdx					// 运行中断处理函数
-	clac                    		/* 清除AC标志 */
 	jmp	ret_from_exception			// 恢复运行现场并返回
 
 /* 统一异常处理入口 */
-BUILD_TRAP divide_error,          do_divide_error,           0
-BUILD_TRAP debug,                 do_debug,                  0
-BUILD_TRAP overflow,              do_overflow,               0
-BUILD_TRAP bounds,                do_bounds,                 0
-BUILD_TRAP undefined_opcode,      do_undefined_opcode,       0
-BUILD_TRAP dev_not_available,     do_dev_not_available,      0
-BUILD_TRAP double_fault,          do_double_fault,           1
-BUILD_TRAP coprocessor_segment_overrun, do_coprocessor_segment_overrun, 0
-BUILD_TRAP invalid_TSS,           do_invalid_TSS,            1
-BUILD_TRAP segment_not_present,   do_segment_not_present,    1
-BUILD_TRAP stack_segment_fault,   do_stack_segment_fault,    1
-BUILD_TRAP general_protection,    do_general_protection,     1
-BUILD_TRAP page_fault,            do_page_fault,             1
-BUILD_TRAP x87_FPU_error,         do_x87_FPU_error,          0
-BUILD_TRAP alignment_check,       do_alignment_check,        1
-BUILD_TRAP machine_check,         do_machine_check,          0
-BUILD_TRAP SIMD_exception,        do_SIMD_exception,         0
-BUILD_TRAP virtualization_exception, do_virtualization_exception, 0
+BUILD_TRAP( divide_error,          do_divide_error,           0)
+BUILD_TRAP( debug,                 do_debug,                  0)
+BUILD_TRAP( int3, 				   do_int3, 				  0)
+BUILD_TRAP( overflow,              do_overflow,               0)
+BUILD_TRAP( bounds,                do_bounds,                 0)
+BUILD_TRAP( undefined_opcode,      do_undefined_opcode,       0)
+BUILD_TRAP( dev_not_available,     do_dev_not_available,      0)
+BUILD_TRAP( double_fault,          do_double_fault,           1)
+BUILD_TRAP( coprocessor_segment_overrun, do_coprocessor_segment_overrun, 0)
+BUILD_TRAP( invalid_TSS,           do_invalid_TSS,            1)
+BUILD_TRAP( segment_not_present,   do_segment_not_present,    1)
+BUILD_TRAP( stack_segment_fault,   do_stack_segment_fault,    1)
+BUILD_TRAP( general_protection,    do_general_protection,     1)
+BUILD_TRAP( page_fault,            do_page_fault,             1)
+BUILD_TRAP( x87_FPU_error,         do_x87_FPU_error,          0)
+BUILD_TRAP( alignment_check,       do_alignment_check,        1)
+BUILD_TRAP( machine_check,         do_machine_check,          0)
+BUILD_TRAP( SIMD_exception,        do_SIMD_exception,         0)
+BUILD_TRAP( virtualization_exception, do_virtualization_exception, 0)
 
 ENTRY(nmi)
     /* 步骤1：保存完整上下文 */
