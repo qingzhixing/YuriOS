@@ -6,11 +6,13 @@
 #include "printk.h"
 #include "trap.h"
 #include "gate.h"
+#include "memory.h"
 
 #define GDT_INDEX_TSS 8
 
 void init() {
 	init_printk();
+	init_memory();
 }
 
 void Start_Kernel(void) {
@@ -52,9 +54,9 @@ void Start_Kernel(void) {
 
 	sys_vector_init();
 
-	int i;
+//	int i;
 //	i = 1 / 0; // #DE: division by zero
-	i = *(int *) 0xffff80000aa00000;
+//	i = *(int *) 0xffff80000aa00000;
 
 	while (1);
 }

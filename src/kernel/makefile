@@ -7,6 +7,7 @@ OBJCOPY_FLAGS = -I elf64-x86-64 -S -R ".eh_frame" -R ".comment" -O binary
 OBJS = $(BUILD_PATH)/head.o \
 		$(BUILD_PATH)/entry.o\
 		$(BUILD_PATH)/printk.o \
+		$(BUILD_PATH)/memory.o \
 		$(BUILD_PATH)/trap.o \
 		$(BUILD_PATH)/main.o
 

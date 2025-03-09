@@ -74,3 +74,7 @@ A tiny OS developed by qingzhixing!
 ### #PF
 
 ![PF-display](assets/images/PF_display.png)
+
+- [x] 成功获取物理内存信息 at 2025.3.9
+  ![成功获取物理内存信息](assets/images/init_memory.png)
+  ![2GB内存](assets/images/init_memory_2GB.png)
