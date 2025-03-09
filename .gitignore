@@ -4,3 +4,5 @@ build/
 *.out
 *.img
 *.s
+/src/kernel/CMakeFiles/
+CMakeCache.txt
