@@ -65,5 +65,12 @@ A tiny OS developed by qingzhixing!
 - [X] 成功实现自定义中断处理函数 at 2025.2.23
 
 > 我真的要写哭了.... DeepSeek nb 问了一堆,改来改去不知道为什么就对了,应该是head.S里面不要加载没写完的tss
+
+### #DE
+
 ![自定义中断处理函数](assets/images/自定义中断处理函数成功运行-2025-2-23.png)
 ![自定义中断处理函数-仅输出](assets/images/自定义中断处理函数-仅输出.png)
+
+### #PF
+
+![PF-display](assets/images/PF_display.png)

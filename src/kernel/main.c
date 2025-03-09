@@ -51,7 +51,10 @@ void Start_Kernel(void) {
 
 
 	sys_vector_init();
-	int i = 1 / 0; // #DE: division by zero
+
+	int i;
+//	i = 1 / 0; // #DE: division by zero
+	i = *(int *) 0xffff80000aa00000;
 
 	while (1);
 }
