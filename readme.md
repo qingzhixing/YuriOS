@@ -75,12 +75,12 @@ A tiny OS developed by qingzhixing!
 
 ![PF-display](assets/images/PF_display.png)
 
-- [x] 成功获取物理内存信息 at 2025.3.9
+- [x] 🈴 成功获取物理内存信息 at 2025.3.9
   ![成功获取物理内存信息](assets/images/init_memory.png)
   ![2GB内存](assets/images/init_memory_2GB.png)
 
-- [x] color_printk 颜色测试 & 2M 内存页数量计算 at 2025.3.30
+- [x] 🥩 color_printk 颜色测试 & 2M 内存页数量计算 at 2025.3.30
   ![colorTest-2MPages.png](assets/images/colorTest-2MPages.png)
 
-- [x] 内存管理结构初始化并打印 at 2025.3.30
+- [x] 🍭 内存管理结构初始化并打印 at 2025.3.30
   ![内存管理结构初始化并打印](assets/images/memory_manager_initialized.png)
