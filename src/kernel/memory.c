@@ -61,9 +61,23 @@ void init_memory() {
 														   PAGE_4K_MASK);   // 在程序结束的后端预留4k建立位图
 
 	memory_management_struct.bits_size = TotalMem >> PAGE_2M_SHIFT;
-//	memory_management_struct.bits_length =
-//			(((unsigned long) (TotalMem >> PAGE_2M_SHIFT) + sizeof(long) * 8 - 1) / 8) & (sizeof(long) * 8 - 1);
 	memory_management_struct.bits_length =
-			((TotalMem >> PAGE_2M_SHIFT) + 8 * sizeof(long) - 1) / (8 * sizeof(long)) * sizeof(long);
+			(((unsigned long) (TotalMem >> PAGE_2M_SHIFT) + sizeof(long) * 8 - 1) / 8) &
+			(sizeof(long) * 8 - 1);        // 向下对齐
+//	memory_management_struct.bits_length =
+//			((TotalMem >> PAGE_2M_SHIFT) + 8 * sizeof(long) - 1) /
+//			(8 * sizeof(long)) * sizeof(long);   // 向上取整
 	memset(memory_management_struct.bits_map, 0xff, memory_management_struct.bits_length);
+
+	// pages construction init
+	memory_management_struct.pages_struct = (struct Page *) (
+			((unsigned long) memory_management_struct.bits_map + memory_management_struct.bits_length + PAGE_4K_SIZE -
+			 1) & PAGE_4K_MASK);
+
+	memory_management_struct.pages_size = TotalMem >> PAGE_2M_SHIFT;
+
+	memory_management_struct.pages_length =
+			((TotalMem >> PAGE_2M_SHIFT) * sizeof(struct Page) + sizeof(long) - 1) & (~(sizeof(long) - 1));
+
+	memset(memory_management_struct.pages_struct, 0x00, memory_management_struct.pages_length); // init pages memory
 }
