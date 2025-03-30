@@ -19,9 +19,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2122e469-b6de-4083-ba74-6f196a24f2ed" name="更改" comment="pages construction init">
+    <list default="true" id="2122e469-b6de-4083-ba74-6f196a24f2ed" name="更改" comment="zones constructing init">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/memory.c" beforeDir="false" afterPath="$PROJECT_DIR$/memory.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/memory.h" beforeDir="false" afterPath="$PROJECT_DIR$/memory.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -134,7 +135,7 @@
       <workItem from="1743308917145" duration="731000" />
       <workItem from="1743309665722" duration="4425000" />
       <workItem from="1743316478755" duration="123000" />
-      <workItem from="1743316624176" duration="5258000" />
+      <workItem from="1743316624176" duration="8180000" />
     </task>
     <task id="LOCAL-00001" summary="拓展内存管理结构体">
       <option name="closed" value="true" />
@@ -160,7 +161,23 @@
       <option name="project" value="LOCAL" />
       <updated>1743325282650</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="//  constructing init">
+      <option name="closed" value="true" />
+      <created>1743326016987</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1743326016987</updated>
+    </task>
+    <task id="LOCAL-00005" summary="zones constructing init">
+      <option name="closed" value="true" />
+      <created>1743326036826</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1743326036826</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -170,7 +187,9 @@
     <MESSAGE value="拓展内存管理结构体" />
     <MESSAGE value="bits map construction init" />
     <MESSAGE value="pages construction init" />
-    <option name="LAST_COMMIT_MESSAGE" value="pages construction init" />
+    <MESSAGE value="//  constructing init" />
+    <MESSAGE value="zones constructing init" />
+    <option name="LAST_COMMIT_MESSAGE" value="zones constructing init" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

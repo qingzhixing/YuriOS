@@ -1,9 +1,9 @@
-//
 // Created by qingzhixing on 25-3-9.
-//
 
 #ifndef YURIOS_MEMORY_H
 #define YURIOS_MEMORY_H
+
+#include "lib.h"
 
 // 页表项个数
 #define PTRS_PER_PAGE 512
@@ -26,8 +26,8 @@
 #define PAGE_4K_ALIGN(addr) (((unsigned long)(addr) + (PAGE_4K_SIZE - 1))& PAGE_4K_MASK)
 #define PAGE_1G_ALIGN(addr) (((unsigned long)(addr) + (PAGE_1G_SIZE - 1))& PAGE_1G_MASK)
 
-#define Vitr_To_Phy(addr) ((unsigned long)(addr) - PAGE_OFFSET)
-#define Phy_To_Vitr(addr) ((unsigned long *)((unsigned long)(addr) + PAGE_OFFSET))
+#define Virt_To_Phy(addr) ((unsigned long)(addr) - PAGE_OFFSET)
+#define Phy_To_Virt(addr) ((unsigned long *)((unsigned long)(addr) + PAGE_OFFSET))
 
 struct Page;
 struct Global_Memory_descriptor;
@@ -40,8 +40,15 @@ struct E820 {
 	unsigned int type;
 }__attribute__((packed));
 
+// each zone index
+
+int ZONE_DMA_INDEX = 0;
+int ZONE_NORMAL_INDEX = 0;    //low 1GB RAM ,was mapped in pagetable
+int ZONE_UNMAPED_INDEX = 0;    //above 1GB RAM,unmapped in pagetable
+#define MAX_NR_ZONES    10    //max zone
+
 struct Zone {
-	struct Page *page_group;                        // Page数组
+	struct Page *pages_group;                        // Page数组
 	unsigned long pages_length;                     // Page结构体数量
 
 	unsigned long zone_start_address;               // 起始页对齐地址
@@ -56,6 +63,25 @@ struct Zone {
 
 	unsigned long total_pages_link;                 // 本区域物理页被引用次数
 };
+
+//alloc_pages zone_select
+#define ZONE_DMA    (1 << 0)
+#define ZONE_NORMAL    (1 << 1)
+#define ZONE_UNMAPED    (1 << 2)
+
+//struct page attribute (alloc_pages flags)
+#define PG_PTable_Maped    (1 << 0)
+#define PG_Kernel_Init    (1 << 1)
+#define PG_Referenced    (1 << 2)
+#define PG_Dirty    (1 << 3)
+#define PG_Active    (1 << 4)
+#define PG_Up_To_Date    (1 << 5)
+#define PG_Device    (1 << 6)
+#define PG_Kernel    (1 << 7)
+#define PG_K_Share_To_U    (1 << 8)
+#define PG_Slab        (1 << 9)
+
+unsigned long *Global_CR3 = NULL;
 
 struct Page {
 	struct Zone *zone_struct;       // 本页所属的zone
@@ -95,5 +121,36 @@ struct Global_Memory_descriptor {
 };
 
 extern struct Global_Memory_descriptor memory_management_struct;
+
+unsigned long page_init(struct Page *page, unsigned long flags);
+
+unsigned long page_clean(struct Page *page);
+
+#define    flush_tlb_one(addr)    \
+    __asm__ __volatile__    ("invlpg	(%0)	\n\t"::"r"(addr):"memory")
+/*
+
+*/
+
+// Translation Lookaside Buffer
+#define flush_tlb()                        \
+do                                \
+{                                \
+    unsigned long    tmpreg;                    \
+    __asm__ __volatile__    (                \
+                "movq	%%cr3,	%0	\n\t"    \
+                "movq	%0,	%%cr3	\n\t"    \
+                :"=r"(tmpreg)            \
+                :                \
+                :"memory"            \
+                );                \
+}while(0)
+
+/*
+
+*/
+
+unsigned long *Get_gdt();
+
 
 #endif //YURIOS_MEMORY_H

@@ -81,3 +81,6 @@ A tiny OS developed by qingzhixing!
 
 - [x] color_printk 颜色测试 & 2M 内存页数量计算 at 2025.3.30
   ![colorTest-2MPages.png](assets/images/colorTest-2MPages.png)
+
+- [x] 内存管理结构初始化并打印 at 2025.3.30
+  ![内存管理结构初始化并打印](assets/images/memory_manager_initialized.png)
