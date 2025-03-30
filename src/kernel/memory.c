@@ -73,11 +73,17 @@ void init_memory() {
 	memory_management_struct.pages_struct = (struct Page *) (
 			((unsigned long) memory_management_struct.bits_map + memory_management_struct.bits_length + PAGE_4K_SIZE -
 			 1) & PAGE_4K_MASK);
-
 	memory_management_struct.pages_size = TotalMem >> PAGE_2M_SHIFT;
-
 	memory_management_struct.pages_length =
 			((TotalMem >> PAGE_2M_SHIFT) * sizeof(struct Page) + sizeof(long) - 1) & (~(sizeof(long) - 1));
-
 	memset(memory_management_struct.pages_struct, 0x00, memory_management_struct.pages_length); // init pages memory
+
+	// zones constructing init
+	memory_management_struct.zones_struct = (struct Zone *) (
+			((unsigned long) memory_management_struct.pages_struct + memory_management_struct.pages_length +
+			 PAGE_4K_SIZE - 1) & PAGE_4K_MASK);
+	memory_management_struct.zones_size = 0;
+	memory_management_struct.zones_length = (5 * sizeof(struct Zone) + sizeof(long) - 1) &
+											(~(sizeof(long) - 1));      // 暂时按5个zone分配
+	memset(memory_management_struct.zones_struct, 0x00, memory_management_struct.zones_length); // init zones memory
 }
