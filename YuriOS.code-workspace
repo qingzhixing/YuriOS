@@ -11,13 +11,15 @@
 	],
 	"settings": {
 		"files.associations": {
-			"*.embeddedhtml": "html",
 			"*.nasm": "nasm",
+			"*.S": "attasm",
+			"*.embeddedhtml": "html",
 			"linkage.h": "c",
 			"printk.h": "c",
 			"lib.h": "c",
 			"trap.h": "c",
-			"gate.h": "c"
+			"gate.h": "c",
+			"memory.h": "c"
 		}
 	}
 }

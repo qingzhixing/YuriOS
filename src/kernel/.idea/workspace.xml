@@ -19,11 +19,11 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2122e469-b6de-4083-ba74-6f196a24f2ed" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="2122e469-b6de-4083-ba74-6f196a24f2ed" name="更改" comment="拓展内存管理结构体">
+      <change beforePath="$PROJECT_DIR$/../../YuriOS.code-workspace" beforeDir="false" afterPath="$PROJECT_DIR$/../../YuriOS.code-workspace" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/main.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/memory.h" beforeDir="false" afterPath="$PROJECT_DIR$/memory.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/memory.c" beforeDir="false" afterPath="$PROJECT_DIR$/memory.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -136,12 +136,25 @@
       <workItem from="1743308917145" duration="731000" />
       <workItem from="1743309665722" duration="4425000" />
       <workItem from="1743316478755" duration="123000" />
-      <workItem from="1743316624176" duration="954000" />
+      <workItem from="1743316624176" duration="3903000" />
     </task>
+    <task id="LOCAL-00001" summary="拓展内存管理结构体">
+      <option name="closed" value="true" />
+      <created>1743317860016</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1743317860016</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="拓展内存管理结构体" />
+    <option name="LAST_COMMIT_MESSAGE" value="拓展内存管理结构体" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

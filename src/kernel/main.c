@@ -66,6 +66,11 @@ void init() {
 	init_printk();
 	printk_color_test();
 	init_memory();
+
+	memory_management_struct.start_code = (unsigned long) &_text;
+	memory_management_struct.end_code = (unsigned long) &_etext;
+	memory_management_struct.end_data = (unsigned long) &_edata;
+	memory_management_struct.end_brk = (unsigned long) &_end;
 }
 
 void Start_Kernel(void) {
