@@ -10,7 +10,12 @@
 
 #define GDT_INDEX_TSS 8
 
-struct Global_Memory_descriptor memory_management_struct = {.e820={0},.e820_length=0};
+extern char _text;
+extern char _etext;
+extern char _edata;
+extern char _end;
+
+struct Global_Memory_descriptor memory_management_struct = {.e820={0}, .e820_length=0};
 
 void printk_color_test() {
 	/*
