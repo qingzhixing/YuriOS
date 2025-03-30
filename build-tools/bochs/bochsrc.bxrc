@@ -2,7 +2,7 @@
 plugin_ctrl: unmapped=true, biosdev=true, speaker=true, extfpuirq=true, parallel=true, serial=true, iodebug=true
 config_interface: textconfig
 display_library: x
-memory: host=32, guest=32
+memory: host=2048, guest=2048
 boot: floppy
 floppy_bootsig_check: disabled=0
 floppya: image="build/boot.img", status=inserted

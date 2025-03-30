@@ -78,3 +78,6 @@ A tiny OS developed by qingzhixing!
 - [x] 成功获取物理内存信息 at 2025.3.9
   ![成功获取物理内存信息](assets/images/init_memory.png)
   ![2GB内存](assets/images/init_memory_2GB.png)
+
+- [x] color_printk 颜色测试 & 2M 内存页数量计算 at 2025.3.30
+  ![colorTest-2MPages.png](assets/images/colorTest-2MPages.png)
