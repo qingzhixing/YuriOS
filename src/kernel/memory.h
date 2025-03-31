@@ -3,7 +3,7 @@
 #ifndef YURIOS_MEMORY_H
 #define YURIOS_MEMORY_H
 
-#include "lib.h"
+#include <stddef.h>
 
 // 页表项个数
 #define PTRS_PER_PAGE 512
