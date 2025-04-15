@@ -176,8 +176,7 @@ void init_memory() {
 			page->age = 0;
 
 			//一个 bit_map 有 8 Byte (sizeof(long)),管理 64 Pages
-			*(memory_management_struct.bits_map + ((page->PHY_address >> PAGE_2M_SHIFT) >> 6)) ^=
-					1UL << (page->PHY_address >> PAGE_2M_SHIFT) & 63;
+			*(memory_management_struct.bits_map + ((page->PHY_address >> PAGE_2M_SHIFT) >> 6)) ^= 1UL << (page->PHY_address >> PAGE_2M_SHIFT) % 64;
 
 			// 等价于:
 //			*(memory_management_struct.bits_map + ((page->PHY_address >> PAGE_2M_SHIFT) / 64)) ^=
@@ -249,6 +248,7 @@ void init_memory() {
 	for (i = 0; i < 10; i++)
 		*(Phy_To_Virt(Global_CR3) + i) = 0UL;
 
+	// 刷新 TLB, 让修改后的 Global_CR3 生效
 	flush_tlb();
 }
 
@@ -261,4 +261,91 @@ inline unsigned long *Get_gdt() {
 			:"memory"
 			);
 	return tmp;
+}
+
+/*
+ * alloc_pages: 申请连续的页内存
+ * number: 申请的页数 <=64
+ * zone_select: zone select from dma , mapped in pagetable, unmapped in pagetable
+ * page_flags: struct Page flags
+ * */
+struct Page *alloc_pages(int zone_select, int number, unsigned long page_flags) {
+	unsigned long free_page_index = 0;
+	int zone_start = 0;
+	int zone_end = 0;
+
+	switch (zone_select) {
+		case ZONE_DMA:
+			zone_start = 0;
+			zone_end = ZONE_DMA_INDEX;
+			break;
+
+		case ZONE_NORMAL:
+			zone_start = ZONE_DMA_INDEX;
+			zone_end = ZONE_NORMAL_INDEX;
+			break;
+
+		case ZONE_UNMAPED:
+			zone_start = ZONE_UNMAPED_INDEX;
+			zone_end = memory_management_struct.zones_size - 1;
+			break;
+
+		default:
+			color_printk(RED, BLACK, "alloc_pages: parameter \'zone_select\' index error\n");
+			return NULL;
+			break;
+	}
+
+	for (int zone_index = zone_start; zone_index <= zone_end; ++zone_index) {
+		struct Zone *zone;
+		unsigned long start_page_index, end_page_index, zone_page_amount;
+
+		if ((memory_management_struct.zones_struct + zone_index)->page_free_count < number)
+			continue;
+
+		zone = memory_management_struct.zones_struct + zone_index;
+		start_page_index = zone->zone_start_address >> PAGE_2M_SHIFT;
+		end_page_index = zone->zone_end_address >> PAGE_2M_SHIFT;
+		zone_page_amount = zone->zone_length >> PAGE_2M_SHIFT;
+
+		// temp: 距离下一个 64 页对齐边界还有多少页
+		unsigned long temp = 64 - start_page_index % 64;
+
+		/* 查找连续的页内存
+		 * 如果 j 不是 64 的倍数（即 j % 64 != 0），则步进 temp（跳到下一个 64 对齐边界）。
+		 * 如果 j 是 64 的倍数（即 j % 64 == 0），则步进 64（直接检查下一个 64 页块）。
+		 * */
+		for (int current_page_index = start_page_index;
+			 current_page_index <= end_page_index; current_page_index += current_page_index % 64 ? temp : 64) {
+			// 找到对应的 bit_map
+			// current_page_index>>6: 获取当前64页块的bit_map偏移
+			unsigned long *p =
+					memory_management_struct.bits_map + (current_page_index >> 6);
+			unsigned long shifter = current_page_index & 63; // 获取当前页在64页块中的偏移
+
+			// 检查该页块是否有空闲的页
+			for (int current_bit = shifter; current_bit < 64 - shifter; current_bit++) {
+				unsigned long mask =
+						(number == 64 ? 0xffffffffffffffffUL :
+						 ((1UL << number) - 1));   // 掩码, 用于判断是否有空闲的页(LSH 最多只能左移 64 位)
+				unsigned long bitmap_value = ((*p >> current_bit) | (*(p + 1)
+						<< (64 - current_bit)));                  // 从 p 和 p + 1 拼出一个 连续的 64 位窗口，起始位置是 current_bit
+				// 满足连续空闲number个页
+				if (!(bitmap_value & mask)) {
+					free_page_index = current_page_index + current_bit - 1;
+					// 初始化页
+					for (int page_shifter = 0; page_shifter < number; ++page_shifter) {
+						struct Page *x = memory_management_struct.pages_struct + free_page_index + page_shifter;
+						page_init(x, page_flags);
+					}
+
+					goto find_free_pages;
+				}
+			}
+		}
+	}
+	return NULL;
+
+find_free_pages:
+	return (struct Page *) (memory_management_struct.pages_struct + free_page_index);
 }

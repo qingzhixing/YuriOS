@@ -122,6 +122,8 @@ struct Global_Memory_descriptor {
 
 extern struct Global_Memory_descriptor memory_management_struct;
 
+void init_memory();
+
 unsigned long page_init(struct Page *page, unsigned long flags);
 
 unsigned long page_clean(struct Page *page);
@@ -151,6 +153,8 @@ do                                \
 */
 
 unsigned long *Get_gdt();
+
+struct Page *alloc_pages(int zone_select, int number, unsigned long page_flags);
 
 
 #endif //YURIOS_MEMORY_H

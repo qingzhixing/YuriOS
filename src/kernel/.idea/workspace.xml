@@ -20,7 +20,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2122e469-b6de-4083-ba74-6f196a24f2ed" name="更改" comment="zones constructing init">
+      <change beforePath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/main.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/memory.c" beforeDir="false" afterPath="$PROJECT_DIR$/memory.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/memory.h" beforeDir="false" afterPath="$PROJECT_DIR$/memory.h" afterDir="false" />
     </list>
@@ -96,7 +98,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "co.fitten.llmintellij.LlmSettingsConfigurable",
+    "settings.editor.selected.configurable": "editor.preferences.folding",
     "structure.view.defaults.are.configured": "true",
     "vue.rearranger.settings.migration": "true"
   }
@@ -135,7 +137,10 @@
       <workItem from="1743308917145" duration="731000" />
       <workItem from="1743309665722" duration="4425000" />
       <workItem from="1743316478755" duration="123000" />
-      <workItem from="1743316624176" duration="8180000" />
+      <workItem from="1743316624176" duration="10479000" />
+      <workItem from="1744521426447" duration="2568000" />
+      <workItem from="1744717747957" duration="383000" />
+      <workItem from="1744720557461" duration="2215000" />
     </task>
     <task id="LOCAL-00001" summary="拓展内存管理结构体">
       <option name="closed" value="true" />
