@@ -19,13 +19,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2122e469-b6de-4083-ba74-6f196a24f2ed" name="更改" comment="zones constructing init">
-      <change beforePath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/main.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/memory.c" beforeDir="false" afterPath="$PROJECT_DIR$/memory.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/memory.h" beforeDir="false" afterPath="$PROJECT_DIR$/memory.h" afterDir="false" />
-    </list>
+    <list default="true" id="2122e469-b6de-4083-ba74-6f196a24f2ed" name="更改" comment="bits_map 初始化有问题，全是ff" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -40,6 +34,7 @@
     </projectState>
   </component>
   <component name="Git.Settings">
+    <option name="PUSH_AUTO_UPDATE" value="true" />
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
   </component>
   <component name="MakefileLocalSettings">
@@ -140,7 +135,7 @@
       <workItem from="1743316624176" duration="10479000" />
       <workItem from="1744521426447" duration="2568000" />
       <workItem from="1744717747957" duration="383000" />
-      <workItem from="1744720557461" duration="2215000" />
+      <workItem from="1744720557461" duration="3119000" />
     </task>
     <task id="LOCAL-00001" summary="拓展内存管理结构体">
       <option name="closed" value="true" />
@@ -182,7 +177,15 @@
       <option name="project" value="LOCAL" />
       <updated>1743326036826</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="bits_map 初始化有问题，全是ff">
+      <option name="closed" value="true" />
+      <created>1744723070084</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1744723070084</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -194,7 +197,8 @@
     <MESSAGE value="pages construction init" />
     <MESSAGE value="//  constructing init" />
     <MESSAGE value="zones constructing init" />
-    <option name="LAST_COMMIT_MESSAGE" value="zones constructing init" />
+    <MESSAGE value="bits_map 初始化有问题，全是ff" />
+    <option name="LAST_COMMIT_MESSAGE" value="bits_map 初始化有问题，全是ff" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
