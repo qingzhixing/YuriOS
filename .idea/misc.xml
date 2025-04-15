@@ -8,15 +8,17 @@
     <option name="linkedExternalProjectsSettings">
       <MakefileProjectSettings>
         <option name="buildDirectory" value="src/kernel" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/src/kernel" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/src/kernel" />
           </set>
         </option>
         <option name="version" value="2" />
       </MakefileProjectSettings>
     </option>
   </component>
-  <component name="MakefileWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
+  <component name="MakefileWorkspace" PROJECT_DIR="$PROJECT_DIR$/src/kernel">
+    <contentRoot DIR="$PROJECT_DIR$" />
+  </component>
 </project>
