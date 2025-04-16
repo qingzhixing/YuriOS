@@ -21,7 +21,6 @@
   <component name="ChangeListManager">
     <list default="true" id="2122e469-b6de-4083-ba74-6f196a24f2ed" name="更改" comment="测试memory init中2">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/main.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/memory.c" beforeDir="false" afterPath="$PROJECT_DIR$/memory.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -138,7 +137,7 @@
       <workItem from="1743316624176" duration="10479000" />
       <workItem from="1744521426447" duration="2568000" />
       <workItem from="1744717747957" duration="383000" />
-      <workItem from="1744720557461" duration="9270000" />
+      <workItem from="1744720557461" duration="10111000" />
     </task>
     <task id="LOCAL-00001" summary="拓展内存管理结构体">
       <option name="closed" value="true" />
@@ -234,7 +233,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/memory.c</url>
-          <line>133</line>
+          <line>150</line>
           <option name="timeStamp" value="15" />
         </line-breakpoint>
       </breakpoints>

@@ -16,7 +16,7 @@ unsigned long page_init(struct Page *page, unsigned long flags) {
 		page->zone_struct->page_free_count--;
 		page->zone_struct->total_pages_link++;
 	} else if ((page->attribute & PG_Referenced) || (page->attribute & PG_K_Share_To_U) || (flags & PG_Referenced) ||
-	           (flags & PG_K_Share_To_U)) {
+			   (flags & PG_K_Share_To_U)) {
 		page->attribute |= flags;
 		page->reference_count++;
 		page->zone_struct->total_pages_link++;
@@ -57,12 +57,12 @@ void init_memory() {
 	struct E820 *p = NULL;
 
 	color_printk(BLUE, BLACK, "Displaying Memory Map, \n\t"
-	                          "Type: 1.RAM, 2.ROM or Reserved, 3.ACPI Reclaim Memory, 4.ACPI NVS Memory, 5.Undefined(Bad Memory)\n");
+							  "Type: 1.RAM, 2.ROM or Reserved, 3.ACPI Reclaim Memory, 4.ACPI NVS Memory, 5.Undefined(Bad Memory)\n");
 	p = (struct E820 *) 0xffff800000007e00;        // 在bootloader时我们保存在了这里
 
 	for (int i = 0; i < 32; i++) {
 		color_printk(ORANGE, BLACK, "Address:%#018lx\tLength:%#018lx\tType:%#010x\n",
-		             p->address, p->length, p->type);
+					 p->address, p->length, p->type);
 		if (p->type == 1) {
 			TotalMem += p->length;
 		}
@@ -101,16 +101,33 @@ void init_memory() {
 	// bits map construction init
 	// 仅建立最后一个e820的位图(最大的可使用区域)
 	TotalMem = memory_management_struct.e820[memory_management_struct.e820_length].address +
-	           memory_management_struct.e820[memory_management_struct.e820_length].length;
+			   memory_management_struct.e820[memory_management_struct.e820_length].length;
 
 	memory_management_struct.bits_map = (unsigned long *)
 			((memory_management_struct.end_brk + PAGE_4K_SIZE - 1) &
-			PAGE_4K_MASK);   // 在程序结束的后端预留4k建立位图
+			 PAGE_4K_MASK);   // 在程序结束的后端预留4k建立位图
 
 	memory_management_struct.bits_size = TotalMem >> PAGE_2M_SHIFT;
+
+	/*
+		转换内存大小为页数：
+			TotalMem >> PAGE_2M_SHIFT 将总内存转换为2MB页的数量。例如，4GB内存对应2048个页。
+		计算所需位数：
+			每个页对应一个位，总位数即页数 n。
+		计算对齐后的字节数：
+			向上取整到字节：(n + 7) / 8 计算所需字节数（每字节8位）。
+
+		确保按long对齐：通过表达式 ((n + sizeof(long)*8 -1) / 8) & ~(sizeof(long)-1)，将字节数向上取整到sizeof(long)的倍数。
+		这里利用位运算快速对齐，例如，sizeof(long)=4时，掩码~3（即0xFFFFFFFC）确保结果是4的倍数。
+
+		数学等价：将总位数向上取整到long可表示的位数（如32位或64位），再转换为字节数并自然对齐。
+	    [DeepSeek 解释]
+	 * */
 	memory_management_struct.bits_length =
 			(((unsigned long) (TotalMem >> PAGE_2M_SHIFT) + sizeof(long) * 8 - 1) / 8) &
-			(~(sizeof(long) - 1));        // 向下对齐
+			(~(sizeof(long) - 1));// 计算内存管理结构中位图数组的长度，确保其按long类型对齐，以提高访问效率。
+
+
 	memset(memory_management_struct.bits_map, 0xff, memory_management_struct.bits_length);
 
 	// pages construction init
@@ -128,7 +145,7 @@ void init_memory() {
 			 PAGE_4K_SIZE - 1) & PAGE_4K_MASK);
 	memory_management_struct.zones_size = 0;
 	memory_management_struct.zones_length = (5 * sizeof(struct Zone) + sizeof(long) - 1) &
-	                                        (~(sizeof(long) - 1));      // 暂时按5个zone分配
+											(~(sizeof(long) - 1));      // 暂时按5个zone分配
 	memset(memory_management_struct.zones_struct, 0x00, memory_management_struct.zones_length); // init zones memory
 
 	// 初始化各结构体内容
@@ -194,20 +211,20 @@ void init_memory() {
 
 
 	memory_management_struct.zones_length = (memory_management_struct.zones_size * sizeof(struct Zone) +
-	                                         sizeof(long) - 1) & (~(sizeof(long) - 1));
+											 sizeof(long) - 1) & (~(sizeof(long) - 1));
 
 	// 打印内存管理信息
 	color_printk(ORANGE, BLACK, "bits_map:%#018lx,bits_size:%#018lx,bits_length:%#018lx\n",
-	             memory_management_struct.bits_map, memory_management_struct.bits_size,
-	             memory_management_struct.bits_length);
+				 memory_management_struct.bits_map, memory_management_struct.bits_size,
+				 memory_management_struct.bits_length);
 
 	color_printk(ORANGE, BLACK, "pages_struct:%#018lx,pages_size:%#018lx,pages_length:%#018lx\n",
-	             memory_management_struct.pages_struct, memory_management_struct.pages_size,
-	             memory_management_struct.pages_length);
+				 memory_management_struct.pages_struct, memory_management_struct.pages_size,
+				 memory_management_struct.pages_length);
 
 	color_printk(ORANGE, BLACK, "zones_struct:%#018lx,zones_size:%#018lx,zones_length:%#018lx\n",
-	             memory_management_struct.zones_struct, memory_management_struct.zones_size,
-	             memory_management_struct.zones_length);
+				 memory_management_struct.zones_struct, memory_management_struct.zones_size,
+				 memory_management_struct.zones_length);
 
 	ZONE_DMA_INDEX = 0;       // need rewrite in the future
 	ZONE_NORMAL_INDEX = 0; // need rewrite in the future
@@ -216,17 +233,17 @@ void init_memory() {
 	{
 		struct Zone *z = memory_management_struct.zones_struct + i;
 		color_printk(ORANGE, BLACK,
-		             "zone_start_address:%#018lx,zone_end_address:%#018lx,zone_length:%#018lx,pages_group:%#018lx,pages_length:%#018lx\n",
-		             z->zone_start_address, z->zone_end_address, z->zone_length, z->pages_group, z->pages_length);
+					 "zone_start_address:%#018lx,zone_end_address:%#018lx,zone_length:%#018lx,pages_group:%#018lx,pages_length:%#018lx\n",
+					 z->zone_start_address, z->zone_end_address, z->zone_length, z->pages_group, z->pages_length);
 
 		if (z->zone_start_address == 0x100000000)
 			ZONE_UNMAPED_INDEX = i;
 	}
 	////need a blank to separate memory_management_struct
 	memory_management_struct.end_of_struct = (unsigned long)
-			                                         ((unsigned long) memory_management_struct.zones_struct +
-			                                          memory_management_struct.zones_length + sizeof(long) * 32) &
-	                                         (~(sizeof(long) - 1));
+													 ((unsigned long) memory_management_struct.zones_struct +
+													  memory_management_struct.zones_length + sizeof(long) * 32) &
+											 (~(sizeof(long) - 1));
 
 	// 打印各项初始化信息
 //	color_printk(ORANGE, BLACK, "Debug Print bits_map:\n");
@@ -237,10 +254,10 @@ void init_memory() {
 
 
 	color_printk(ORANGE, BLACK,
-	             "start_code:%#018lx,end_code:%#018lx,end_data:%#018lx,end_brk:%#018lx,end_of_struct:%#018lx\n",
-	             memory_management_struct.start_code, memory_management_struct.end_code,
-	             memory_management_struct.end_data, memory_management_struct.end_brk,
-	             memory_management_struct.end_of_struct);
+				 "start_code:%#018lx,end_code:%#018lx,end_data:%#018lx,end_brk:%#018lx,end_of_struct:%#018lx\n",
+				 memory_management_struct.start_code, memory_management_struct.end_code,
+				 memory_management_struct.end_data, memory_management_struct.end_brk,
+				 memory_management_struct.end_of_struct);
 
 	int i = Virt_To_Phy(memory_management_struct.end_of_struct) >> PAGE_2M_SHIFT;
 
@@ -324,7 +341,7 @@ struct Page *alloc_pages(int zone_select, int number, unsigned long page_flags) 
 		 * 如果 j 是 64 的倍数（即 j % 64 == 0），则步进 64（直接检查下一个 64 页块）。
 		 * */
 		for (int current_page_index = start_page_index;
-		     current_page_index <= end_page_index; current_page_index += current_page_index % 64 ? temp : 64) {
+			 current_page_index <= end_page_index; current_page_index += current_page_index % 64 ? temp : 64) {
 			// 找到对应的 bit_map
 			// current_page_index>>6: 获取当前64页块的bit_map偏移
 			unsigned long *p =
