@@ -56,12 +56,10 @@ A tiny OS developed by qingzhixing!
   ![color_printk](assets/images/color_printk.png)
 
   > 妈妈我再也不随便用AI了TT
-
->
+  >
 
 - [X] 🦄 成功捕获异常并使用异常处理 at 2024.11.10
   ![成功捕获异常并使用异常处理](assets/images/成功捕获异常并使用异常处理.png)
-
 - [X] 成功实现自定义中断处理函数 at 2025.2.23
 
 > 我真的要写哭了.... DeepSeek nb 问了一堆,改来改去不知道为什么就对了,应该是head.S里面不要加载没写完的tss
@@ -75,12 +73,12 @@ A tiny OS developed by qingzhixing!
 
 ![PF-display](assets/images/PF_display.png)
 
-- [x] 🈴 成功获取物理内存信息 at 2025.3.9
+- [X] 🈴 成功获取物理内存信息 at 2025.3.9
   ![成功获取物理内存信息](assets/images/init_memory.png)
   ![2GB内存](assets/images/init_memory_2GB.png)
-
-- [x] 🥩 color_printk 颜色测试 & 2M 内存页数量计算 at 2025.3.30
+- [X] 🥩 color_printk 颜色测试 & 2M 内存页数量计算 at 2025.3.30
   ![colorTest-2MPages.png](assets/images/colorTest-2MPages.png)
-
-- [x] 🍭 内存管理结构初始化并打印 at 2025.3.30
+- [X] 🍭 内存管理结构初始化并打印 at 2025.3.30
   ![内存管理结构初始化并打印](assets/images/memory_manager_initialized.png)
+- [X] 🧮 实现内存管理，成功申请分配连续页 Memory_Management at 2025.4.16
+  ![Memory_Management](assets/images/Memory_Management.png)

@@ -103,16 +103,14 @@ void init_memory() {
 	TotalMem = memory_management_struct.e820[memory_management_struct.e820_length].address +
 	           memory_management_struct.e820[memory_management_struct.e820_length].length;
 
-	memory_management_struct.bits_map = (unsigned long *) ((memory_management_struct.end_brk + PAGE_4K_SIZE - 1) &
-	                                                       PAGE_4K_MASK);   // 在程序结束的后端预留4k建立位图
+	memory_management_struct.bits_map = (unsigned long *)
+			((memory_management_struct.end_brk + PAGE_4K_SIZE - 1) &
+			PAGE_4K_MASK);   // 在程序结束的后端预留4k建立位图
 
 	memory_management_struct.bits_size = TotalMem >> PAGE_2M_SHIFT;
 	memory_management_struct.bits_length =
 			(((unsigned long) (TotalMem >> PAGE_2M_SHIFT) + sizeof(long) * 8 - 1) / 8) &
-			(sizeof(long) * 8 - 1);        // 向下对齐
-//	memory_management_struct.bits_length =
-//			((TotalMem >> PAGE_2M_SHIFT) + 8 * sizeof(long) - 1) /
-//			(8 * sizeof(long)) * sizeof(long);   // 向上取整
+			(~(sizeof(long) - 1));        // 向下对齐
 	memset(memory_management_struct.bits_map, 0xff, memory_management_struct.bits_length);
 
 	// pages construction init
@@ -231,12 +229,11 @@ void init_memory() {
 	                                         (~(sizeof(long) - 1));
 
 	// 打印各项初始化信息
-	// TODO: DEBUG;
-	color_printk(ORANGE, BLACK, "Debug Print bits_map:\n");
-	for (int bits_map_index = 0; bits_map_index < memory_management_struct.bits_length; ++bits_map_index) {
-		color_printk(ORANGE, BLACK, "\t bits_map[%d] : %#018lx \n", bits_map_index,
-		             *(memory_management_struct.bits_map + bits_map_index));
-	}
+//	color_printk(ORANGE, BLACK, "Debug Print bits_map:\n");
+//	for (int bits_map_index = 0; bits_map_index < memory_management_struct.bits_length; ++bits_map_index) {
+//		color_printk(ORANGE, BLACK, "\t bits_map[%d] : %#018lx \n", bits_map_index,
+//		             *(memory_management_struct.bits_map + bits_map_index));
+//	}
 
 
 	color_printk(ORANGE, BLACK,
