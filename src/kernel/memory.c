@@ -223,10 +223,17 @@ void init_memory() {
 			ZONE_UNMAPED_INDEX = i;
 	}
 
-	memory_management_struct.end_of_struct = (unsigned long) ((unsigned long) memory_management_struct.zones_struct +
-															  memory_management_struct.zones_length +
-															  sizeof(long) * 32) & (~(sizeof(long) -
-																					  1)); ////need a blank to separate memory_management_struct
+	memory_management_struct.end_of_struct = (unsigned long) (
+			(unsigned long) memory_management_struct.zones_struct +
+			memory_management_struct.zones_length +sizeof(long) * 32) &
+					(~(sizeof(long) -1)); ////need a blank to separate memory_management_struct
+
+					// 打印各项初始化信息
+	color_printk(ORANGE,BLACK,"Debug Print bits_map:\n");
+	for (int bits_map_index = 0; bits_map_index < memory_management_struct.bits_length; ++bits_map_index) {
+		color_printk(ORANGE, BLACK, "\t bits_map[%d] : %#018lx \n",bits_map_index, *(memory_management_struct.bits_map + bits_map_index));
+	}
+
 
 	color_printk(ORANGE, BLACK,
 				 "start_code:%#018lx,end_code:%#018lx,end_data:%#018lx,end_brk:%#018lx,end_of_struct:%#018lx\n",

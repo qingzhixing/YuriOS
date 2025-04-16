@@ -108,9 +108,6 @@ void Start_Kernel(void) {
 
 	color_printk(BLUE,WHITE,"memory_management_struct.bits_map:%#018lx\n",*memory_management_struct.bits_map);
 	color_printk(BLUE,WHITE,"memory_management_struct.bits_map:%#018lx\n",*(memory_management_struct.bits_map + 1));
-	color_printk(BLUE,WHITE,"memory_management_struct.bits_map:%#018lx\n",*(memory_management_struct.bits_map + 2));
-	color_printk(BLUE,WHITE,"memory_management_struct.bits_map:%#018lx\n",*(memory_management_struct.bits_map + 3));
-	color_printk(BLUE,WHITE,"memory_management_struct.bits_map:%#018lx\n",*(memory_management_struct.bits_map + 4));
 
 //
 //	page = alloc_pages(ZONE_NORMAL,64,PG_PTable_Maped | PG_Active | PG_Kernel);
