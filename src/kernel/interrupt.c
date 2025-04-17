@@ -140,31 +140,37 @@ void init_interrupt() {
 	 * 8259A initialization: https://wiki.osdev.org/8259_PIC
 	 * 8259A bits defines: https://helppc.netcore2k.net/hardware/8259
 	 * */
-	//8259A-master	ICW1-4
-	io_out8(0x20, 0x11);
-	io_out8(0x21, 0x20);
-	io_out8(0x21, 0x04);
-	io_out8(0x21, 0x01);
+	// 主 PIC 初始化
+	io_out8(0x20, 0x11);  // ICW1: 边沿触发, 级联, 需要 ICW4
+	io_out8(0x21, 0x20);  // ICW2: 主 PIC 中断向量基址（如 0x20）
+	io_out8(0x21, 0x04);  // ICW3: 主 PIC 的 IRQ2 连接从 PIC
+	io_out8(0x21, 0x01);  // ICW4: 8086 模式
 
-	//8259A-slave	ICW1-4
-	io_out8(0xa0, 0x11);
-	io_out8(0xa1, 0x28);
-	io_out8(0xa1, 0x02);
-	io_out8(0xa1, 0x01);
+	// 从 PIC 初始化
+	io_out8(0xA0, 0x11);  // ICW1
+	io_out8(0xA1, 0x28);  // ICW2: 从 PIC 中断向量基址（如 0x28）
+	io_out8(0xA1, 0x02);  // ICW3: 从 PIC 连接到主 PIC 的 IRQ2
+	io_out8(0xA1, 0x01);  // ICW4
 
 	//8259A-M/S	OCW1
-	io_out8(0x21, 0x00);
-	io_out8(0xa1, 0x00);
+	io_out8(0x21, 0xfd);
+	io_out8(0xa1, 0xff);
 
 	sti();
 }
 
-/*
-
-*/
-
 void do_IRQ(unsigned long regs, unsigned long nr)    //regs:rsp,nr
 {
 	color_printk(RED, BLACK, "do_IRQ:%#08x\t", nr);
+
+	if (nr == 0x21) {
+		unsigned char ch = io_in8(0x60);
+		color_printk(RED, BLACK, "ch:%#04x\n", ch);
+	}
+
+	// 根据中断来源发送 EOI
+	if (nr >= 40) {
+		io_out8(0xA0, 0x20);  // 通知从 PIC
+	}
 	io_out8(0x20, 0x20);
 }
