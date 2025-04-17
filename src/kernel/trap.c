@@ -1,14 +1,6 @@
 #include "gate.h"
 #include "trap.h"
 
-void debug_print_stack(unsigned long rsp) {
-	color_printk(RED, WHITE, "Stack Dump @ %#lx:\n", rsp);
-	for (int i = 0; i < 8; i++) {
-		color_printk(BLUE, BLACK, "[%+03d] %#018lx\n",
-					 i * 8, *(unsigned long *) (rsp + i * 8));
-	}
-}
-
 void do_divide_error(unsigned long rsp, unsigned long error_code) {
 	unsigned long rip = ((struct pt_regs *) rsp)->rip;
 	color_printk(RED, BLACK, "do_divide_error(0),ERROR_CODE:%#018lx,RSP:%#018lx,RIP:%#018lx\n", error_code, rsp,

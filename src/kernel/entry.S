@@ -176,14 +176,6 @@ PATCHABLE(stack_fault)
 error_code:
 	SAVE_ALL
 
-	debug_stack:
-		pushq %rdi
-		pushq %rsi
-		movq    %rsp, %rdi
-		call    debug_print_stack
-		popq %rsi
-		popq %rdi
-
 	cld
 
 	movq	ERRCODE(%rsp),	%rsi 	// RSI:第二个参数 - 保存错误码

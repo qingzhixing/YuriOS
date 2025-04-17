@@ -2,11 +2,12 @@
 // Created by qingzhixing on 24-6-30.
 //
 
+#include "gate.h"
+#include "interrupt.h"
 #include "lib.h"
+#include "memory.h"
 #include "printk.h"
 #include "trap.h"
-#include "gate.h"
-#include "memory.h"
 
 #define GDT_INDEX_TSS 8
 
@@ -49,7 +50,8 @@ void printk_color_test() {
 	color_printk(WHITE, BLACK, "\n");
 }
 
-void init() {
+
+void Start_Kernel(void) {
 
 	// 显示模式: 1440x900x32
 	// 模式号: 0x180
@@ -62,24 +64,10 @@ void init() {
 		*(((char *) frame_buffer) + 3) = 0x00; // 保留
 		frame_buffer += 1;
 	}
-
-	memory_management_struct.start_code = (unsigned long) &_text;
-	memory_management_struct.end_code = (unsigned long) &_etext;
-	memory_management_struct.end_data = (unsigned long) &_edata;
-	memory_management_struct.end_brk = (unsigned long) &_end;
-
 	init_printk();
 	printk_color_test();
-	init_memory();
-}
-
-void Start_Kernel(void) {
-	init();
-
-	color_printk(BLACK, WHITE, "%s", "Hello, YuriOS!\n");
 
 	load_TR(GDT_INDEX_TSS); // 实际选择子=8*8=0x40
-
 	set_tss64(
 			0xffff800000007c00,
 			0xffff800000007c00,
@@ -92,35 +80,19 @@ void Start_Kernel(void) {
 			0xffff800000007c00,
 			0xffff800000007c00
 	);
-
-	// 验证代码（添加在set_tss64之后）
-	color_printk(BLACK, WHITE, "TSS RSP0:%#llx\n", *(unsigned long *) (TSS64_Table + 1));
-	color_printk(BLACK, WHITE, "TSS IST1:%#llx\n", *(unsigned long *) (TSS64_Table + 9));
-
-
 	sys_vector_init();
 
-//	int i;
-//	i = 1 / 0; // #DE: division by zero
-//	i = *(int *) 0xffff80000aa00000;
 
-	struct Page* page = NULL;
+	memory_management_struct.start_code = (unsigned long) &_text;
+	memory_management_struct.end_code = (unsigned long) &_etext;
+	memory_management_struct.end_data = (unsigned long) &_edata;
+	memory_management_struct.end_brk = (unsigned long) &_end;
 
-	color_printk(BLUE,WHITE,"memory_management_struct.bits_map:%#018lx\n",*memory_management_struct.bits_map);
-	color_printk(BLUE,WHITE,"memory_management_struct.bits_map:%#018lx\n",*(memory_management_struct.bits_map + 1));
+	color_printk(RED, BLACK, "memory init \n");
+	init_memory();
 
-
-	page = alloc_pages(ZONE_NORMAL,64,PG_PTable_Maped | PG_Active | PG_Kernel);
-
-	for(int i = 0;i <= 64;i++)
-	{
-		color_printk(INDIGO,BLACK,"page%d\tattribute:%#018lx\taddress:%#018lx\t",i,(page + i)->attribute,(page + i)->PHY_address);
-		i++;
-		color_printk(INDIGO,BLACK,"page%d\tattribute:%#018lx\taddress:%#018lx\n",i,(page + i)->attribute,(page + i)->PHY_address);
-	}
-
-	color_printk(RED,BLACK,"memory_management_struct.bits_map:%#018lx\n",*memory_management_struct.bits_map);
-	color_printk(RED,BLACK,"memory_management_struct.bits_map:%#018lx\n",*(memory_management_struct.bits_map + 1));
+	color_printk(RED, BLACK, "interrupt init \n");
+	init_interrupt();
 
 	while (1);
 }
