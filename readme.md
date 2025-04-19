@@ -71,14 +71,25 @@ A tiny OS developed by qingzhixing!
 
 ### #PF
 
-![PF-display](assets/images/PF_display.png)
+![PF-display](assets/images/PF_display.png)  
 
 - [X] 🈴 成功获取物理内存信息 at 2025.3.9
   ![成功获取物理内存信息](assets/images/init_memory.png)
-  ![2GB内存](assets/images/init_memory_2GB.png)
+  ![2GB内存](assets/images/init_memory_2GB.png)  
+
 - [X] 🥩 color_printk 颜色测试 & 2M 内存页数量计算 at 2025.3.30
-  ![colorTest-2MPages.png](assets/images/colorTest-2MPages.png)
+  ![colorTest-2MPages.png](assets/images/colorTest-2MPages.png)  
+
 - [X] 🍭 内存管理结构初始化并打印 at 2025.3.30
-  ![内存管理结构初始化并打印](assets/images/memory_manager_initialized.png)
+  ![内存管理结构初始化并打印](assets/images/memory_manager_initialized.png)  
+
 - [X] 🧮 实现内存管理，成功申请分配连续页 Memory_Management at 2025.4.16
-  ![Memory_Management](assets/images/Memory_Management.png)
+  ![Memory_Management](assets/images/Memory_Management.png)  
+
+- [x] ☄️ 8259A PIC 中断控制器配置，实现键盘驱动! at 2025.4.19
+
+  时钟中断:
+  ![IRQ0x20_interrupt](assets/images/IRQ0x20_interrupt.png)
+
+  键盘中断:
+  ![IRQ0x21_keyboard_interrupt](assets/images/IRQ0x21_keyboard_interrupt.png)
