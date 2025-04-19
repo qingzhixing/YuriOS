@@ -19,10 +19,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2122e469-b6de-4083-ba74-6f196a24f2ed" name="更改" comment="又遇到了bug,IRQ中断只能触发一次，不能连续触发.">
+    <list default="true" id="2122e469-b6de-4083-ba74-6f196a24f2ed" name="更改" comment="问题定位在Entry.S中">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/entry.S" beforeDir="false" afterPath="$PROJECT_DIR$/entry.S" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/interrupt.c" beforeDir="false" afterPath="$PROJECT_DIR$/interrupt.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -141,7 +140,7 @@
       <workItem from="1743316624176" duration="10479000" />
       <workItem from="1744521426447" duration="2568000" />
       <workItem from="1744717747957" duration="383000" />
-      <workItem from="1744720557461" duration="13641000" />
+      <workItem from="1744720557461" duration="14452000" />
     </task>
     <task id="LOCAL-00001" summary="拓展内存管理结构体">
       <option name="closed" value="true" />
@@ -239,7 +238,15 @@
       <option name="project" value="LOCAL" />
       <updated>1744896135392</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="问题定位在Entry.S中">
+      <option name="closed" value="true" />
+      <created>1745040012947</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1745040012947</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -257,7 +264,8 @@
     <MESSAGE value="添加代码注释" />
     <MESSAGE value="接收到IRQ 0x20时钟中断，但是只有一次" />
     <MESSAGE value="又遇到了bug,IRQ中断只能触发一次，不能连续触发." />
-    <option name="LAST_COMMIT_MESSAGE" value="又遇到了bug,IRQ中断只能触发一次，不能连续触发." />
+    <MESSAGE value="问题定位在Entry.S中" />
+    <option name="LAST_COMMIT_MESSAGE" value="问题定位在Entry.S中" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

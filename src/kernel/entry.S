@@ -98,19 +98,17 @@ ENTRY(name)\
 	nop
 
 .macro SAVE_ALL
-    /* 内存屏障保证存储顺序 */
-    sfence
-    
+
     /* 保存临时寄存器和段寄存器 */
     pushq   %rax            // 临时保存RAX
     movq    %es, %rax
     pushq   %rax           // 保存ES
     movq    %ds, %rax
     pushq   %rax           // 保存DS
-    
+
     /* 清零RAX用于后续操作 */
     xorq    %rax, %rax
-    
+
     /* 保存通用寄存器 (顺序必须与结构体一致) */
     pushq   %rbp
     pushq   %rdi
@@ -126,9 +124,6 @@ ENTRY(name)\
     pushq   %r13
     pushq   %r14
     pushq   %r15
-    
-    /* 完整内存屏障 */
-    mfence
 .endm
 
 .macro RESTORE_ALL
@@ -147,19 +142,17 @@ ENTRY(name)\
     popq    %rsi
     popq    %rdi
     popq    %rbp
-    
+
     /* 恢复段寄存器 */
     popq    %rax           // 弹出DS值
     movw    %ax, %ds
     popq    %rax           // 弹出ES值
     movw    %ax, %es
     popq    %rax           // 恢复原始RAX值
-    
+
     /* 跳过处理函数和错误码 */
     addq    $0x10, %rsp    // 跳过func和errcode
-    
-    /* 内存屏障保证加载顺序 */
-    lfence
+	iretq                   // 结束异常处理
 .endm
 
 #define GET_CURRENT(reg)	\
@@ -217,24 +210,24 @@ BUILD_TRAP( virtualization_exception, do_virtualization_exception, 0)
 ENTRY(nmi)
     /* 步骤1：保存完整上下文 */
     SAVE_ALL
-    
+
     /* 步骤2：设置内核段寄存器 */
     movq    $0x10, %rax
     movw    %ax, %ds
     movw    %ax, %es
-    
+
     /* 步骤3：安全检查 */
     stac                    /* SMAP保护 */
     testq   $0x0F, %rsp     /* 16字节对齐 */
     jnz     stack_fault
-    
+
     /* 步骤4：准备参数 */
     movq    %rsp, %rdi      /* pt_regs指针 */
     xorq    %rsi, %rsi      /* 错误码 */
-    
+
     /* 步骤5：调用处理程序 */
     call    do_nmi
-    
+
     /* 步骤6：恢复环境 */
     clac
     RESTORE_ALL
