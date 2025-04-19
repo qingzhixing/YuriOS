@@ -20,7 +20,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2122e469-b6de-4083-ba74-6f196a24f2ed" name="更改" comment="Restore ALL 少了 iretq">
-      <change beforePath="$PROJECT_DIR$/interrupt.c" beforeDir="false" afterPath="$PROJECT_DIR$/interrupt.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cpu.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ptrace.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/task.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/memory.h" beforeDir="false" afterPath="$PROJECT_DIR$/memory.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -139,7 +143,7 @@
       <workItem from="1743316624176" duration="10479000" />
       <workItem from="1744521426447" duration="2568000" />
       <workItem from="1744717747957" duration="383000" />
-      <workItem from="1744720557461" duration="14650000" />
+      <workItem from="1744720557461" duration="16451000" />
     </task>
     <task id="LOCAL-00001" summary="拓展内存管理结构体">
       <option name="closed" value="true" />
