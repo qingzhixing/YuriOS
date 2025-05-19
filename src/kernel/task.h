@@ -93,25 +93,24 @@ struct task_struct {
 
 	struct mm_struct *mm;			// 内存空间分布结构体
 	struct thread_struct *thread;	// 进程切换保留的状态信息
-	// TODO:Coding here
 
-	unsigned long addr_limit;
+	unsigned long addr_limit;		// 进程地址空间范围
 	/*0x0000,0000,0000,0000 - 0x0000,7fff,ffff,ffff user*/
 	/*0xffff,8000,0000,0000 - 0xffff,ffff,ffff,ffff kernel*/
 
-	long pid;
+	long pid;						// 进程ID号
 
-	long counter;
+	long counter;					// 进程可用时间片
 
-	long signal;
+	long signal;					// 进程持有的信号
 
-	long priority;
+	long priority;					// 进程优先级
 };
 
 union task_union {
 	struct task_struct task;
 	unsigned long stack[STACK_SIZE / sizeof(unsigned long)];
-}__attribute__((aligned (8)));    //8Bytes align
+}__attribute__((aligned (8)));    //8 Bytes align
 
 struct mm_struct init_mm;
 struct thread_struct init_thread;
