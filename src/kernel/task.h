@@ -87,14 +87,16 @@ struct thread_struct {
 #define PF_KTHREAD    (1 << 0)
 
 struct task_struct {
-	struct List list;
-	volatile long state;
-	unsigned long flags;
+	struct List list;               // 双向链表
+	volatile long state;			// 进程状态: 运行，停止，可中断等
+	unsigned long flags;			// 进程标志：进程，线程，内核线程等
 
-	struct mm_struct *mm;
-	struct thread_struct *thread;
+	struct mm_struct *mm;			// 内存空间分布结构体
+	struct thread_struct *thread;	// 进程切换保留的状态信息
+	// TODO:Coding here
 
-	unsigned long addr_limit;    /*0x0000,0000,0000,0000 - 0x0000,7fff,ffff,ffff user*/
+	unsigned long addr_limit;
+	/*0x0000,0000,0000,0000 - 0x0000,7fff,ffff,ffff user*/
 	/*0xffff,8000,0000,0000 - 0xffff,ffff,ffff,ffff kernel*/
 
 	long pid;
