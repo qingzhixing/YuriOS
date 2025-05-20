@@ -209,6 +209,7 @@ inline struct task_struct *get_current() {
 */
 
 
+// 调用并将RDI和RSI寄存器作为参数传递到__switch_to函数
 #define switch_to(prev, next)            \
 do{                            \
     __asm__ __volatile__ (    "pushq	%%rbp	\n\t"    \
