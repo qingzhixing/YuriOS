@@ -7,6 +7,7 @@
 #include "lib.h"
 #include "memory.h"
 #include "printk.h"
+#include "task.h"
 #include "trap.h"
 
 #define GDT_INDEX_TSS 8
@@ -16,7 +17,7 @@ extern char _etext;
 extern char _edata;
 extern char _end;
 
-struct Global_Memory_descriptor memory_management_struct = {.e820={0}, .e820_length=0};
+struct Global_Memory_descriptor memory_management_struct = {.e820 = {0}, .e820_length = 0};
 
 void printk_color_test() {
 	/*
@@ -68,18 +69,8 @@ void Start_Kernel(void) {
 	printk_color_test();
 
 	load_TR(GDT_INDEX_TSS); // 实际选择子=8*8=0x40
-	set_tss64(
-			0xffff800000007c00,
-			0xffff800000007c00,
-			0xffff800000007c00,
-			0xffff800000007c00,
-			0xffff800000007c00,
-			0xffff800000007c00,
-			0xffff800000007c00,
-			0xffff800000007c00,
-			0xffff800000007c00,
-			0xffff800000007c00
-	);
+	set_tss64(0xffff800000007c00, 0xffff800000007c00, 0xffff800000007c00, 0xffff800000007c00, 0xffff800000007c00,
+			  0xffff800000007c00, 0xffff800000007c00, 0xffff800000007c00, 0xffff800000007c00, 0xffff800000007c00);
 	sys_vector_init();
 
 
@@ -94,5 +85,8 @@ void Start_Kernel(void) {
 	color_printk(RED, BLACK, "interrupt init \n");
 	init_interrupt();
 
-	while (1);
+	task_init();
+
+	while (1)
+		;
 }

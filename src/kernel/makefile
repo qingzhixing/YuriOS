@@ -10,6 +10,7 @@ OBJS = $(BUILD_PATH)/head.o \
 		$(BUILD_PATH)/memory.o \
 		$(BUILD_PATH)/trap.o \
 		$(BUILD_PATH)/interrupt.o \
+		$(BUILD_PATH)/task.o \
 		$(BUILD_PATH)/main.o
 
 $(BUILD_PATH)/%.o : %.c

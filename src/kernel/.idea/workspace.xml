@@ -15,18 +15,15 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2122e469-b6de-4083-ba74-6f196a24f2ed" name="更改" comment="__switch_to">
-      <change beforePath="$PROJECT_DIR$/../../YuriOS.code-workspace" beforeDir="false" afterPath="$PROJECT_DIR$/../../YuriOS.code-workspace" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
+    <list default="true" id="2122e469-b6de-4083-ba74-6f196a24f2ed" name="更改" comment="添加注释中">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gate.h" beforeDir="false" afterPath="$PROJECT_DIR$/gate.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib.h" beforeDir="false" afterPath="$PROJECT_DIR$/lib.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/linkage.h" beforeDir="false" afterPath="$PROJECT_DIR$/linkage.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/memory.h" beforeDir="false" afterPath="$PROJECT_DIR$/memory.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/printk.h" beforeDir="false" afterPath="$PROJECT_DIR$/printk.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Kernel.lds" beforeDir="false" afterPath="$PROJECT_DIR$/Kernel.lds" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/main.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/makefile" beforeDir="false" afterPath="$PROJECT_DIR$/makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ptrace.h" beforeDir="false" afterPath="$PROJECT_DIR$/ptrace.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/task.c" beforeDir="false" afterPath="$PROJECT_DIR$/task.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/task.h" beforeDir="false" afterPath="$PROJECT_DIR$/task.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trap.h" beforeDir="false" afterPath="$PROJECT_DIR$/trap.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,6 +34,9 @@
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
     </projectState>
+  </component>
+  <component name="FormatOnSaveOptions">
+    <option name="myRunOnSave" value="true" />
   </component>
   <component name="Git.Settings">
     <option name="PUSH_AUTO_UPDATE" value="true" />
@@ -68,6 +68,9 @@
         <entry key="$PROJECT_DIR$" value="RE_IMPORT" />
       </map>
     </option>
+  </component>
+  <component name="OptimizeOnSaveOptions">
+    <option name="myRunOnSave" value="true" />
   </component>
   <component name="ProjectApplicationVersion">
     <option name="ide" value="CLion" />
@@ -103,7 +106,8 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "rearrange.code.on.save": "true",
+    "settings.editor.selected.configurable": "actions.on.save",
     "structure.view.defaults.are.configured": "true",
     "vue.rearranger.settings.migration": "true"
   }
@@ -133,7 +137,7 @@
       <workItem from="1747822969895" duration="484000" />
       <workItem from="1747823466519" duration="41000" />
       <workItem from="1747823526735" duration="1205000" />
-      <workItem from="1747824744979" duration="4364000" />
+      <workItem from="1747824744979" duration="11368000" />
     </task>
     <task id="LOCAL-00001" summary="拓展内存管理结构体">
       <option name="closed" value="true" />
@@ -279,7 +283,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747747522056</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="添加注释中">
+      <option name="closed" value="true" />
+      <created>1747830474401</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1747830474402</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -311,10 +323,10 @@
     <MESSAGE value="问题定位在Entry.S中" />
     <MESSAGE value="Restore ALL 少了 iretq" />
     <MESSAGE value="正在进行进程管理代码编写" />
-    <MESSAGE value="添加注释中" />
     <MESSAGE value="coding" />
     <MESSAGE value="__switch_to" />
-    <option name="LAST_COMMIT_MESSAGE" value="__switch_to" />
+    <MESSAGE value="添加注释中" />
+    <option name="LAST_COMMIT_MESSAGE" value="添加注释中" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
