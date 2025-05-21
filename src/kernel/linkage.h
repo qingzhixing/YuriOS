@@ -23,6 +23,7 @@
 
 #define L1_CACHE_BYTES 32
 
+// 函数调用时不使用寄存器传递参数，而是使用栈传递参数
 #define asmlinkage __attribute__((regparm(0)))
 
 #define ____cacheline_aligned __attribute__((__aligned__(L1_CACHE_BYTES)))

@@ -11,9 +11,8 @@
 #include "ptrace.h"
 
 #define KERNEL_CS    (0x08)
-#define    KERNEL_DS    (0x10)
-
-#define    USER_CS        (0x28)
+#define KERNEL_DS    (0x10)
+#define USER_CS        (0x28)
 #define USER_DS        (0x30)
 
 #define CLONE_FS    (1 << 0)
@@ -22,6 +21,16 @@
 
 // stack size 32K
 #define STACK_SIZE 32768
+
+// task_struct::state
+#define TASK_RUNNING        (1 << 0)
+#define TASK_INTERRUPTIBLE    (1 << 1)
+#define TASK_UNINTERRUPTIBLE    (1 << 2)
+#define TASK_ZOMBIE        (1 << 3)
+#define TASK_STOPPED        (1 << 4)
+
+// task_struct::flags
+#define PF_KTHREAD    (1 << 0)
 
 extern char _text;
 extern char _etext;
@@ -37,38 +46,33 @@ extern unsigned long _stack_start;
 
 extern void ret_from_intr();
 
-/*
-
-*/
-
-#define TASK_RUNNING        (1 << 0)
-#define TASK_INTERRUPTIBLE    (1 << 1)
-#define    TASK_UNINTERRUPTIBLE    (1 << 2)
-#define    TASK_ZOMBIE        (1 << 3)
-#define    TASK_STOPPED        (1 << 4)
-
-/*
-
-*/
-
-
-struct mm_struct {
+// @brief 描述进程页表结构和各程序段信息
+typedef struct mm_struct {
+	// 内存页表指针
 	pml4t_t *pgd;    //page table point
 
+	// 代码段空间
 	unsigned long start_code, end_code;
+	
+	// 数据段空间
 	unsigned long start_data, end_data;
+	
+	// 只读数据段空间
 	unsigned long start_rodata, end_rodata;
+	
+	// 动态内存分布区(堆空间)
 	unsigned long start_brk, end_brk;
+	
+	// 用户层栈基地址
 	unsigned long start_stack;
-};
+}mm_struct;
 
-/*
-
-*/
-
-struct thread_struct {
+// @brief 进程调度的执行现场
+typedef struct thread_struct {
+	// 内核层栈基地址
 	unsigned long rsp0;    //in tss
 
+	// 内核层代码指针
 	unsigned long rip;
 	unsigned long rsp;
 
@@ -78,15 +82,9 @@ struct thread_struct {
 	unsigned long cr2;
 	unsigned long trap_nr;
 	unsigned long error_code;
-};
+}thread_struct;
 
-/*
-
-*/
-
-#define PF_KTHREAD    (1 << 0)
-
-struct task_struct {
+typedef struct task_struct {
 	struct List list;               // 双向链表
 	volatile long state;			// 进程状态: 运行，停止，可中断等
 	unsigned long flags;			// 进程标志：进程，线程，内核线程等
@@ -105,12 +103,30 @@ struct task_struct {
 	long signal;					// 进程持有的信号
 
 	long priority;					// 进程优先级
-};
+}task_struct;
 
-union task_union {
+typedef union task_union {
 	struct task_struct task;
 	unsigned long stack[STACK_SIZE / sizeof(unsigned long)];
-}__attribute__((aligned (8)));    //8 Bytes align
+}__attribute__((aligned (8))) task_union;    //8 Bytes align
+
+typedef struct tss_struct {
+	unsigned int reserved0;
+	unsigned long rsp0;
+	unsigned long rsp1;
+	unsigned long rsp2;
+	unsigned long reserved1;
+	unsigned long ist1;
+	unsigned long ist2;
+	unsigned long ist3;
+	unsigned long ist4;
+	unsigned long ist5;
+	unsigned long ist6;
+	unsigned long ist7;
+	unsigned long reserved2;
+	unsigned short reserved3;
+	unsigned short iomapbaseaddr;
+}__attribute__((packed)) tss_struct;
 
 struct mm_struct init_mm;
 struct thread_struct init_thread;
@@ -145,27 +161,7 @@ struct thread_struct init_thread =
 				.error_code = 0
 		};
 
-/*
 
-*/
-
-struct tss_struct {
-	unsigned int reserved0;
-	unsigned long rsp0;
-	unsigned long rsp1;
-	unsigned long rsp2;
-	unsigned long reserved1;
-	unsigned long ist1;
-	unsigned long ist2;
-	unsigned long ist3;
-	unsigned long ist4;
-	unsigned long ist5;
-	unsigned long ist6;
-	unsigned long ist7;
-	unsigned long reserved2;
-	unsigned short reserved3;
-	unsigned short iomapbaseaddr;
-}__attribute__((packed));
 
 #define INIT_TSS \
 {    .reserved0 = 0,     \
@@ -187,11 +183,6 @@ struct tss_struct {
 
 struct tss_struct init_tss[NR_CPUS] = {[0 ... NR_CPUS - 1] = INIT_TSS};
 
-/*
-
-*/
-
-
 inline struct task_struct *get_current() {
 	struct task_struct *current = NULL;
 	__asm__ __volatile__ ("andq %%rsp,%0	\n\t":"=r"(current):"0"(~32767UL));
@@ -203,11 +194,6 @@ inline struct task_struct *get_current() {
 #define GET_CURRENT            \
     "movq	%rsp,	%rbx	\n\t"    \
     "andq	$-32768,%rbx	\n\t"
-
-/*
-
-*/
-
 
 // 调用并将RDI和RSI寄存器作为参数传递到__switch_to函数
 #define switch_to(prev, next)            \
@@ -229,12 +215,10 @@ do{                            \
                 );            \
 }while(0)
 
-/*
 
-*/
 
-unsigned long
-do_fork(struct pt_regs *regs, unsigned long clone_flags, unsigned long stack_start, unsigned long stack_size);
+unsigned long do_fork(struct pt_regs *regs, unsigned long clone_flags,
+					  unsigned long stack_start, unsigned long stack_size);
 
 void task_init();
 

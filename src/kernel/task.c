@@ -21,4 +21,13 @@ inline void __switch_to(struct task_struct* prev,struct task_struct* next){
 	color_printk(WHITE,BLACK,"prev->thread->rsp0:%#018lx\n",prev->thread->rsp0);
 	color_printk(WHITE,BLACK,"next->thread->rsp0:%#018lx\n",next->thread->rsp0);
 }
-// TODO：Ｃoding here
+
+/*
+ * 初始化第一个进程，再调用kernel_thread为系统创建出一个新进程，随后借助switch_to模块执行进程实现切换
+ */
+void task_init(){
+	struct task_struct* init_task = NULL;
+
+	// 初始化第一个进程的内存空间结构体
+	init_mm.pgd = (pml4t_t*)Global_CR3;
+}

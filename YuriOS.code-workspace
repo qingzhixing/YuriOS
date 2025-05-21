@@ -11,8 +11,8 @@
 	],
 	"settings": {
 		"files.associations": {
-			"*.embeddedhtml": "html",
 			"*.nasm": "nasm",
+			"*.embeddedhtml": "html",
 			"*.S": "attasm",
 			"linkage.h": "c",
 			"printk.h": "c",
@@ -21,7 +21,8 @@
 			"gate.h": "c",
 			"memory.h": "c",
 			"interrupt.h": "c",
-			"type_traits": "c"
+			"type_traits": "c",
+			"ptrace.h": "c"
 		}
 	}
 }

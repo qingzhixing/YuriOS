@@ -49,13 +49,14 @@ extern unsigned char font_ascii[256][16];
 
 char printk_buffer[PRINTK_BUFFER_SIZE] = {0};
 
-struct Cursor_State
+typedef struct CursorState
 {
     int x_offset;
     int y_offset;
-} cursor_global_state;
+}CursorState;
+CursorState cursor_global_state;
 
-struct VGA_State
+typedef struct VGA_State
 {
     int x_resolution; // x方向分辨率
     int y_resolution; // y方向分辨率
@@ -65,7 +66,8 @@ struct VGA_State
 
     unsigned int *FrameBuffer_addr;
     unsigned long FrameBufferSize;
-} vga_global_state;
+} VGA_State;
+struct VGA_State vga_global_state;
 
 void init_printk();
 

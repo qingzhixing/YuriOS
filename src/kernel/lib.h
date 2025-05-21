@@ -4,24 +4,38 @@
 
 #include <stddef.h>
 
+/*
+ * @brief 根据结构体变量内的某个成员的地址，找到结构体变量的首地址
+ * @param ptr 结构体变量内的某个成员的地址
+ * @param type 结构体类型
+ * @param member 成员结构名
+ * */
 #define container_of(ptr,type,member)							\
 ({											\
 	typeof(((type *)0)->member) * p = (ptr);					\
 	(type *)((unsigned long)p - (unsigned long)&(((type *)0)->member));		\
 })
 
-
+// Set Interrupt Flag 打开中断
 #define sti() 		__asm__ __volatile__ ("sti	\n\t":::"memory")
+
+// Clear Interrupt Flag 关闭中断
 #define cli()	 	__asm__ __volatile__ ("cli	\n\t":::"memory")
+
+// 空操作
 #define nop() 		__asm__ __volatile__ ("nop	\n\t")
+
+// 内存屏障
 #define io_mfence() 	__asm__ __volatile__ ("mfence	\n\t":::"memory")
 
-struct List
+// 双向列表
+typedef struct List
 {
 	struct List * prev;
 	struct List * next;
-};
+}List;
 
+// list操作
 void list_init(struct List * list);
 void list_add_to_behind(struct List * entry, struct List * new);
 void list_add_to_before(struct List * entry, struct List * new);
@@ -29,18 +43,26 @@ void list_del(struct List * entry);
 long list_is_empty(struct List * entry);
 struct List * list_prev(struct List * entry);
 struct List * list_next(struct List * entry);
+
+// 内存操作
 void * memcpy(void * From, void * To, long Num);
 int memcmp(void * FirstPart, void * SecondPart, long Count);
 void * memset(void * Address, unsigned char C, long Count);
+
+// 字符串操作
 char * strcpy(char * Dest, char * Src);
 char * strncpy(char * Dest, char * Src, long Count);
 char * strcat(char * Dest, char * Src);
 int strcmp(char * FirstPart, char * SecondPart);
 int strncmp(char * FirstPart, char * SecondPart, long Count);
 int strlen(char * String);
+
+// 位操作
 unsigned long bit_set(unsigned long * addr, unsigned long nr);
 unsigned long bit_get(unsigned long * addr, unsigned long nr);
 unsigned long bit_clean(unsigned long * addr, unsigned long nr);
+
+// io操作
 unsigned char io_in8(unsigned short port);
 unsigned int io_in32(unsigned short port);
 void io_out8(unsigned short port, unsigned char value);

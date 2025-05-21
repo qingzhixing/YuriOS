@@ -34,11 +34,11 @@ struct Global_Memory_descriptor;
 struct Zone;
 struct E820;
 
-struct E820 {
+typedef struct E820 {
 	unsigned long address;
 	unsigned long length;
 	unsigned int type;
-}__attribute__((packed));
+}__attribute__((packed)) E820;
 
 // each zone index
 
@@ -47,7 +47,7 @@ int ZONE_NORMAL_INDEX = 0;    //low 1GB RAM ,was mapped in pagetable
 int ZONE_UNMAPED_INDEX = 0;    //above 1GB RAM,unmapped in pagetable
 #define MAX_NR_ZONES    10    //max zone
 
-struct Zone {
+typedef struct Zone {
 	struct Page *pages_group;                        // Page数组
 	unsigned long pages_length;                     // Page结构体数量
 
@@ -62,7 +62,7 @@ struct Zone {
 	unsigned long page_free_count;                  // 本区域空闲物理内存页数量
 
 	unsigned long total_pages_link;                 // 本区域物理页被引用次数
-};
+}Zone;
 
 //alloc_pages zone_select
 #define ZONE_DMA    (1 << 0)
@@ -85,41 +85,40 @@ struct Zone {
 //	bit 63	Execution Disable:
 #define PAGE_XD        (unsigned long)0x1000000000000000
 //	bit 12	Page Attribute Table
-#define    PAGE_PAT    (unsigned long)0x1000
+#define PAGE_PAT    (unsigned long)0x1000
 //	bit 8	Global Page:1,global;0,part
-#define    PAGE_Global    (unsigned long)0x0100
+#define PAGE_Global    (unsigned long)0x0100
 //	bit 7	Page Size:1,big page;0,small page;
-#define    PAGE_PS        (unsigned long)0x0080
+#define PAGE_PS        (unsigned long)0x0080
 //	bit 6	Dirty:1,dirty;0,clean;
-#define    PAGE_Dirty    (unsigned long)0x0040
+#define PAGE_Dirty    (unsigned long)0x0040
 //	bit 5	Accessed:1,visited;0,unvisited;
-#define    PAGE_Accessed    (unsigned long)0x0020
+#define PAGE_Accessed    (unsigned long)0x0020
 //	bit 4	Page Level Cache Disable
 #define PAGE_PCD    (unsigned long)0x0010
 //	bit 3	Page Level Write Through
 #define PAGE_PWT    (unsigned long)0x0008
 //	bit 2	User Supervisor:1,user and supervisor;0,supervisor;
-#define    PAGE_U_S    (unsigned long)0x0004
+#define PAGE_U_S    (unsigned long)0x0004
 //	bit 1	Read Write:1,read and write;0,read;
-#define    PAGE_R_W    (unsigned long)0x0002
+#define PAGE_R_W    (unsigned long)0x0002
 //	bit 0	Present:1,present;0,no present;
-#define    PAGE_Present    (unsigned long)0x0001
+#define PAGE_Present    (unsigned long)0x0001
 //1,0
 #define PAGE_KERNEL_GDT        (PAGE_R_W | PAGE_Present)
 //1,0
 #define PAGE_KERNEL_Dir        (PAGE_R_W | PAGE_Present)
 //7,1,0
-#define    PAGE_KERNEL_Page    (PAGE_PS  | PAGE_R_W | PAGE_Present)
+#define PAGE_KERNEL_Page    (PAGE_PS  | PAGE_R_W | PAGE_Present)
 //2,1,0
 #define PAGE_USER_Dir        (PAGE_U_S | PAGE_R_W | PAGE_Present)
 //7,2,1,0
-#define    PAGE_USER_Page        (PAGE_PS  | PAGE_U_S | PAGE_R_W | PAGE_Present)
-
+#define PAGE_USER_Page        (PAGE_PS  | PAGE_U_S | PAGE_R_W | PAGE_Present)
 
 typedef struct {
 	unsigned long pml4t;
 } pml4t_t;
-#define    mk_mpl4t(addr, attr)    ((unsigned long)(addr) | (unsigned long)(attr))
+#define mk_mpl4t(addr, attr)    ((unsigned long)(addr) | (unsigned long)(attr))
 #define set_mpl4t(mpl4tptr, mpl4tval)    (*(mpl4tptr) = (mpl4tval))
 
 
@@ -145,7 +144,7 @@ typedef struct {
 
 unsigned long *Global_CR3 = NULL;
 
-struct Page {
+typedef struct Page {
 	struct Zone *zone_struct;       // 本页所属的zone
 	unsigned long PHY_address;      // 物理地址
 	unsigned long attribute;        // 属性
@@ -153,9 +152,9 @@ struct Page {
 	unsigned long reference_count;  // 本页引用次数
 
 	unsigned long age;              // 该页创建时间
-};
+}Page;
 
-struct Global_Memory_descriptor {
+typedef struct Global_Memory_descriptor {
 	// 物理内存段
 	struct E820 e820[32];
 	unsigned long e820_length;
@@ -180,7 +179,7 @@ struct Global_Memory_descriptor {
 
 	// 内存页管理结构的结束地址
 	unsigned long end_of_struct;
-};
+}Global_Memory_descriptor;
 
 extern struct Global_Memory_descriptor memory_management_struct;
 
@@ -190,7 +189,7 @@ unsigned long page_init(struct Page *page, unsigned long flags);
 
 unsigned long page_clean(struct Page *page);
 
-#define    flush_tlb_one(addr)    \
+#define flush_tlb_one(addr)    \
     __asm__ __volatile__    ("invlpg	(%0)	\n\t"::"r"(addr):"memory")
 /*
 
@@ -217,6 +216,5 @@ do                                \
 unsigned long *Get_gdt();
 
 struct Page *alloc_pages(int zone_select, int number, unsigned long page_flags);
-
 
 #endif //YURIOS_MEMORY_H

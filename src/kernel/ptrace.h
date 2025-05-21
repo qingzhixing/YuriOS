@@ -17,11 +17,8 @@
 
 #define __PTRACE_H__
 
-/*
-
-*/
-
-struct pt_regs
+// @brief 现场数据结构体
+typedef struct pt_regs
 {
 	unsigned long r15;
 	unsigned long r14;
@@ -47,6 +44,6 @@ struct pt_regs
 	unsigned long rflags;
 	unsigned long rsp;
 	unsigned long ss;
-};
+}pt_regs;
 
 #endif

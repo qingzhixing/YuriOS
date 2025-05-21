@@ -1,15 +1,16 @@
 #ifndef YURIOS_GATE_H
 #define YURIOS_GATE_H
+#include <stdint.h>
 
-struct desc_struct {
+typedef struct desc_struct {
 	// doc/kernel/Descriptor/System Segment Descriptor.png
-	unsigned char x[8];     // 64 bit
-};
+	uint8_t x[8];     // 64 bit
+}desc_struct;
 
-struct gate_struct {
+typedef struct gate_struct {
 	// doc/kernel/IDT/IDT Gate Descriptor Structure - 64bits.png
-	unsigned char x[16];    // 128 bit
-};
+	uint8_t x[16];    // 128 bit
+}gate_struct;
 
 extern struct desc_struct GDT_Table[];
 extern struct gate_struct IDT_Table[];
@@ -24,8 +25,8 @@ do{                                    \
 }while(0)
 
 /*
- * @param ist:一个表示中断栈表的索引（Interrupt Stack Table index）的参数
- *  在中断发生时，处理程序可以通过这个索引指定使用哪个栈来处理该中断。
+ * @param ist 一个表示中断栈表的索引（Interrupt Stack Table index）的参数
+ * @brief 在中断发生时，处理程序可以通过这个索引指定使用哪个栈来处理该中断。
  *  通常，在多任务或异常处理环境中，为了避免栈溢出或干扰，
  *  使用不同的栈来处理特定的中断是很常见的做法。
  * */
