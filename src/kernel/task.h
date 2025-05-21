@@ -197,17 +197,19 @@ struct thread_struct init_thread = {
 // 每一个CPU都有一个tss结构体
 struct tss_struct init_tss[NR_CPUS] = {[0 ... NR_CPUS - 1] = INIT_TSS};
 
-inline task_struct *get_current() {
-	struct task_struct *current = NULL;
-	__asm__ __volatile__("andq %%rsp,%0	\n\t" : "=r"(current) : "0"(~32767UL));
-	return current;
-}
+task_struct *get_current();
 
 #define current get_current()
 
 #define GET_CURRENT                                                                                                    \
 	"movq	%rsp,	%rbx	\n\t"                                                                                             \
 	"andq	$-32768,%rbx	\n\t"
+
+/* @brief 继续完成进程切换的后续工作,由switch_to调用
+ * @param prev 上一个进程的task_struct
+ * @param next 下一个进程的task_struct
+ */
+void __switch_to(struct task_struct *prev, struct task_struct *next);
 
 /* @brief: 调用并将RDI和RSI寄存器作为参数传递到__switch_to函数
  * */

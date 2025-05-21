@@ -15,15 +15,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2122e469-b6de-4083-ba74-6f196a24f2ed" name="更改" comment="添加注释中">
+    <list default="true" id="2122e469-b6de-4083-ba74-6f196a24f2ed" name="更改" comment="🏁 完成init进程初始化中，遇到了问题">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Kernel.lds" beforeDir="false" afterPath="$PROJECT_DIR$/Kernel.lds" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/main.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/makefile" beforeDir="false" afterPath="$PROJECT_DIR$/makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ptrace.h" beforeDir="false" afterPath="$PROJECT_DIR$/ptrace.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/task.c" beforeDir="false" afterPath="$PROJECT_DIR$/task.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/task.h" beforeDir="false" afterPath="$PROJECT_DIR$/task.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trap.h" beforeDir="false" afterPath="$PROJECT_DIR$/trap.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -137,7 +132,7 @@
       <workItem from="1747822969895" duration="484000" />
       <workItem from="1747823466519" duration="41000" />
       <workItem from="1747823526735" duration="1205000" />
-      <workItem from="1747824744979" duration="11368000" />
+      <workItem from="1747824744979" duration="12022000" />
     </task>
     <task id="LOCAL-00001" summary="拓展内存管理结构体">
       <option name="closed" value="true" />
@@ -291,7 +286,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747830474402</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="🏁 完成init进程初始化中，遇到了问题">
+      <option name="closed" value="true" />
+      <created>1747838813575</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1747838813575</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -326,7 +329,8 @@
     <MESSAGE value="coding" />
     <MESSAGE value="__switch_to" />
     <MESSAGE value="添加注释中" />
-    <option name="LAST_COMMIT_MESSAGE" value="添加注释中" />
+    <MESSAGE value=" 完成init进程初始化中，遇到了问题" />
+    <option name="LAST_COMMIT_MESSAGE" value=" 完成init进程初始化中，遇到了问题" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

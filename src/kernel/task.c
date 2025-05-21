@@ -15,6 +15,12 @@ static unsigned long init(unsigned long arg) {
 	return 1;
 }
 
+inline task_struct *get_current() {
+	task_struct *_current = NULL;
+	__asm__ __volatile__("andq %%rsp,%0	\n\t" : "=r"(_current) : "0"(~32767UL));
+	return _current;
+}
+
 /* @brief 继续完成进程切换的后续工作,由switch_to调用
  * @param prev 上一个进程的task_struct
  * @param next 下一个进程的task_struct
