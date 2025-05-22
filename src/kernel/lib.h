@@ -4,63 +4,63 @@
 
 #include <stddef.h>
 
+#define NULL 0
 /*
  * @brief 根据结构体变量内的某个成员的地址，找到结构体变量的首地址
  * @param ptr 结构体变量内的某个成员的地址
  * @param type 结构体类型
  * @param member 成员结构名
  * */
-#define container_of(ptr,type,member)							\
-({											\
-	typeof(((type *)0)->member) * p = (ptr);					\
-	(type *)((unsigned long)p - (unsigned long)&(((type *)0)->member));		\
-})
+#define container_of(ptr, type, member)                                                                                \
+	({                                                                                                                 \
+		typeof(((type *) 0)->member) *p = (ptr);                                                                       \
+		(type *) ((unsigned long) p - (unsigned long) &(((type *) 0)->member));                                        \
+	})
 
 // Set Interrupt Flag 打开中断
-#define sti() 		__asm__ __volatile__ ("sti	\n\t":::"memory")
+#define sti() __asm__ __volatile__("sti	\n\t" ::: "memory")
 
 // Clear Interrupt Flag 关闭中断
-#define cli()	 	__asm__ __volatile__ ("cli	\n\t":::"memory")
+#define cli() __asm__ __volatile__("cli	\n\t" ::: "memory")
 
 // 空操作
-#define nop() 		__asm__ __volatile__ ("nop	\n\t")
+#define nop() __asm__ __volatile__("nop	\n\t")
 
 // 内存屏障
-#define io_mfence() 	__asm__ __volatile__ ("mfence	\n\t":::"memory")
+#define io_mfence() __asm__ __volatile__("mfence	\n\t" ::: "memory")
 
 // 双向列表
-typedef struct List
-{
-	struct List * prev;
-	struct List * next;
-}List;
+typedef struct List {
+	struct List *prev;
+	struct List *next;
+} List;
 
 // list操作
-void list_init(struct List * list);
-void list_add_to_behind(struct List * entry, struct List * new);
-void list_add_to_before(struct List * entry, struct List * new);
-void list_del(struct List * entry);
-long list_is_empty(struct List * entry);
-struct List * list_prev(struct List * entry);
-struct List * list_next(struct List * entry);
+void list_init(struct List *list);
+void list_add_to_behind(struct List *entry, struct List *new);
+void list_add_to_before(struct List *entry, struct List *new);
+void list_del(struct List *entry);
+long list_is_empty(struct List *entry);
+struct List *list_prev(struct List *entry);
+struct List *list_next(struct List *entry);
 
 // 内存操作
-void * memcpy(void * From, void * To, long Num);
-int memcmp(void * FirstPart, void * SecondPart, long Count);
-void * memset(void * Address, unsigned char C, long Count);
+void *memcpy(void *From, void *To, long Num);
+int memcmp(void *FirstPart, void *SecondPart, long Count);
+void *memset(void *Address, unsigned char C, long Count);
 
 // 字符串操作
-char * strcpy(char * Dest, char * Src);
-char * strncpy(char * Dest, char * Src, long Count);
-char * strcat(char * Dest, char * Src);
-int strcmp(char * FirstPart, char * SecondPart);
-int strncmp(char * FirstPart, char * SecondPart, long Count);
-int strlen(char * String);
+char *strcpy(char *Dest, char *Src);
+char *strncpy(char *Dest, char *Src, long Count);
+char *strcat(char *Dest, char *Src);
+int strcmp(char *FirstPart, char *SecondPart);
+int strncmp(char *FirstPart, char *SecondPart, long Count);
+int strlen(char *String);
 
 // 位操作
-unsigned long bit_set(unsigned long * addr, unsigned long nr);
-unsigned long bit_get(unsigned long * addr, unsigned long nr);
-unsigned long bit_clean(unsigned long * addr, unsigned long nr);
+unsigned long bit_set(unsigned long *addr, unsigned long nr);
+unsigned long bit_get(unsigned long *addr, unsigned long nr);
+unsigned long bit_clean(unsigned long *addr, unsigned long nr);
 
 // io操作
 unsigned char io_in8(unsigned short port);
@@ -68,13 +68,12 @@ unsigned int io_in32(unsigned short port);
 void io_out8(unsigned short port, unsigned char value);
 void io_out32(unsigned short port, unsigned int value);
 
-inline void list_init(struct List * list)
-{
+inline void list_init(struct List *list) {
 	list->prev = list;
 	list->next = list;
 }
 
-inline void list_add_to_behind(struct List * entry,struct List * new)	////add to entry behind
+inline void list_add_to_behind(struct List *entry, struct List *new) ////add to entry behind
 {
 	new->next = entry->next;
 	new->prev = entry;
@@ -82,7 +81,7 @@ inline void list_add_to_behind(struct List * entry,struct List * new)	////add to
 	entry->next = new;
 }
 
-inline void list_add_to_before(struct List * entry,struct List * new)	////add to entry behind
+inline void list_add_to_before(struct List *entry, struct List *new) ////add to entry behind
 {
 	new->next = entry;
 	entry->prev->next = new;
@@ -90,31 +89,27 @@ inline void list_add_to_before(struct List * entry,struct List * new)	////add to
 	entry->prev = new;
 }
 
-inline void list_del(struct List * entry)
-{
+inline void list_del(struct List *entry) {
 	entry->next->prev = entry->prev;
 	entry->prev->next = entry->next;
 }
 
-inline long list_is_empty(struct List * entry)
-{
-	if(entry == entry->next && entry->prev == entry)
+inline long list_is_empty(struct List *entry) {
+	if (entry == entry->next && entry->prev == entry)
 		return 1;
 	else
 		return 0;
 }
 
-inline struct List * list_prev(struct List * entry)
-{
-	if(entry->prev != NULL)
+inline struct List *list_prev(struct List *entry) {
+	if (entry->prev != NULL)
 		return entry->prev;
 	else
 		return NULL;
 }
 
-inline struct List * list_next(struct List * entry)
-{
-	if(entry->next != NULL)
+inline struct List *list_next(struct List *entry) {
+	if (entry->next != NULL)
 		return entry->next;
 	else
 		return NULL;
@@ -124,26 +119,24 @@ inline struct List * list_next(struct List * entry)
 		From => To memory copy Num bytes
 */
 
-inline void * memcpy(void *From,void * To,long Num)
-{
-	int d0,d1,d2;
-	__asm__ __volatile__	(	"cld	\n\t"
-					"rep	\n\t"
-					"movsq	\n\t"
-					"testb	$4,%b4	\n\t"
-					"je	1f	\n\t"
-					"movsl	\n\t"
-					"1:\ttestb	$2,%b4	\n\t"
-					"je	2f	\n\t"
-					"movsw	\n\t"
-					"2:\ttestb	$1,%b4	\n\t"
-					"je	3f	\n\t"
-					"movsb	\n\t"
-					"3:	\n\t"
-					:"=&c"(d0),"=&D"(d1),"=&S"(d2)
-					:"0"(Num/8),"q"(Num),"1"(To),"2"(From)
-					:"memory"
-				);
+inline void *memcpy(void *From, void *To, long Num) {
+	int d0, d1, d2;
+	__asm__ __volatile__("cld	\n\t"
+						 "rep	\n\t"
+						 "movsq	\n\t"
+						 "testb	$4,%b4	\n\t"
+						 "je	1f	\n\t"
+						 "movsl	\n\t"
+						 "1:\ttestb	$2,%b4	\n\t"
+						 "je	2f	\n\t"
+						 "movsw	\n\t"
+						 "2:\ttestb	$1,%b4	\n\t"
+						 "je	3f	\n\t"
+						 "movsb	\n\t"
+						 "3:	\n\t"
+						 : "=&c"(d0), "=&D"(d1), "=&S"(d2)
+						 : "0"(Num / 8), "q"(Num), "1"(To), "2"(From)
+						 : "memory");
 	return To;
 }
 
@@ -153,22 +146,20 @@ inline void * memcpy(void *From,void * To,long Num)
 		FirstPart < SecondPart		=>	-1
 */
 
-inline int memcmp(void * FirstPart,void * SecondPart,long Count)
-{
+inline int memcmp(void *FirstPart, void *SecondPart, long Count) {
 	register int __res;
 
-	__asm__	__volatile__	(	"cld	\n\t"		//clean direct
-					"repe	\n\t"		//repeat if equal
-					"cmpsb	\n\t"
-					"je	1f	\n\t"
-					"movl	$1,	%%eax	\n\t"
-					"jl	1f	\n\t"
-					"negl	%%eax	\n\t"
-					"1:	\n\t"
-					:"=a"(__res)
-					:"0"(0),"D"(FirstPart),"S"(SecondPart),"c"(Count)
-					:
-				);
+	__asm__ __volatile__("cld	\n\t" // clean direct
+						 "repe	\n\t" // repeat if equal
+						 "cmpsb	\n\t"
+						 "je	1f	\n\t"
+						 "movl	$1,	%%eax	\n\t"
+						 "jl	1f	\n\t"
+						 "negl	%%eax	\n\t"
+						 "1:	\n\t"
+						 : "=a"(__res)
+						 : "0"(0), "D"(FirstPart), "S"(SecondPart), "c"(Count)
+						 :);
 	return __res;
 }
 
@@ -176,27 +167,25 @@ inline int memcmp(void * FirstPart,void * SecondPart,long Count)
 		set memory at Address with C ,number is Count
 */
 
-inline void * memset(void * Address,unsigned char C,long Count)
-{
-	int d0,d1;
+inline void *memset(void *Address, unsigned char C, long Count) {
+	int d0, d1;
 	unsigned long tmp = C * 0x0101010101010101UL;
-	__asm__	__volatile__	(	"cld	\n\t"
-					"rep	\n\t"
-					"stosq	\n\t"
-					"testb	$4, %b3	\n\t"
-					"je	1f	\n\t"
-					"stosl	\n\t"
-					"1:\ttestb	$2, %b3	\n\t"
-					"je	2f\n\t"
-					"stosw	\n\t"
-					"2:\ttestb	$1, %b3	\n\t"
-					"je	3f	\n\t"
-					"stosb	\n\t"
-					"3:	\n\t"
-					:"=&c"(d0),"=&D"(d1)
-					:"a"(tmp),"q"(Count),"0"(Count/8),"1"(Address)
-					:"memory"
-				);
+	__asm__ __volatile__("cld	\n\t"
+						 "rep	\n\t"
+						 "stosq	\n\t"
+						 "testb	$4, %b3	\n\t"
+						 "je	1f	\n\t"
+						 "stosl	\n\t"
+						 "1:\ttestb	$2, %b3	\n\t"
+						 "je	2f\n\t"
+						 "stosw	\n\t"
+						 "2:\ttestb	$1, %b3	\n\t"
+						 "je	3f	\n\t"
+						 "stosb	\n\t"
+						 "3:	\n\t"
+						 : "=&c"(d0), "=&D"(d1)
+						 : "a"(tmp), "q"(Count), "0"(Count / 8), "1"(Address)
+						 : "memory");
 	return Address;
 }
 
@@ -204,43 +193,40 @@ inline void * memset(void * Address,unsigned char C,long Count)
 		string copy
 */
 
-inline char * strcpy(char * Dest,char * Src)
-{
-	__asm__	__volatile__	(	"cld	\n\t"
-					"1:	\n\t"
-					"lodsb	\n\t"
-					"stosb	\n\t"
-					"testb	%%al,	%%al	\n\t"
-					"jne	1b	\n\t"
-					:
-					:"S"(Src),"D"(Dest)
-					:
+inline char *strcpy(char *Dest, char *Src) {
+	__asm__ __volatile__("cld	\n\t"
+						 "1:	\n\t"
+						 "lodsb	\n\t"
+						 "stosb	\n\t"
+						 "testb	%%al,	%%al	\n\t"
+						 "jne	1b	\n\t"
+						 :
+						 : "S"(Src), "D"(Dest)
+						 :
 
-				);
-	return 	Dest;
+	);
+	return Dest;
 }
 
 /*
 		string copy number bytes
 */
 
-inline char * strncpy(char * Dest,char * Src,long Count)
-{
-	__asm__	__volatile__	(	"cld	\n\t"
-					"1:	\n\t"
-					"decq	%2	\n\t"
-					"js	2f	\n\t"
-					"lodsb	\n\t"
-					"stosb	\n\t"
-					"testb	%%al,	%%al	\n\t"
-					"jne	1b	\n\t"
-					"rep	\n\t"
-					"stosb	\n\t"
-					"2:	\n\t"
-					:
-					:"S"(Src),"D"(Dest),"c"(Count)
-					:
-				);
+inline char *strncpy(char *Dest, char *Src, long Count) {
+	__asm__ __volatile__("cld	\n\t"
+						 "1:	\n\t"
+						 "decq	%2	\n\t"
+						 "js	2f	\n\t"
+						 "lodsb	\n\t"
+						 "stosb	\n\t"
+						 "testb	%%al,	%%al	\n\t"
+						 "jne	1b	\n\t"
+						 "rep	\n\t"
+						 "stosb	\n\t"
+						 "2:	\n\t"
+						 :
+						 : "S"(Src), "D"(Dest), "c"(Count)
+						 :);
 	return Dest;
 }
 
@@ -248,21 +234,19 @@ inline char * strncpy(char * Dest,char * Src,long Count)
 		string cat Dest + Src
 */
 
-inline char * strcat(char * Dest,char * Src)
-{
-	__asm__	__volatile__	(	"cld	\n\t"
-					"repne	\n\t"
-					"scasb	\n\t"
-					"decq	%1	\n\t"
-					"1:	\n\t"
-					"lodsb	\n\t"
-					"stosb	\n\r"
-					"testb	%%al,	%%al	\n\t"
-					"jne	1b	\n\t"
-					:
-					:"S"(Src),"D"(Dest),"a"(0),"c"(0xffffffff)
-					:
-				);
+inline char *strcat(char *Dest, char *Src) {
+	__asm__ __volatile__("cld	\n\t"
+						 "repne	\n\t"
+						 "scasb	\n\t"
+						 "decq	%1	\n\t"
+						 "1:	\n\t"
+						 "lodsb	\n\t"
+						 "stosb	\n\r"
+						 "testb	%%al,	%%al	\n\t"
+						 "jne	1b	\n\t"
+						 :
+						 : "S"(Src), "D"(Dest), "a"(0), "c"(0xffffffff)
+						 :);
 	return Dest;
 }
 
@@ -273,27 +257,25 @@ inline char * strcat(char * Dest,char * Src)
 		FirstPart < SecondPart => -1
 */
 
-inline int strcmp(char * FirstPart,char * SecondPart)
-{
+inline int strcmp(char *FirstPart, char *SecondPart) {
 	register int __res;
-	__asm__	__volatile__	(	"cld	\n\t"
-					"1:	\n\t"
-					"lodsb	\n\t"
-					"scasb	\n\t"
-					"jne	2f	\n\t"
-					"testb	%%al,	%%al	\n\t"
-					"jne	1b	\n\t"
-					"xorl	%%eax,	%%eax	\n\t"
-					"jmp	3f	\n\t"
-					"2:	\n\t"
-					"movl	$1,	%%eax	\n\t"
-					"jl	3f	\n\t"
-					"negl	%%eax	\n\t"
-					"3:	\n\t"
-					:"=a"(__res)
-					:"D"(FirstPart),"S"(SecondPart)
-					:
-				);
+	__asm__ __volatile__("cld	\n\t"
+						 "1:	\n\t"
+						 "lodsb	\n\t"
+						 "scasb	\n\t"
+						 "jne	2f	\n\t"
+						 "testb	%%al,	%%al	\n\t"
+						 "jne	1b	\n\t"
+						 "xorl	%%eax,	%%eax	\n\t"
+						 "jmp	3f	\n\t"
+						 "2:	\n\t"
+						 "movl	$1,	%%eax	\n\t"
+						 "jl	3f	\n\t"
+						 "negl	%%eax	\n\t"
+						 "3:	\n\t"
+						 : "=a"(__res)
+						 : "D"(FirstPart), "S"(SecondPart)
+						 :);
 	return __res;
 }
 
@@ -304,48 +286,44 @@ inline int strcmp(char * FirstPart,char * SecondPart)
 		FirstPart < SecondPart => -1
 */
 
-inline int strncmp(char * FirstPart,char * SecondPart,long Count)
-{
+inline int strncmp(char *FirstPart, char *SecondPart, long Count) {
 	register int __res;
-	__asm__	__volatile__	(	"cld	\n\t"
-					"1:	\n\t"
-					"decq	%3	\n\t"
-					"js	2f	\n\t"
-					"lodsb	\n\t"
-					"scasb	\n\t"
-					"jne	3f	\n\t"
-					"testb	%%al,	%%al	\n\t"
-					"jne	1b	\n\t"
-					"2:	\n\t"
-					"xorl	%%eax,	%%eax	\n\t"
-					"jmp	4f	\n\t"
-					"3:	\n\t"
-					"movl	$1,	%%eax	\n\t"
-					"jl	4f	\n\t"
-					"negl	%%eax	\n\t"
-					"4:	\n\t"
-					:"=a"(__res)
-					:"D"(FirstPart),"S"(SecondPart),"c"(Count)
-					:
-				);
+	__asm__ __volatile__("cld	\n\t"
+						 "1:	\n\t"
+						 "decq	%3	\n\t"
+						 "js	2f	\n\t"
+						 "lodsb	\n\t"
+						 "scasb	\n\t"
+						 "jne	3f	\n\t"
+						 "testb	%%al,	%%al	\n\t"
+						 "jne	1b	\n\t"
+						 "2:	\n\t"
+						 "xorl	%%eax,	%%eax	\n\t"
+						 "jmp	4f	\n\t"
+						 "3:	\n\t"
+						 "movl	$1,	%%eax	\n\t"
+						 "jl	4f	\n\t"
+						 "negl	%%eax	\n\t"
+						 "4:	\n\t"
+						 : "=a"(__res)
+						 : "D"(FirstPart), "S"(SecondPart), "c"(Count)
+						 :);
 	return __res;
 }
 
 /*
 
 */
-inline int strlen(char * String)
-{
+inline int strlen(char *String) {
 	register int __res;
-	__asm__	__volatile__	(	"cld	\n\t"
-					"repne	\n\t"
-					"scasb	\n\t"
-					"notl	%0	\n\t"
-					"decl	%0	\n\t"
-					:"=c"(__res)
-					:"D"(String),"a"(0),"0"(0xffffffff)
-					:
-				);
+	__asm__ __volatile__("cld	\n\t"
+						 "repne	\n\t"
+						 "scasb	\n\t"
+						 "notl	%0	\n\t"
+						 "decl	%0	\n\t"
+						 : "=c"(__res)
+						 : "D"(String), "a"(0), "0"(0xffffffff)
+						 :);
 	return __res;
 }
 
@@ -353,41 +331,31 @@ inline int strlen(char * String)
 
 */
 
-inline unsigned long bit_set(unsigned long * addr,unsigned long nr)
-{
-	return *addr | (1UL << nr);
-}
+inline unsigned long bit_set(unsigned long *addr, unsigned long nr) { return *addr | (1UL << nr); }
 
 /*
 
 */
 
-inline unsigned long bit_get(unsigned long * addr,unsigned long nr)
-{
-	return	*addr & (1UL << nr);
-}
+inline unsigned long bit_get(unsigned long *addr, unsigned long nr) { return *addr & (1UL << nr); }
 
 /*
 
 */
 
-inline unsigned long bit_clean(unsigned long * addr,unsigned long nr)
-{
-	return	*addr & (~(1UL << nr));
-}
+inline unsigned long bit_clean(unsigned long *addr, unsigned long nr) { return *addr & (~(1UL << nr)); }
 
 /*
 
 */
 
-inline unsigned char io_in8(unsigned short port)
-{
+inline unsigned char io_in8(unsigned short port) {
 	unsigned char ret = 0;
-	__asm__ __volatile__(	"inb	%%dx,	%0	\n\t"
-				"mfence			\n\t"
-				:"=a"(ret)
-				:"d"(port)
-				:"memory");
+	__asm__ __volatile__("inb	%%dx,	%0	\n\t"
+						 "mfence			\n\t"
+						 : "=a"(ret)
+						 : "d"(port)
+						 : "memory");
 	return ret;
 }
 
@@ -395,14 +363,13 @@ inline unsigned char io_in8(unsigned short port)
 
 */
 
-inline unsigned int io_in32(unsigned short port)
-{
+inline unsigned int io_in32(unsigned short port) {
 	unsigned int ret = 0;
-	__asm__ __volatile__(	"inl	%%dx,	%0	\n\t"
-				"mfence			\n\t"
-				:"=a"(ret)
-				:"d"(port)
-				:"memory");
+	__asm__ __volatile__("inl	%%dx,	%0	\n\t"
+						 "mfence			\n\t"
+						 : "=a"(ret)
+						 : "d"(port)
+						 : "memory");
 	return ret;
 }
 
@@ -410,36 +377,34 @@ inline unsigned int io_in32(unsigned short port)
 
 */
 
-inline void io_out8(unsigned short port,unsigned char value)
-{
-	__asm__ __volatile__(	"outb	%0,	%%dx	\n\t"
-				"mfence			\n\t"
-				:
-				:"a"(value),"d"(port)
-				:"memory");
+inline void io_out8(unsigned short port, unsigned char value) {
+	__asm__ __volatile__("outb	%0,	%%dx	\n\t"
+						 "mfence			\n\t"
+						 :
+						 : "a"(value), "d"(port)
+						 : "memory");
 }
 
 /*
 
 */
 
-inline void io_out32(unsigned short port,unsigned int value)
-{
-	__asm__ __volatile__(	"outl	%0,	%%dx	\n\t"
-				"mfence			\n\t"
-				:
-				:"a"(value),"d"(port)
-				:"memory");
+inline void io_out32(unsigned short port, unsigned int value) {
+	__asm__ __volatile__("outl	%0,	%%dx	\n\t"
+						 "mfence			\n\t"
+						 :
+						 : "a"(value), "d"(port)
+						 : "memory");
 }
 
 /*
 
 */
 
-#define port_insw(port,buffer,nr)	\
-__asm__ __volatile__("cld;rep;insw;mfence;"::"d"(port),"D"(buffer),"c"(nr):"memory")
+#define port_insw(port, buffer, nr)                                                                                    \
+	__asm__ __volatile__("cld;rep;insw;mfence;" ::"d"(port), "D"(buffer), "c"(nr) : "memory")
 
-#define port_outsw(port,buffer,nr)	\
-__asm__ __volatile__("cld;rep;outsw;mfence;"::"d"(port),"S"(buffer),"c"(nr):"memory")
+#define port_outsw(port, buffer, nr)                                                                                   \
+	__asm__ __volatile__("cld;rep;outsw;mfence;" ::"d"(port), "S"(buffer), "c"(nr) : "memory")
 
-#endif  // _YURIOS_LIB_H__
+#endif // _YURIOS_LIB_H__

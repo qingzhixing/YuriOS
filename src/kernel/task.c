@@ -88,8 +88,56 @@ __asm__("kernel_thread_func:	\n\t"
 		"	callq	do_exit		\n\t");
 
 
+/*
+ * @brief: 创建进程控制结构体并完成进程运行前的初始化工作
+ * @param regs 进程执行前的寄存器环境
+ * @param clone_flags 进程创建标志位
+ * @param stack_start 进程栈的起始地址
+ * */
 unsigned long do_fork(struct pt_regs *regs, unsigned long clone_flags, unsigned long stack_start,
-					  unsigned long stack_size) {}
+					  unsigned long stack_size) {
+	task_struct *tsk = NULL;
+	thread_struct *thd = NULL;
+	Page *p = NULL;
+
+	// 分配一个物理页，用于保存新进程的task_struct
+	color_printk(WHITE, BLACK, "alloc_pages,bitmap:%#018lx\n", memory_management_struct.bits_map);
+	p = alloc_pages(ZONE_NORMAL, 1, PG_PTable_Maped | PG_Active | PG_Kernel);
+	color_printk(WHITE, BLACK, "alloc_pages,bitmap:%#018lx\n", memory_management_struct.bits_map);
+
+	// 为新的task_struct分配物理页，并将其映射到虚拟地址空间中
+	tsk = (task_struct *) Phy_To_Virt(p->PHY_address);
+	color_printk(WHITE, BLACK, "struct task_struct address:%#018lx\n", (unsigned long) tsk);
+
+	memset(tsk, 0, sizeof(*tsk));
+	*tsk = *current; // TODO: why?
+
+	// 将新进程的task_struct添加到进程就绪队列中
+	list_init(&tsk->list);
+	list_add_to_before(&init_task_union.task.list, &tsk->list);
+	tsk->pid++;
+	tsk->state = TASK_UNINTERRUPTIBLE;
+
+	// 分配thread_struct结构空间
+	thd = (thread_struct *) (tsk + 1); // 放在task_struct后面
+	tsk->thread = thd;
+
+	// 伪造进程执行现场，复制到目标进程的内核层栈顶处
+	memcpy(regs, (void *) ((unsigned long) tsk + STACK_SIZE - sizeof(pt_regs)), sizeof(pt_regs));
+
+	thd->rsp0 = (unsigned long) tsk + STACK_SIZE;
+	thd->rip = regs->rip;
+	thd->rsp = (unsigned long) tsk + STACK_SIZE - sizeof(pt_regs);
+
+	// 运行在用户层
+	if (!(tsk->flags & PF_KTHREAD)) {
+		thd->rip = regs->rip = (unsigned long) ret_from_intr;
+	}
+
+	tsk->state = TASK_RUNNING;
+
+	return 0;
+}
 
 /*
  * @brief: 为操作系统创建进程
@@ -121,7 +169,7 @@ static int kernel_thread(ThreadFunction fn, unsigned long arg, unsigned long fla
  * 随后借助switch_to模块执行进程实现切换
  */
 void task_init() {
-	struct task_struct *init_task = NULL;
+	struct task_struct *p = NULL;
 
 	//// 补完系统第一个进程控制结构体中未赋值的成员变量
 	// 初始化第一个进程的内存空间结构体
@@ -134,6 +182,7 @@ void task_init() {
 	init_mm.end_rodata = (unsigned long) &_erodata;
 	init_mm.start_brk = 0;
 	init_mm.end_brk = memory_management_struct.end_brk;
+	init_mm.start_stack = _stack_start; // 与init_thread.rsp0相同
 
 	// init_thread , init_tss
 	set_tss64(init_thread.rsp0, init_tss[0].rsp1, init_tss[0].rsp2, init_tss[0].ist1, init_tss[0].ist2,
@@ -141,8 +190,9 @@ void task_init() {
 
 	init_tss[0].rsp0 = init_thread.rsp0;
 
+	// 创建init进程
 	kernel_thread(init, 10, CLONE_FS | CLONE_FILES | CLONE_SIGNAL);
 	init_task_union.task.state = TASK_RUNNING;
-	init_task = container_of(list_next(&(current->list)), task_struct, list);
-	switch_to(current, init_task);
+	p = container_of(list_next(&(current->list)), p, list);
+	switch_to(current, p);
 }

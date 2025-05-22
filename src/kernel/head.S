@@ -12,6 +12,7 @@
 *
 *
 ***************************************************/
+#include "linkage.h"
 
 .section .text
 
@@ -64,7 +65,7 @@ entry64:
 	movq	%rax,	%es
 	movq	%rax,	%gs
 	movq	%rax,	%ss
-	movq	$0xffff800000007E00,	%rsp		/* rsp address */
+	movq	_stack_start(%rip),	%rsp		/* rsp address */
 
 setup_IDT:
 	leaq ignore_interrupt(%rip), %rdx // leaq a(b,c,d) == mov (a+b+c*d)
@@ -226,6 +227,9 @@ Loop:
 int_msg:
 	.asciz "Unknown interrupt or fault at RIP\n"
 
+
+ENTRY(_stack_start)
+    .quad	init_task_union + 32768
 //=======	init page
 .align 8
 

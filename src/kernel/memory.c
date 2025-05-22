@@ -40,8 +40,8 @@ unsigned long page_clean(struct Page *page) {
 			page->zone_struct->page_free_count++;
 		}
 	} else {
-		*(memory_management_struct.bits_map + ((page->PHY_address >> PAGE_2M_SHIFT) >> 6)) &= ~(1UL
-				<< (page->PHY_address >> PAGE_2M_SHIFT) % 64);
+		*(memory_management_struct.bits_map + ((page->PHY_address >> PAGE_2M_SHIFT) >> 6)) &=
+				~(1UL << (page->PHY_address >> PAGE_2M_SHIFT) % 64);
 
 		page->attribute = 0;
 		page->reference_count = 0;
@@ -56,13 +56,13 @@ void init_memory() {
 	unsigned long TotalMem = 0;
 	struct E820 *p = NULL;
 
-	color_printk(BLUE, BLACK, "Displaying Memory Map, \n\t"
-							  "Type: 1.RAM, 2.ROM or Reserved, 3.ACPI Reclaim Memory, 4.ACPI NVS Memory, 5.Undefined(Bad Memory)\n");
-	p = (struct E820 *) 0xffff800000007e00;        // 在bootloader时我们保存在了这里
+	color_printk(BLUE, BLACK,
+				 "Displaying Memory Map, \n\t"
+				 "Type: 1.RAM, 2.ROM or Reserved, 3.ACPI Reclaim Memory, 4.ACPI NVS Memory, 5.Undefined(Bad Memory)\n");
+	p = (struct E820 *) 0xffff800000007e00; // 在bootloader时我们保存在了这里
 
 	for (int i = 0; i < 32; i++) {
-		color_printk(ORANGE, BLACK, "Address:%#018lx\tLength:%#018lx\tType:%#010x\n",
-					 p->address, p->length, p->type);
+		color_printk(ORANGE, BLACK, "Address:%#018lx\tLength:%#018lx\tType:%#010x\n", p->address, p->length, p->type);
 		if (p->type == 1) {
 			TotalMem += p->length;
 		}
@@ -90,7 +90,7 @@ void init_memory() {
 		mem_start = PAGE_2M_ALIGN(memory_management_struct.e820[i].address);
 		mem_end =
 				((memory_management_struct.e820[i].address + memory_management_struct.e820[i].length) >> PAGE_2M_SHIFT)
-						<< PAGE_2M_SHIFT;
+				<< PAGE_2M_SHIFT;
 		if (mem_end <= mem_start)
 			continue;
 		TotalMem += (mem_end - mem_start) >> PAGE_2M_SHIFT;
@@ -103,9 +103,8 @@ void init_memory() {
 	TotalMem = memory_management_struct.e820[memory_management_struct.e820_length].address +
 			   memory_management_struct.e820[memory_management_struct.e820_length].length;
 
-	memory_management_struct.bits_map = (unsigned long *)
-			((memory_management_struct.end_brk + PAGE_4K_SIZE - 1) &
-			 PAGE_4K_MASK);   // 在程序结束的后端预留4k建立位图
+	memory_management_struct.bits_map = (unsigned long *) ((memory_management_struct.end_brk + PAGE_4K_SIZE - 1) &
+														   PAGE_4K_MASK); // 在程序结束的后端预留4k建立位图
 
 	memory_management_struct.bits_size = TotalMem >> PAGE_2M_SHIFT;
 
@@ -117,35 +116,37 @@ void init_memory() {
 		计算对齐后的字节数：
 			向上取整到字节：(n + 7) / 8 计算所需字节数（每字节8位）。
 
-		确保按long对齐：通过表达式 ((n + sizeof(long)*8 -1) / 8) & ~(sizeof(long)-1)，将字节数向上取整到sizeof(long)的倍数。
+		确保按long对齐：通过表达式 ((n + sizeof(long)*8 -1) / 8) &
+	 ~(sizeof(long)-1)，将字节数向上取整到sizeof(long)的倍数。
 		这里利用位运算快速对齐，例如，sizeof(long)=4时，掩码~3（即0xFFFFFFFC）确保结果是4的倍数。
 
 		数学等价：将总位数向上取整到long可表示的位数（如32位或64位），再转换为字节数并自然对齐。
-	    [DeepSeek 解释]
+		[DeepSeek 解释]
 	 * */
 	memory_management_struct.bits_length =
 			(((unsigned long) (TotalMem >> PAGE_2M_SHIFT) + sizeof(long) * 8 - 1) / 8) &
-			(~(sizeof(long) - 1));// 计算内存管理结构中位图数组的长度，确保其按long类型对齐，以提高访问效率。
+			(~(sizeof(long) - 1)); // 计算内存管理结构中位图数组的长度，确保其按long类型对齐，以提高访问效率。
 
 
 	memset(memory_management_struct.bits_map, 0xff, memory_management_struct.bits_length);
 
 	// pages construction init
-	memory_management_struct.pages_struct = (struct Page *) (
-			((unsigned long) memory_management_struct.bits_map + memory_management_struct.bits_length + PAGE_4K_SIZE -
-			 1) & PAGE_4K_MASK);
+	memory_management_struct.pages_struct = (struct Page *) (((unsigned long) memory_management_struct.bits_map +
+															  memory_management_struct.bits_length + PAGE_4K_SIZE - 1) &
+															 PAGE_4K_MASK);
 	memory_management_struct.pages_size = TotalMem >> PAGE_2M_SHIFT;
 	memory_management_struct.pages_length =
 			((TotalMem >> PAGE_2M_SHIFT) * sizeof(struct Page) + sizeof(long) - 1) & (~(sizeof(long) - 1));
 	memset(memory_management_struct.pages_struct, 0x00, memory_management_struct.pages_length); // init pages memory
 
 	// zones constructing init
-	memory_management_struct.zones_struct = (struct Zone *) (
-			((unsigned long) memory_management_struct.pages_struct + memory_management_struct.pages_length +
-			 PAGE_4K_SIZE - 1) & PAGE_4K_MASK);
+	memory_management_struct.zones_struct =
+			(struct Zone *) (((unsigned long) memory_management_struct.pages_struct +
+							  memory_management_struct.pages_length + PAGE_4K_SIZE - 1) &
+							 PAGE_4K_MASK);
 	memory_management_struct.zones_size = 0;
-	memory_management_struct.zones_length = (5 * sizeof(struct Zone) + sizeof(long) - 1) &
-											(~(sizeof(long) - 1));      // 暂时按5个zone分配
+	memory_management_struct.zones_length =
+			(5 * sizeof(struct Zone) + sizeof(long) - 1) & (~(sizeof(long) - 1)); // 暂时按5个zone分配
 	memset(memory_management_struct.zones_struct, 0x00, memory_management_struct.zones_length); // init zones memory
 
 	// 初始化各结构体内容
@@ -159,7 +160,7 @@ void init_memory() {
 		mem_start = PAGE_2M_ALIGN(memory_management_struct.e820[i].address);
 		mem_end =
 				((memory_management_struct.e820[i].address + memory_management_struct.e820[i].length) >> PAGE_2M_SHIFT)
-						<< PAGE_2M_SHIFT;
+				<< PAGE_2M_SHIFT;
 		if (mem_end <= mem_start)
 			continue;
 
@@ -192,14 +193,14 @@ void init_memory() {
 
 			page->age = 0;
 
-			//一个 bit_map 有 8 Byte (sizeof(long)),管理 64 Pages
-			// reset bits_map
+			// 一个 bit_map 有 8 Byte (sizeof(long)),管理 64 Pages
+			//  reset bits_map
 			*(memory_management_struct.bits_map + ((page->PHY_address >> PAGE_2M_SHIFT) >> 6)) ^=
 					1UL << (page->PHY_address >> PAGE_2M_SHIFT) % 64;
 
 			// 等价于:
-//			*(memory_management_struct.bits_map + ((page->PHY_address >> PAGE_2M_SHIFT) / 64)) ^=
-//					1UL << (page->PHY_address >> PAGE_2M_SHIFT) % 64;
+			//			*(memory_management_struct.bits_map + ((page->PHY_address >> PAGE_2M_SHIFT) / 64)) ^=
+			//					1UL << (page->PHY_address >> PAGE_2M_SHIFT) % 64;
 		}
 	}
 	// 初始化 0~2M物理内存页
@@ -210,8 +211,8 @@ void init_memory() {
 	memory_management_struct.pages_struct[0].age = 0;
 
 
-	memory_management_struct.zones_length = (memory_management_struct.zones_size * sizeof(struct Zone) +
-											 sizeof(long) - 1) & (~(sizeof(long) - 1));
+	memory_management_struct.zones_length =
+			(memory_management_struct.zones_size * sizeof(struct Zone) + sizeof(long) - 1) & (~(sizeof(long) - 1));
 
 	// 打印内存管理信息
 	color_printk(ORANGE, BLACK, "bits_map:%#018lx,bits_size:%#018lx,bits_length:%#018lx\n",
@@ -226,31 +227,32 @@ void init_memory() {
 				 memory_management_struct.zones_struct, memory_management_struct.zones_size,
 				 memory_management_struct.zones_length);
 
-	ZONE_DMA_INDEX = 0;       // need rewrite in the future
+	ZONE_DMA_INDEX = 0; // need rewrite in the future
 	ZONE_NORMAL_INDEX = 0; // need rewrite in the future
 
 	for (int i = 0; i < memory_management_struct.zones_size; i++) // need rewrite in the future
 	{
 		struct Zone *z = memory_management_struct.zones_struct + i;
 		color_printk(ORANGE, BLACK,
-					 "zone_start_address:%#018lx,zone_end_address:%#018lx,zone_length:%#018lx,pages_group:%#018lx,pages_length:%#018lx\n",
+					 "zone_start_address:%#018lx,zone_end_address:%#018lx,zone_length:%#018lx,pages_group:%#018lx,"
+					 "pages_length:%#018lx\n",
 					 z->zone_start_address, z->zone_end_address, z->zone_length, z->pages_group, z->pages_length);
 
 		if (z->zone_start_address == 0x100000000)
 			ZONE_UNMAPED_INDEX = i;
 	}
 	////need a blank to separate memory_management_struct
-	memory_management_struct.end_of_struct = (unsigned long)
-													 ((unsigned long) memory_management_struct.zones_struct +
-													  memory_management_struct.zones_length + sizeof(long) * 32) &
-											 (~(sizeof(long) - 1));
+	memory_management_struct.end_of_struct =
+			(unsigned long) ((unsigned long) memory_management_struct.zones_struct +
+							 memory_management_struct.zones_length + sizeof(long) * 32) &
+			(~(sizeof(long) - 1));
 
 	// 打印各项初始化信息
-//	color_printk(ORANGE, BLACK, "Debug Print bits_map:\n");
-//	for (int bits_map_index = 0; bits_map_index < memory_management_struct.bits_length; ++bits_map_index) {
-//		color_printk(ORANGE, BLACK, "\t bits_map[%d] : %#018lx \n", bits_map_index,
-//		             *(memory_management_struct.bits_map + bits_map_index));
-//	}
+	//	color_printk(ORANGE, BLACK, "Debug Print bits_map:\n");
+	//	for (int bits_map_index = 0; bits_map_index < memory_management_struct.bits_length; ++bits_map_index) {
+	//		color_printk(ORANGE, BLACK, "\t bits_map[%d] : %#018lx \n", bits_map_index,
+	//		             *(memory_management_struct.bits_map + bits_map_index));
+	//	}
 
 
 	color_printk(ORANGE, BLACK,
@@ -279,20 +281,15 @@ void init_memory() {
 
 inline unsigned long *Get_gdt() {
 	unsigned long *tmp;
-	__asm__ __volatile__    (
-			"movq	%%cr3,	%0	\n\t"
-			:"=r"(tmp)
-			:
-			:"memory"
-			);
+	__asm__ __volatile__("movq	%%cr3,	%0	\n\t" : "=r"(tmp) : : "memory");
 	return tmp;
 }
 
 /*
- * alloc_pages: 申请连续的页内存
- * number: 申请的页数 <=64
- * zone_select: zone select from dma , mapped in page_table, unmapped in page_table
- * page_flags: struct Page flags
+ * @param alloc_pages: 申请连续的页内存
+ * @param number: 申请的页数 <=64
+ * @param zone_select: zone select from dma , mapped in page_table, unmapped in page_table
+ * @param page_flags: struct Page flags
  * */
 struct Page *alloc_pages(int zone_select, int number, unsigned long page_flags) {
 	unsigned long free_page_index = 0;
@@ -340,21 +337,22 @@ struct Page *alloc_pages(int zone_select, int number, unsigned long page_flags) 
 		 * 如果 j 不是 64 的倍数（即 j % 64 != 0），则步进 temp（跳到下一个 64 对齐边界）。
 		 * 如果 j 是 64 的倍数（即 j % 64 == 0），则步进 64（直接检查下一个 64 页块）。
 		 * */
-		for (int current_page_index = start_page_index;
-			 current_page_index <= end_page_index; current_page_index += current_page_index % 64 ? temp : 64) {
+		for (int current_page_index = start_page_index; current_page_index <= end_page_index;
+			 current_page_index += current_page_index % 64 ? temp : 64) {
 			// 找到对应的 bit_map
 			// current_page_index>>6: 获取当前64页块的bit_map偏移
-			unsigned long *p =
-					memory_management_struct.bits_map + (current_page_index >> 6);
+			unsigned long *p = memory_management_struct.bits_map + (current_page_index >> 6);
 			unsigned long shifter = current_page_index & 63; // 获取当前页在64页块中的偏移
 
 			// 检查该页块是否有空闲的页
 			for (int current_bit = shifter; current_bit < 64 - shifter; current_bit++) {
 				unsigned long mask =
-						(number == 64 ? 0xffffffffffffffffUL :
-						 ((1UL << number) - 1));   // 掩码, 用于判断是否有空闲的页(LSH 最多只能左移 64 位)
-				unsigned long bitmap_value = ((*p >> current_bit) | (*(p + 1)
-						<< (64 - current_bit)));                  // 从 p 和 p + 1 拼出一个 连续的 64 位窗口，起始位置是 current_bit
+						(number == 64 ? 0xffffffffffffffffUL
+									  : ((1UL << number) - 1)); // 掩码, 用于判断是否有空闲的页(LSH 最多只能左移 64 位)
+				unsigned long bitmap_value =
+						((*p >> current_bit) |
+						 (*(p + 1)
+						  << (64 - current_bit))); // 从 p 和 p + 1 拼出一个 连续的 64 位窗口，起始位置是 current_bit
 				// 满足连续空闲number个页
 				if (!(bitmap_value & mask)) {
 					free_page_index = current_page_index + current_bit - 1;
