@@ -4,7 +4,6 @@
 
 #include <stddef.h>
 
-#define NULL 0
 /*
  * @brief 根据结构体变量内的某个成员的地址，找到结构体变量的首地址
  * @param ptr 结构体变量内的某个成员的地址

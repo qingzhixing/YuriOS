@@ -174,14 +174,19 @@ void task_init() {
 	//// 补完系统第一个进程控制结构体中未赋值的成员变量
 	// 初始化第一个进程的内存空间结构体
 	init_mm.pgd = (pml4t_t *) Global_CR3;
+
 	init_mm.start_code = memory_management_struct.start_code;
 	init_mm.end_code = memory_management_struct.end_code;
+
 	init_mm.start_data = (unsigned long) &_data;
 	init_mm.end_data = memory_management_struct.end_data;
+
 	init_mm.start_rodata = (unsigned long) &_rodata;
 	init_mm.end_rodata = (unsigned long) &_erodata;
+
 	init_mm.start_brk = 0;
 	init_mm.end_brk = memory_management_struct.end_brk;
+
 	init_mm.start_stack = _stack_start; // 与init_thread.rsp0相同
 
 	// init_thread , init_tss
@@ -190,9 +195,11 @@ void task_init() {
 
 	init_tss[0].rsp0 = init_thread.rsp0;
 
+	list_init(&init_task_union.task.list);
+
 	// 创建init进程
 	kernel_thread(init, 10, CLONE_FS | CLONE_FILES | CLONE_SIGNAL);
 	init_task_union.task.state = TASK_RUNNING;
-	p = container_of(list_next(&(current->list)), p, list);
+	p = container_of(list_next(&current->list), task_struct, list);
 	switch_to(current, p);
 }

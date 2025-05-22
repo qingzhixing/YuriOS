@@ -15,11 +15,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2122e469-b6de-4083-ba74-6f196a24f2ed" name="更改" comment="❤️ 成功通过编译，明天继续完成进程管理！">
+    <list default="true" id="2122e469-b6de-4083-ba74-6f196a24f2ed" name="更改" comment="🍒 运行失败 warning: initialization of ‘int *’ from incompatible pointer type ‘struct List *’ [-Wincompatible-pointer-types]&#10;         17 |   typeof(((type *) 0)-&gt;member) *p = (ptr);                                                                       \&#10;            |                                     ^">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/head.S" beforeDir="false" afterPath="$PROJECT_DIR$/head.S" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib.h" beforeDir="false" afterPath="$PROJECT_DIR$/lib.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/memory.c" beforeDir="false" afterPath="$PROJECT_DIR$/memory.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/task.c" beforeDir="false" afterPath="$PROJECT_DIR$/task.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -142,7 +140,7 @@
       <workItem from="1747823466519" duration="41000" />
       <workItem from="1747823526735" duration="1205000" />
       <workItem from="1747824744979" duration="12937000" />
-      <workItem from="1747903322345" duration="6420000" />
+      <workItem from="1747903322345" duration="7635000" />
     </task>
     <task id="LOCAL-00001" summary="拓展内存管理结构体">
       <option name="closed" value="true" />
@@ -312,7 +310,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747839513617</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="🍒 运行失败 warning: initialization of ‘int *’ from incompatible pointer type ‘struct List *’ [-Wincompatible-pointer-types]&#10;         17 |   typeof(((type *) 0)-&gt;member) *p = (ptr);                                                                       \&#10;            |                                     ^">
+      <option name="closed" value="true" />
+      <created>1747919514541</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1747919514541</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -349,7 +355,8 @@
     <MESSAGE value="添加注释中" />
     <MESSAGE value=" 完成init进程初始化中，遇到了问题" />
     <MESSAGE value="❤️ 成功通过编译，明天继续完成进程管理！" />
-    <option name="LAST_COMMIT_MESSAGE" value="❤️ 成功通过编译，明天继续完成进程管理！" />
+    <MESSAGE value=" 运行失败 warning: initialization of ‘int *’ from incompatible pointer type ‘struct List *’ [-Wincompatible-pointer-types]&#10;         17 |   typeof(((type *) 0)-&gt;member) *p = (ptr);                                                                       \&#10;            |                                     ^" />
+    <option name="LAST_COMMIT_MESSAGE" value=" 运行失败 warning: initialization of ‘int *’ from incompatible pointer type ‘struct List *’ [-Wincompatible-pointer-types]&#10;         17 |   typeof(((type *) 0)-&gt;member) *p = (ptr);                                                                       \&#10;            |                                     ^" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
