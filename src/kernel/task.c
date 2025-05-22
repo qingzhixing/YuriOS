@@ -101,9 +101,9 @@ unsigned long do_fork(struct pt_regs *regs, unsigned long clone_flags, unsigned 
 	Page *p = NULL;
 
 	// 分配一个物理页，用于保存新进程的task_struct
-	color_printk(WHITE, BLACK, "alloc_pages,bitmap:%#018lx\n", memory_management_struct.bits_map);
+	color_printk(WHITE, BLACK, "alloc_pages,bitmap:%#018lx\n", *memory_management_struct.bits_map);
 	p = alloc_pages(ZONE_NORMAL, 1, PG_PTable_Maped | PG_Active | PG_Kernel);
-	color_printk(WHITE, BLACK, "alloc_pages,bitmap:%#018lx\n", memory_management_struct.bits_map);
+	color_printk(WHITE, BLACK, "alloc_pages,bitmap:%#018lx\n", *memory_management_struct.bits_map);
 
 	// 为新的task_struct分配物理页，并将其映射到虚拟地址空间中
 	tsk = (task_struct *) Phy_To_Virt(p->PHY_address);
