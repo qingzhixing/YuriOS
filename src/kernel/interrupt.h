@@ -6,6 +6,7 @@
 #define KERNEL_INTERRUPT_H
 
 #include "linkage.h"
+#include "ptrace.h"
 
 void init_interrupt();
 

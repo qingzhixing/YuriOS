@@ -310,9 +310,6 @@ inline int strncmp(char *FirstPart, char *SecondPart, long Count) {
 	return __res;
 }
 
-/*
-
-*/
 inline int strlen(char *String) {
 	register int __res;
 	__asm__ __volatile__("cld	\n\t"
@@ -326,27 +323,15 @@ inline int strlen(char *String) {
 	return __res;
 }
 
-/*
-
-*/
 
 inline unsigned long bit_set(unsigned long *addr, unsigned long nr) { return *addr | (1UL << nr); }
 
-/*
-
-*/
 
 inline unsigned long bit_get(unsigned long *addr, unsigned long nr) { return *addr & (1UL << nr); }
 
-/*
-
-*/
 
 inline unsigned long bit_clean(unsigned long *addr, unsigned long nr) { return *addr & (~(1UL << nr)); }
 
-/*
-
-*/
 
 inline unsigned char io_in8(unsigned short port) {
 	unsigned char ret = 0;
@@ -358,9 +343,6 @@ inline unsigned char io_in8(unsigned short port) {
 	return ret;
 }
 
-/*
-
-*/
 
 inline unsigned int io_in32(unsigned short port) {
 	unsigned int ret = 0;
@@ -372,10 +354,6 @@ inline unsigned int io_in32(unsigned short port) {
 	return ret;
 }
 
-/*
-
-*/
-
 inline void io_out8(unsigned short port, unsigned char value) {
 	__asm__ __volatile__("outb	%0,	%%dx	\n\t"
 						 "mfence			\n\t"
@@ -383,10 +361,6 @@ inline void io_out8(unsigned short port, unsigned char value) {
 						 : "a"(value), "d"(port)
 						 : "memory");
 }
-
-/*
-
-*/
 
 inline void io_out32(unsigned short port, unsigned int value) {
 	__asm__ __volatile__("outl	%0,	%%dx	\n\t"
@@ -396,14 +370,24 @@ inline void io_out32(unsigned short port, unsigned int value) {
 						 : "memory");
 }
 
-/*
-
-*/
-
 #define port_insw(port, buffer, nr)                                                                                    \
 	__asm__ __volatile__("cld;rep;insw;mfence;" ::"d"(port), "D"(buffer), "c"(nr) : "memory")
 
 #define port_outsw(port, buffer, nr)                                                                                   \
 	__asm__ __volatile__("cld;rep;outsw;mfence;" ::"d"(port), "S"(buffer), "c"(nr) : "memory")
+
+
+unsigned long rdmsr(unsigned long address);
+inline unsigned long rdmsr(unsigned long address) {
+	unsigned int tmp0 = 0;
+	unsigned int tmp1 = 0;
+	__asm__ __volatile__("rdmsr	\n\t" : "=d"(tmp0), "=a"(tmp1) : "c"(address) : "memory");
+	return (unsigned long) tmp0 << 32 | tmp1;
+}
+void wrmsr(unsigned long address, unsigned long value);
+inline void wrmsr(unsigned long address, unsigned long value) {
+	__asm__ __volatile__("wrmsr	\n\t" ::"d"(value >> 32), "a"(value & 0xffffffff), "c"(address) : "memory");
+}
+
 
 #endif // _YURIOS_LIB_H__

@@ -85,6 +85,7 @@ void Start_Kernel(void) {
 	color_printk(RED, BLACK, "interrupt init \n");
 	init_interrupt();
 
+	color_printk(RED, BLACK, "task_init \n");
 	task_init();
 
 	while (1)

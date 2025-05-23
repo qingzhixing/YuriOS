@@ -16,9 +16,7 @@
 
 .section .text
 
-.globl _start
-
-_start:
+ENTRY(_start)
 
 	mov	$0x10,	%ax     // 0x10 is the data selector for 64-bit mode
 	mov	%ax,	%ds
