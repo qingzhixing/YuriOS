@@ -15,18 +15,15 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2122e469-b6de-4083-ba74-6f196a24f2ed" name="更改" comment="🙂 修复打印错误">
+    <list default="true" id="2122e469-b6de-4083-ba74-6f196a24f2ed" name="更改" comment="🫠 debug">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entry.S" beforeDir="false" afterPath="$PROJECT_DIR$/entry.S" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/head.S" beforeDir="false" afterPath="$PROJECT_DIR$/head.S" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Kernel.lds" beforeDir="false" afterPath="$PROJECT_DIR$/Kernel.lds" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/interrupt.c" beforeDir="false" afterPath="$PROJECT_DIR$/interrupt.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/interrupt.h" beforeDir="false" afterPath="$PROJECT_DIR$/interrupt.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib.h" beforeDir="false" afterPath="$PROJECT_DIR$/lib.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/main.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/memory.c" beforeDir="false" afterPath="$PROJECT_DIR$/memory.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/task.c" beforeDir="false" afterPath="$PROJECT_DIR$/task.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/task.h" beforeDir="false" afterPath="$PROJECT_DIR$/task.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trap.c" beforeDir="false" afterPath="$PROJECT_DIR$/trap.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -146,7 +143,7 @@
       <workItem from="1747823526735" duration="1205000" />
       <workItem from="1747824744979" duration="12937000" />
       <workItem from="1747903322345" duration="8342000" />
-      <workItem from="1747922557012" duration="4384000" />
+      <workItem from="1747922557012" duration="5906000" />
     </task>
     <task id="LOCAL-00001" summary="拓展内存管理结构体">
       <option name="closed" value="true" />
@@ -340,7 +337,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747921666211</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="🫠 debug">
+      <option name="closed" value="true" />
+      <created>1747999762151</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1747999762151</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -380,7 +385,8 @@
     <MESSAGE value=" 运行失败 warning: initialization of ‘int *’ from incompatible pointer type ‘struct List *’ [-Wincompatible-pointer-types]&#10;         17 |   typeof(((type *) 0)-&gt;member) *p = (ptr);                                                                       \&#10;            |                                     ^" />
     <MESSAGE value=" 成功运行，修复问题中..." />
     <MESSAGE value=" 修复打印错误" />
-    <option name="LAST_COMMIT_MESSAGE" value=" 修复打印错误" />
+    <MESSAGE value=" debug" />
+    <option name="LAST_COMMIT_MESSAGE" value=" debug" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

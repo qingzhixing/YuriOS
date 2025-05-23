@@ -12,71 +12,33 @@
 
 extern void ret_system_call(void);
 
-void user_level_function()
-{
-	color_printk(RED,BLACK,"user_level_function task is running\n");
-	while(1);
+void user_level_function() {
+	color_printk(RED, BLACK, "user_level_function task is running\n");
+	while (1)
+		;
 }
 
 
-unsigned long do_execve(struct pt_regs * regs)
-{
-	regs->rdx = 0x800000;	//RIP
-	regs->rcx = 0xa00000;	//RSP
+unsigned long do_execve(struct pt_regs *regs) {
+	regs->rdx = 0x800000; // RIP
+	regs->rcx = 0xa00000; // RSP
 	regs->rax = 1;
 	regs->ds = 0;
 	regs->es = 0;
-	color_printk(RED,BLACK,"do_execve task is running\n");
+	color_printk(RED, BLACK, "do_execve task is running\n");
 
-	memcpy(user_level_function,(void *)0x800000,1024);
+	memcpy(user_level_function, (void *) 0x800000, 1024);
 
 	return 0;
 }
 
 unsigned long init(unsigned long arg)
 {
-	struct pt_regs *regs;
+	color_printk(RED, BLACK, "init task is running,arg:%#018lx\n", arg);
 	
-	color_printk(RED,BLACK,"init task is running,arg:%#018lx\n",arg);
-
-	current->thread->rip = (unsigned long)ret_system_call;
-	current->thread->rsp = (unsigned long)current + STACK_SIZE - sizeof(struct pt_regs);
-	regs = (struct pt_regs *)current->thread->rsp;
-
-	__asm__	__volatile__	(	"movq	%1,	%%rsp	\n\t"
-						 "pushq	%2		\n\t"
-						 "jmp	do_execve	\n\t"
-						 ::"D"(regs),"m"(current->thread->rsp),"m"(current->thread->rip):"memory");
-
 	return 1;
 }
 
-
-/* @brief 继续完成进程切换的后续工作,由switch_to调用
- * @param prev 上一个进程的task_struct
- * @param next 下一个进程的task_struct
- */
-inline void __switch_to(struct task_struct *prev, struct task_struct *next) {
-	// init_tss[0]: cpu_0 的 tss
-	// 将内核层栈基地址设置到TSS结构体对应的成员变量中
-	init_tss[0].rsp0 = next->thread->rsp0;
-
-	set_tss64(init_tss[0].rsp0, init_tss[0].rsp1, init_tss[0].rsp2, init_tss[0].ist1, init_tss[0].ist2,
-			  init_tss[0].ist3, init_tss[0].ist4, init_tss[0].ist5, init_tss[0].ist6, init_tss[0].ist7);
-
-	// 保存当前进程FS和GS段寄存器
-	__asm__ __volatile__("movq	%%fs,	%0 \n\t" : "=a"(prev->thread->fs));
-	__asm__ __volatile__("movq	%%gs,	%0 \n\t" : "=a"(prev->thread->gs));
-
-	// 将next进程保存的FS和GS还原
-	__asm__ __volatile__("movq	%0,	%%fs \n\t" ::"a"(next->thread->fs));
-	__asm__ __volatile__("movq	%0,	%%gs \n\t" ::"a"(next->thread->gs));
-
-	color_printk(WHITE, BLACK, "prev->thread->rsp0:%#018lx\n", prev->thread->rsp0);
-	color_printk(WHITE, BLACK, "next->thread->rsp0:%#018lx\n", next->thread->rsp0);
-
-	// 执行汇编代码RET后会跳转至next进程
-}
 
 unsigned long do_exit(unsigned long code) {
 	color_printk(RED, BLACK, "exit task is running, arg:%#018lx\n", code);
@@ -195,6 +157,32 @@ static int kernel_thread(ThreadFunction fn, unsigned long arg, unsigned long fla
 	return do_fork(&regs, flags, 0, 0);
 }
 
+/* @brief 继续完成进程切换的后续工作,由switch_to调用
+ * @param prev 上一个进程的task_struct
+ * @param next 下一个进程的task_struct
+ */
+inline void __switch_to(struct task_struct *prev, struct task_struct *next) {
+	// init_tss[0]: cpu_0 的 tss
+	// 将内核层栈基地址设置到TSS结构体对应的成员变量中
+	init_tss[0].rsp0 = next->thread->rsp0;
+
+	set_tss64(init_tss[0].rsp0, init_tss[0].rsp1, init_tss[0].rsp2, init_tss[0].ist1, init_tss[0].ist2,
+			  init_tss[0].ist3, init_tss[0].ist4, init_tss[0].ist5, init_tss[0].ist6, init_tss[0].ist7);
+
+	// 保存当前进程FS和GS段寄存器
+	__asm__ __volatile__("movq	%%fs,	%0 \n\t" : "=a"(prev->thread->fs));
+	__asm__ __volatile__("movq	%%gs,	%0 \n\t" : "=a"(prev->thread->gs));
+
+	// 将next进程保存的FS和GS还原
+	__asm__ __volatile__("movq	%0,	%%fs \n\t" ::"a"(next->thread->fs));
+	__asm__ __volatile__("movq	%0,	%%gs \n\t" ::"a"(next->thread->gs));
+
+	color_printk(WHITE, BLACK, "prev->thread->rsp0:%#018lx\n", prev->thread->rsp0);
+	color_printk(WHITE, BLACK, "next->thread->rsp0:%#018lx\n", next->thread->rsp0);
+
+	// 执行汇编代码RET后会跳转至next进程
+}
+
 /*
  * @brief: 初始化第一个进程，再调用kernel_thread为系统创建出一个新进程，
  * 随后借助switch_to模块执行进程实现切换
@@ -220,8 +208,6 @@ void task_init() {
 
 	init_mm.start_stack = _stack_start; // 与init_thread.rsp0相同
 
-	wrmsr(0x174,KERNEL_CS);
-	
 	// init_thread , init_tss
 	set_tss64(init_thread.rsp0, init_tss[0].rsp1, init_tss[0].rsp2, init_tss[0].ist1, init_tss[0].ist2,
 			  init_tss[0].ist3, init_tss[0].ist4, init_tss[0].ist5, init_tss[0].ist6, init_tss[0].ist7);

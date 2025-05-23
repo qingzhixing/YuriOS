@@ -24,7 +24,6 @@ SECTIONS
 	{
 		_text = .;
 		*(.text)
-
 		_etext = .;
 	}
 
@@ -34,7 +33,6 @@ SECTIONS
 	{
 		_data = .;
 		*(.data)
-		
 		_edata = .;
 	}
 
@@ -46,11 +44,7 @@ SECTIONS
 	}
 
 	. = ALIGN(32768);
-
-	.data.init_task :
-	{
-		*(.data.init_task)
-	}
+	.data.init_task : { *(.data.init_task) }
 
 	.bss :
 	{

@@ -198,7 +198,6 @@ struct thread_struct init_thread = {
 struct tss_struct init_tss[NR_CPUS] = {[0 ... NR_CPUS - 1] = INIT_TSS};
 
 task_struct *get_current();
-
 inline task_struct *get_current() {
 	task_struct *_current = NULL;
 	__asm__ __volatile__("andq %%rsp,%0	\n\t" : "=r"(_current) : "0"(~32767UL));

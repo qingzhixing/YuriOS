@@ -140,18 +140,12 @@ void init_interrupt() {
 	sti();
 }
 
-void do_IRQ(unsigned long regs, unsigned long nr)    //regs:rsp,nr
+void do_IRQ(struct pt_regs * regs,unsigned long nr)	//regs,nr
 {
-	color_printk(RED, BLACK, "do_IRQ:%#08x\t", nr);
-
-	if (nr == 0x21) {
-		unsigned char ch = io_in8(0x60);
-		color_printk(RED, BLACK, "ch:%#04x\n", ch);
-	}
-
-	// 根据中断来源发送 EOI
-	if (nr >= 40) {
-		io_out8(0xA0, 0x20);  // 通知从 PIC
-	}
-	io_out8(0x20, 0x20);
+	unsigned char x;
+	color_printk(RED,BLACK,"do_IRQ:%#018lx\t",nr);
+	x = io_in8(0x60);
+	color_printk(RED,BLACK,"key code:%#018lx\t",x);
+	io_out8(0x20,0x20);
+	color_printk(RED,BLACK,"<RIP:%#018lx\tRSP:%#018lx>\n",regs->rip,regs->rsp);
 }

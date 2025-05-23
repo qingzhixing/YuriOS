@@ -10,6 +10,6 @@
 
 void init_interrupt();
 
-void do_IRQ(unsigned long regs, unsigned long nr);
+void do_IRQ(struct pt_regs * regs,unsigned long nr);
 
 #endif // KERNEL_INTERRUPT_H
