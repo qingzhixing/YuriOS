@@ -162,6 +162,7 @@ static int kernel_thread(ThreadFunction fn, unsigned long arg, unsigned long fla
  * @param next 下一个进程的task_struct
  */
 inline void __switch_to(struct task_struct *prev, struct task_struct *next) {
+	color_printk(BLUE,BLACK,"in __switch_to\n");
 	// init_tss[0]: cpu_0 的 tss
 	// 将内核层栈基地址设置到TSS结构体对应的成员变量中
 	init_tss[0].rsp0 = next->thread->rsp0;

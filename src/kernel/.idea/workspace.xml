@@ -15,15 +15,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2122e469-b6de-4083-ba74-6f196a24f2ed" name="更改" comment="🫠 debug">
+    <list default="true" id="2122e469-b6de-4083-ba74-6f196a24f2ed" name="更改" comment="🔥....">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Kernel.lds" beforeDir="false" afterPath="$PROJECT_DIR$/Kernel.lds" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/interrupt.c" beforeDir="false" afterPath="$PROJECT_DIR$/interrupt.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/interrupt.h" beforeDir="false" afterPath="$PROJECT_DIR$/interrupt.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/main.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/memory.c" beforeDir="false" afterPath="$PROJECT_DIR$/memory.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/task.c" beforeDir="false" afterPath="$PROJECT_DIR$/task.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/task.h" beforeDir="false" afterPath="$PROJECT_DIR$/task.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -143,7 +137,7 @@
       <workItem from="1747823526735" duration="1205000" />
       <workItem from="1747824744979" duration="12937000" />
       <workItem from="1747903322345" duration="8342000" />
-      <workItem from="1747922557012" duration="5906000" />
+      <workItem from="1747922557012" duration="8518000" />
     </task>
     <task id="LOCAL-00001" summary="拓展内存管理结构体">
       <option name="closed" value="true" />
@@ -345,7 +339,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747999762151</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="🔥....">
+      <option name="closed" value="true" />
+      <created>1748001182521</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1748001182521</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -386,7 +388,8 @@
     <MESSAGE value=" 成功运行，修复问题中..." />
     <MESSAGE value=" 修复打印错误" />
     <MESSAGE value=" debug" />
-    <option name="LAST_COMMIT_MESSAGE" value=" debug" />
+    <MESSAGE value="...." />
+    <option name="LAST_COMMIT_MESSAGE" value="...." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
