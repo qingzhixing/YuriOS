@@ -2,6 +2,7 @@ org 0x10000
 	jmp Label_Start
 
 %include "fat12-header.nasm"
+
 ; Kernel Info
 BaseOfKernelFile	equ	0x00
 OffsetOfKernelFile	equ	0x100000

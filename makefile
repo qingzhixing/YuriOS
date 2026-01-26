@@ -15,14 +15,14 @@ $(BUILD_PATH)/boot.img: $(BUILD_PATH)/boot.bin \
 						$(BUILD_PATH)/loader.bin \
 						$(BUILD_PATH)/kernel.bin
 	mkdir -p $(BUILD_PATH)
-	yes | bximage -q -mode=create -fd=1.44M $@
+	yes | bximage -q -func=create -fd=1.44M $@
 	dd if=$(BUILD_PATH)/boot.bin of=$@ bs=512 count=1 conv=notrunc
 
-	mount $@ /media/ -t vfat -o loop
-	cp $(BUILD_PATH)/loader.bin /media/
-	cp $(BUILD_PATH)/kernel.bin /media/
+	sudo mount $@ /media/ -t vfat -o loop
+	sudo cp $(BUILD_PATH)/loader.bin /media/
+	sudo cp $(BUILD_PATH)/kernel.bin /media/
 	sync
-	umount /media/
+	sudo umount /media/
 
 .PHONY:bochs
 bochs: build
