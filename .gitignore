@@ -1,8 +1,11 @@
+# Compiled files
 build/
 *.o
 *.bin
 *.out
 *.img
 *.s
-/src/kernel/CMakeFiles/
-CMakeCache.txt
+
+# IDE
+.vscode/
+**/.idea/
