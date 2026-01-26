@@ -11,13 +11,13 @@ $(BUILD_PATH)/%.bin: $(SRC_PATH)/bootloader/%.nasm
 $(BUILD_PATH)/kernel.bin:
 	make -C $(SRC_PATH)/kernel all
 
-$(BUILD_PATH)/boot.img: $(BUILD_PATH)/boot.bin\
-$(BUILD_PATH)/loader.bin\
-$(BUILD_PATH)/kernel.bin
+$(BUILD_PATH)/boot.img: $(BUILD_PATH)/boot.bin \
+						$(BUILD_PATH)/loader.bin \
+						$(BUILD_PATH)/kernel.bin
 	mkdir -p $(BUILD_PATH)
 	yes | bximage -q -mode=create -fd=1.44M $@
 	dd if=$(BUILD_PATH)/boot.bin of=$@ bs=512 count=1 conv=notrunc
-	# mount loader
+
 	mount $@ /media/ -t vfat -o loop
 	cp $(BUILD_PATH)/loader.bin /media/
 	cp $(BUILD_PATH)/kernel.bin /media/

@@ -185,7 +185,7 @@ Label_FileName_Found:
 	mov cx,word [es:di]	; 获取loader的起始簇号
 	push cx
 	add cx,ax
-	add cx, SectorBalance   ; 啥?没看懂
+	add cx, SectorBalance   ; TODO: 啥?没看懂
 
 	; 为读入Loader作准备
 	mov ax,BaseOfLoader

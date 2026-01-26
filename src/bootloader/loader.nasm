@@ -27,7 +27,7 @@ SelectorCode32	equ	LABEL_DESC_CODE32 - LABEL_GDT
 SelectorData32	equ	LABEL_DESC_DATA32 - LABEL_GDT
 
 [SEGMENT gdt64]
-; 不懂可以查阅资料 AMD开发手册-vol2 Chapter4-Segmented Virtual Memory
+; Reference: AMD开发手册-vol2 Chapter4-Segmented Virtual Memory
 
 ; 对于低32位(4B),全部为0:
 ;   Segmentation is disabled in 64-bit mode, and code segments span
