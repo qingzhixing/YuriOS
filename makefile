@@ -1,8 +1,6 @@
 BUILD_PATH = ./build
 SRC_PATH = ./src
-BOCHS_PATH = ./build-tools/bochs
-BOCHS_BIN = $(BOCHS_PATH)/bochs-2.6.11
-BOCHS_GDB_BIN = $(BOCHS_PATH)/gdb-bochs-2.6.11
+GDB_SCRIPT = ./build-tools/qemu/client.gdb
 
 $(BUILD_PATH)/%.bin: $(SRC_PATH)/bootloader/%.nasm
 	mkdir -p $(BUILD_PATH)
@@ -15,7 +13,7 @@ $(BUILD_PATH)/boot.img: $(BUILD_PATH)/boot.bin \
 						$(BUILD_PATH)/loader.bin \
 						$(BUILD_PATH)/kernel.bin
 	mkdir -p $(BUILD_PATH)
-	yes | bximage -q -func=create -fd=1.44M $@
+	qemu-img create -f raw $@ 1474560
 	dd if=$(BUILD_PATH)/boot.bin of=$@ bs=512 count=1 conv=notrunc
 
 	sudo mount $@ /media/ -t vfat -o loop
@@ -24,15 +22,20 @@ $(BUILD_PATH)/boot.img: $(BUILD_PATH)/boot.bin \
 	sync
 	sudo umount /media/
 
-.PHONY:bochs
-bochs: build
-	$(BOCHS_BIN) -q -f $(BOCHS_PATH)/bochsrc.bxrc
+.PHONY: qemu
+qemu: build
+	qemu-system-x86_64 -fda $(BUILD_PATH)/boot.img -m 2048 \
+		-d guest_errors,unimp,cpu_reset -D /dev/stderr
 
-# FIXME!: Starting program: /home/qingzhixing/Documents/Project/YuriOS/build/system.debug
-#	During startup program terminated with signal SIGSEGV, Segmentation fault.
-.PHONY: bochs-gdb
-bochs-gdb: build
-	$(BOCHS_GDB_BIN) -q -f $(BOCHS_PATH)/bochsrc-gdb.bxrc
+.PHONY: qemu-gdb-server
+qemu-gdb-server: build
+	qemu-system-x86_64 -fda $(BUILD_PATH)/boot.img -m 2048 \
+		-d guest_errors,unimp,cpu_reset -D /dev/stderr \
+		-s -S
+
+.PHONY: qemu-gdb-client
+qemu-gdb-client:
+	gdb -tui -x $(GDB_SCRIPT)
 
 .PHONY: test
 test: $(BUILD_PATH)/kernel.bin
